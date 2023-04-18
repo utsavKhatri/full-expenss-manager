@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   IconButton,
   Avatar,
@@ -30,10 +30,8 @@ import {
   FiBell,
   FiChevronDown,
 } from "react-icons/fi";
-import useLocalStorage from "../../../utils";
 import { useRouter } from "next/router";
 import { dataState } from "../../../context";
-import Login from "../login";
 import axios from "axios";
 import Link from "next/link";
 import { InfoOutlineIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";

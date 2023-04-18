@@ -53,6 +53,7 @@ const account = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [chartVisible, setChartVisibale] = useState(false);
   const toast = useToast();
+  const [currentuserData, setCurrentuserData] = useState()
 
   const fetchAccData = () => {
     const user = localStorage.getItem("userInfo");
@@ -217,8 +218,14 @@ const account = () => {
   };
 
   useEffect(() => {
-    fetchSignleAcc();
-    fetchAccData();
+    if (!localStorage.getItem("userInfo")) {
+      window.location.href = "/";
+    }
+    else{
+      setCurrentuserData(JSON.parse(localStorage.getItem("userInfo")))
+      fetchSignleAcc();
+      fetchAccData();
+    }
   }, []);
 
   return intLoading == true ? (
@@ -276,7 +283,7 @@ const account = () => {
           alignItems={"center"}
           justifyContent={"space-between"}
         >
-          {user && sampleAccData.owner == user.user.id && (
+          {currentuserData && sampleAccData.owner == currentuserData.user.id && (
             <Button
               onClick={handleShareAcc}
               colorScheme={useColorModeValue("blackAlpha", "blue")}
