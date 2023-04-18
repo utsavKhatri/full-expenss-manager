@@ -17,12 +17,14 @@ import { useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import axios from 'axios';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const router = useRouter();
 
   const handleSignup = () => {
     axios.post('http://localhost:1337/signup', {
@@ -31,6 +33,9 @@ export default function SignupCard() {
       name:name,
     }).then((response) => {
       console.log(response);
+      if(response.status == 200){
+        router.push('/login');
+      }
     }).catch((error) => {
       console.log(error);
     })
