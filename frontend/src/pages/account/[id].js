@@ -21,6 +21,7 @@ import {
   Tr,
   useColorModeValue,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -36,6 +37,9 @@ import Loader from "../components/Loader";
 import TransactionChart from "../components/TransactionChart";
 
 const account = () => {
+  const router = useRouter();
+
+  const { id } = router.query;
   const [shareList, setShareList] = useState();
   const [transData, setTransData] = useState();
   const [isShareModal, setIsShareModal] = useState(false);
@@ -48,9 +52,7 @@ const account = () => {
   const [intLoading, setIntLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [chartVisible, setChartVisibale] = useState(false);
-  const router = useRouter();
-
-  const { id } = router.query;
+  const toast = useToast();
 
   const fetchAccData = () => {
     const user = localStorage.getItem("userInfo");
@@ -70,6 +72,13 @@ const account = () => {
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: "visit to homepage, something went wrong",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        window.location.href = "/";
       });
   };
   const fetchSignleAcc = () => {
@@ -99,6 +108,13 @@ const account = () => {
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: "visit to homepage, something went wrong",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        window.location.href = "/";
       });
   };
   const handleShareAcc = () => {
@@ -122,6 +138,12 @@ const account = () => {
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
       });
   };
   const handleShareToUser = () => {
@@ -144,11 +166,23 @@ const account = () => {
         console.log(response);
         if (response.status == 200) {
           onClose();
+          toast({
+            title: "Share Successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
           fetchSignleAcc();
         }
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
       });
   };
 
@@ -163,11 +197,22 @@ const account = () => {
         },
       })
       .then((response) => {
-        console.log("delete trans---> ", response);
+        toast({
+          title: "Transaction Deleted Successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
         fetchSignleAcc();
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
       });
   };
 
@@ -231,8 +276,7 @@ const account = () => {
           alignItems={"center"}
           justifyContent={"space-between"}
         >
-          {console.log(sampleAccData.owner == user.user.id)}
-          {sampleAccData.owner == user.user.id && (
+          {user && sampleAccData.owner == user.user.id && (
             <Button
               onClick={handleShareAcc}
               colorScheme={useColorModeValue("blackAlpha", "blue")}
@@ -266,61 +310,60 @@ const account = () => {
           </Testimonial>
         </Stack>
         {transData.data.length > 0 && (
-          <>
-        <Button
-          textTransform={"capitalize"}
-          textAlign={"center"}
-          color={useColorModeValue("black", "black")}
-          backgroundColor={"#ffe100"}
-          _hover={{
-            backgroundColor: "#ffeb57",
-            color: "black",
-            boxShadow: "lg",
-          }}
-          boxShadow="md"
-          p="6"
-          rounded="md"
-          onClick={() => setChartVisibale(!chartVisible)}
-        >
-          view chart representation
-        </Button>
+          <Stack spacing={"8"}>
+            <Button
+              textTransform={"capitalize"}
+              textAlign={"center"}
+              color={useColorModeValue("black", "black")}
+              backgroundColor={"#ffe100"}
+              _hover={{
+                backgroundColor: "#ffeb57",
+                color: "black",
+                boxShadow: "lg",
+              }}
+              boxShadow="md"
+              p="6"
+              rounded="md"
+              onClick={() => setChartVisibale(!chartVisible)}
+            >
+              view chart representation
+            </Button>
 
-        <Stack
-          display={chartVisible ? "flex" : "none"}
-          w={"100%"}
-          justifyContent={"center"}
-          my={2}
-          alignItems={"center"}
-        >
-          <Heading size={"md"} mb={3} textAlign={"center"}>
-            previous income and expenss chart
-          </Heading>
-          <Box w={"75%"}>
-            <BalanceChart
-              income={transData.income}
-              expenses={transData.expenses}
-            />
-          </Box>
-        </Stack>
-        
-          <Stack
-            w={"100%"}
-            justifyContent={"center"}
-            my={3}
-            p={2}
-            alignItems={"center"}
-          >
-            <TransactionChart chartLable={chartLable} chartData={chartData} />
-          </Stack></>
+            <Flex
+              display={chartVisible ? "flex" : "none"}
+              justifyContent={"center"}
+              my={2}
+              width={"100%"}
+              alignItems={"center"}
+              direction={"column"}
+            >
+              <Heading size={"md"} mb={3} textAlign={"center"}>
+                previous income and expenss chart
+              </Heading>
+              <Box justifyContent={"center"} width={"80"}>
+                <BalanceChart
+                  income={transData.income}
+                  expenses={transData.expenses}
+                />
+              </Box>
+            </Flex>
+
+            <Flex
+              justifyContent={"center"}
+              my={3}
+              alignItems={"center"}
+              alignSelf={"center"}
+              width={{ base: "85%", sm: "100%", md: "75%", lg: "70%" }}
+            >
+              <TransactionChart chartLable={chartLable} chartData={chartData} />
+            </Flex>
+          </Stack>
         )}
-        <TableContainer my={2}>
+        <TableContainer my={2} px={3}>
           <Heading size={"lg"} my={2}>
             Recent transactions
           </Heading>
-          <Table
-            width={"-moz-fit-content"}
-            textAlign={"center"}
-          >
+          <Table textAlign={"center"}>
             <Thead>
               <Tr>
                 <Th>#</Th>

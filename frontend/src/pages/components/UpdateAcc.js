@@ -14,6 +14,7 @@ import {
   Stack,
   VStack,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useState } from "react";
@@ -24,7 +25,7 @@ const UpdateAcc = ({ accId }) => {
   const [accData, setAccData] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { fetchHomepageData } = dataState();
-
+const toast = useToast();
   const fetchSingleAcc = () => {
     onOpen();
     const user = localStorage.getItem("userInfo");
@@ -63,11 +64,25 @@ const UpdateAcc = ({ accId }) => {
       .request(options)
       .then((response) => {
         console.log(response);
+        fetchSingleAcc();
         fetchHomepageData();
+        toast({
+          title: "Account updated successfully",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        })
+        setName(accData.name);
         onClose();
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: "error",
+          duration: 2000,
+        })
       });
   };
   return (

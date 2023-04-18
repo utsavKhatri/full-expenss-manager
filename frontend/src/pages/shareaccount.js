@@ -28,6 +28,12 @@ const shareaccount = () => {
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: "error",
+          duration: 2000,
+        })
       });
   };
 

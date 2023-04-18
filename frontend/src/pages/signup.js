@@ -12,6 +12,7 @@ import {
   Heading,
   Text,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
@@ -25,6 +26,8 @@ export default function SignupCard() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const router = useRouter();
+  const toast = useToast()
+
 
   const handleSignup = () => {
     axios.post('http://localhost:1337/signup', {
@@ -34,10 +37,22 @@ export default function SignupCard() {
     }).then((response) => {
       console.log(response);
       if(response.status == 200){
+        toast({
+          title: 'signup sucess',
+          variant: "left-accent",
+          status: 'success',
+          isClosable: true,
+        })
         router.push('/login');
       }
     }).catch((error) => {
       console.log(error);
+      toast({
+        title: error.response.data.message,
+        variant: "left-accent",
+        status: 'error',
+        isClosable: true,
+      })
     })
   }
 

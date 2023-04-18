@@ -10,6 +10,7 @@ import {
   Heading,
   Text,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Link from "next/link";
@@ -21,6 +22,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useLocalStorage("userInfo", {});
+  const toast = useToast()
 
   const route = useRouter();
 
@@ -36,9 +38,21 @@ const Login = () => {
         console.log(response);
         setUser(response.data.data);
         route.push("/homepage");
+        toast({
+          title: 'login sucess',
+          variant: "left-accent",
+          status: 'success',
+          isClosable: true,
+        })
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: 'error',
+          isClosable: true,
+        })
       });
   };
   return (

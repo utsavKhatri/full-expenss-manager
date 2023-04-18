@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { Chart } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -24,9 +24,9 @@ ChartJS.register(
   LineController,
   BarController
 );
-const TransactionChart = ({chartLable,chartData}) => {
+const TransactionChart = ({ chartLable, chartData }) => {
   const labels = [...chartLable];
-  
+
   const data = {
     labels,
     datasets: [
@@ -53,8 +53,14 @@ const TransactionChart = ({chartLable,chartData}) => {
     ],
   };
   return (
-    <Chart type="bar" data={data} />
-  )
-}
+    <Chart
+      type="bar"
+      options={{
+        responsive: true,
+      }}
+      data={data}
+    />
+  );
+};
 
-export default TransactionChart
+export default TransactionChart;

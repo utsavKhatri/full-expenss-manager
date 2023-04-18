@@ -17,6 +17,7 @@ import {
   Input,
   Wrap,
   WrapItem,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { dataState } from "../../context";
@@ -86,13 +87,14 @@ const Homepage = () => {
   const {
     fetchHomepageData,
     loading,
-    data,
+    data,setRefresh,
     refresh,
     setAccname,
     handleDeleteAcc,
     accname,
   } = dataState();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast()
 
   const handleCreateAccount = async () => {
     const user = localStorage.getItem("userInfo");
@@ -114,12 +116,30 @@ const Homepage = () => {
         console.log(response);
         if (response.status == 201) {
           setRefresh(!refresh);
+          setAccname("");
+          onClose();
+          toast({
+            title: "Account created successfully",
+            variant: "left-accent",
+            status: "success",
+            duration: 2000,
+          })
         } else {
-          return console.log("error");
+          toast({
+            title: "Account creation failed",
+            variant: "left-accent",
+            status: "error",
+            duration: 2000,
+          })
         }
       })
       .catch((error) => {
-        return console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: "error",
+          duration: 2000,
+        })
       });
       return onClose();
   };

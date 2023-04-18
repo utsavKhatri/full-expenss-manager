@@ -12,6 +12,7 @@ import {
   ModalOverlay,
   Stack,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { dataState } from "../../../context";
@@ -23,6 +24,7 @@ function AddTranjection({accId, fetchSignleAcc}) {
   const [amount, setAmount] = useState();
   const [transfer, setTransfer] = useState("");
   const [category, setCategory] = useState("");
+  const toast = useToast();
   const handleCreateTrans = () => {
     const user = localStorage.getItem("userInfo");
     const { token } = JSON.parse(user);
@@ -46,11 +48,22 @@ function AddTranjection({accId, fetchSignleAcc}) {
         fetchSignleAcc();
         if(response.status ==201){
           fetchSignleAcc();
+          toast({ 
+            title: "Transaction created successfully",
+            status: "success",
+            duration: 1000,
+            isClosable: true,
+          })
           onClose();
         }
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: `${error.response.data.message}`,
+          status: "error",
+          duration: 1000,
+        })
       });
   };
   return (

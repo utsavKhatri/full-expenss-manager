@@ -13,6 +13,7 @@ import {
   Stack,
   VStack,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import axios from "axios";
@@ -25,6 +26,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
   const [amount, setAmount] = useState(updateTransData.amount);
   const [transfer, setTransfer] = useState(updateTransData.transfer);
   const [category, setCategory] = useState(updateTransData.category);
+  const toast = useToast()
 
   const updateTransactionGet = () => {
     onOpen();
@@ -74,11 +76,23 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
         console.log("log inside update--->", response);
         if (response.status == 200) {
           fetchSignleAcc();
+          toast({
+            title: "Transaction Updated",
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+          })
           onClose();
         }
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: `Transaction Not Updated, ${error.response.data.message}`,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        })
       });
     onClose();
   };

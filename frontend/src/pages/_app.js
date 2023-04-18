@@ -6,7 +6,7 @@ import AuthProvider from "../../context";
 export default function App({ Component, pageProps }) {
   return (
     <AuthProvider>
-      <ChakraProvider>
+      <ChakraProvider toastOptions={{ defaultOptions: { position: 'top' } }}>
         <Component {...pageProps} />
       </ChakraProvider>
     </AuthProvider>

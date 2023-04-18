@@ -20,6 +20,7 @@ import {
   MenuList,
   Button,
   useColorMode,
+  useToast,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -139,7 +140,7 @@ const NavItem = ({ icon, children, ...rest }) => {
 const MobileNav = ({ onOpen, ...rest }) => {
   const { user, setUser } = dataState();
   const { colorMode, toggleColorMode } = useColorMode();
-
+  const toast = useToast();
   const router = useRouter();
   const handleLogout = () => {
     const { token } = user;
@@ -156,10 +157,20 @@ const MobileNav = ({ onOpen, ...rest }) => {
       .then((response) => {
         console.log(response);
         setUser(null);
+        toast({
+          title: "Logged out successfully",
+          status: "success",
+          duration: 1000,
+        })
         return router.push("/");
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: `Something went wrong ${error.response.data.message}`,
+          status: "error",
+          duration: 1000,
+        })
       });
   };
 

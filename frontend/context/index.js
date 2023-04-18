@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import useLocalStorage from "../utils";
 import axios from "axios";
-import { useDisclosure } from "@chakra-ui/react";
+import { useDisclosure, useToast } from "@chakra-ui/react";
 
 const AuthContext = createContext();
 
@@ -11,6 +11,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useLocalStorage("userInfo", "");
   const [refresh, setRefresh] = useState(false);
   const [accname, setAccname] = useState("");
+  const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure();
 
 
@@ -34,6 +35,12 @@ const AuthProvider = ({ children }) => {
       })
       .catch((error) => {
         console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: "error",
+          duration: 2000,
+        })
       });
   };
 
@@ -57,12 +64,28 @@ const AuthProvider = ({ children }) => {
         console.log(response);
         if (response.status == 201) {
           setRefresh(!refresh);
+          toast({
+            title: "Account created successfully",
+            variant: "left-accent",
+            status: "success",
+            duration: 3000,
+          })
         } else {
-          return console.log("error");
+          toast({
+            title: "Something went wrong",
+            variant: "left-accent",
+            status: "error",
+            duration: 2000,
+          })
         }
       })
       .catch((error) => {
-        return console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: "error",
+          duration: 2000,
+        })
       });
       return onClose();
   };
@@ -83,20 +106,37 @@ const AuthProvider = ({ children }) => {
       .then((response) => {
         console.log(response.data.data);
         if (response.status == 200) {
-          return setRefresh(!refresh);
+          setRefresh(!refresh);
+          toast({
+            title: "Account deleted successfully",
+            variant: "left-accent",
+            status: "success",
+            duration: 3000,
+          })
         } else {
-          return console.log("error");
+          toast({
+            title: "Something went wrong",
+            variant: "left-accent",
+            status: "error",
+            duration: 2000,
+          })
         }
       })
       .catch((error) => {
-        return console.log(error);
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: "left-accent",
+          status: "error",
+          duration: 2000,
+        })
       });
   };
   return (
     <AuthContext.Provider
       value={{
         setUser,
-        user,
+        user,setRefresh,
         loading,accname, setAccname,
         setLoading,
         fetchHomepageData,
