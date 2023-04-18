@@ -39,7 +39,7 @@ import Link from "next/link";
 import { InfoOutlineIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 const LinkItems = [
-  { name: "Home", icon: FiHome, href: "/" },
+  { name: "Home", icon: FiHome, href: "/homepage" },
   { name: "Shared account", icon: FiCompass, href: "/sharedacc" },
   { name: "Profile", icon: InfoOutlineIcon, href: "/profile" },
 ];
