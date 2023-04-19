@@ -5,7 +5,7 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 module.exports = {
   /**
@@ -20,12 +20,12 @@ module.exports = {
       const userId = req.user.id;
 
       if (!userId) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
 
       const user = await User.findOne({ id: req.user.id });
-      const accData = await Accounts.find({ owner: userId }).populate('owner');
-      const amcData = await Accounts.find().populate('owner');
+      const accData = await Accounts.find({ owner: userId }).populate("owner");
+      const amcData = await Accounts.find().populate("owner");
 
       // This is a filter function that is used to filter the shared account with the user.
       const sharedAccounts = amcData.filter((account) => {
@@ -34,7 +34,7 @@ module.exports = {
         );
       });
 
-      console.log(sharedAccounts, accData);
+      // console.log(sharedAccounts, accData);
 
       res.json({
         accData: accData,
@@ -56,15 +56,15 @@ module.exports = {
    */
   addAccount: async (req, res) => {
     const { name } = req.body;
-    console.log('name--->', req.body);
+    console.log("name--->", req.body);
     const id = req.user.id;
     /* This is a try catch block. It is used to catch errors. */
     try {
       if (!name) {
-        return res.status(404).json({ message: 'name not found' });
+        return res.status(404).json({ message: "name not found" });
       }
       if (!id) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
       const account = await Accounts.create({ name: name, owner: id }).fetch();
       return res.status(201).json({ data: account });
@@ -102,12 +102,12 @@ module.exports = {
     const accountId = req.params.id;
     try {
       if (!accountId) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
       const accountData = await Accounts.findOne({ id: accountId });
 
       if (!accountData) {
-        return res.status(404).json({ message: 'Account not found' });
+        return res.status(404).json({ message: "Account not found" });
       }
 
       const criteria = { id: accountId };
@@ -131,16 +131,16 @@ module.exports = {
     const id = req.params.accId;
     try {
       if (!id) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
       const isValid = await Accounts.findOne({ id: id });
       if (!isValid) {
-        return res.status(404).json({ message: 'account not found' });
+        return res.status(404).json({ message: "account not found" });
       }
 
       await Transaction.destroy({ account: id });
       await Accounts.destroy({ id: id });
-      return res.status(200).json({ message: 'account deleted' });
+      return res.status(200).json({ message: "account deleted" });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -157,10 +157,10 @@ module.exports = {
    */
   share: async (req, res) => {
     try {
-      console.log('get share page', req.user.id);
+      console.log("get share page", req.user.id);
 
       if (!req.params.id) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
       const account = await Accounts.findOne({
         id: req.params.id,
@@ -188,7 +188,7 @@ module.exports = {
       const accountId = req.params.id;
 
       if (!accountId) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
 
       const currentUserData = await User.findOne({ id: req.user.id });
@@ -196,15 +196,15 @@ module.exports = {
       const sharedWithEmail = req.body.email;
 
       if (!req.body.email) {
-        return res.status(404).json({ message: 'email not found' });
+        return res.status(404).json({ message: "email not found" });
       }
       const currentUserEmail = currentUserData.email;
 
       if (!sharedWithEmail || !currentUserEmail) {
-        return res.status(404).json({ message: 'email not found' });
+        return res.status(404).json({ message: "email not found" });
       }
 
-      console.log('post share account page', accountId, sharedWithEmail);
+      // console.log("post share account page", accountId, sharedWithEmail);
 
       // Find the account by ID and ensure that the currently authenticated user is the owner
       const account = await Accounts.findOne({
@@ -212,7 +212,7 @@ module.exports = {
         owner: req.user.id,
       });
 
-      console.log('exitis account', account);
+      // console.log("exitis account", account);
 
       const sharedWithUser = await User.findOne({ email: sharedWithEmail });
 
@@ -223,7 +223,7 @@ module.exports = {
       });
 
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        service: "gmail",
         auth: {
           user: process.env.GMAIL_USERNAME,
           pass: process.env.GMAIL_PASS,
@@ -231,9 +231,9 @@ module.exports = {
       });
 
       const mailOptions = {
-        from: 'expenssManger1234@gmail.com',
+        from: "expenssManger1234@gmail.com",
         to: currentUserEmail.email,
-        subject: 'New contact created',
+        subject: "New contact created",
         html: `<!DOCTYPE html>
         <html lang="en">
           <head>
@@ -300,9 +300,9 @@ module.exports = {
       });
       transporter.sendMail(
         {
-          from: 'expenssManger1234@gmail.com',
+          from: "expenssManger1234@gmail.com",
           to: req.body.email,
-          subject: 'Account shared',
+          subject: "Account shared",
           html: `<!DOCTYPE html>
         <html>
           <head>
@@ -423,8 +423,43 @@ module.exports = {
       );
 
       return res.status(200).json({
-        message: 'Account shared successfully',
+        message: "Account shared successfully",
       });
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
+  searchTransactions: async (req, res) => {
+    const searchTerm = req.body.searchTerm;
+    if (!searchTerm) {
+      return res.status(400).json({
+        message: "Search term is required",
+      });
+    }
+
+    const serchQuery = {
+      and: [
+        {
+          or: [
+            { text: { contains: searchTerm } },
+            { transfer: { contains: searchTerm } },
+            { category: { contains: searchTerm } },
+          ],
+        },
+        {
+          or: [
+            { by: req.user.id },
+            {
+              updatedBy: req.user.id,
+            },
+          ],
+        },
+      ],
+    };
+    try {
+      const transactions = await Transaction.find(serchQuery);
+      return res.status(200).json(transactions);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);

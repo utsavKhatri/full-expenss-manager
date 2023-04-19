@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   IconButton,
   Avatar,
@@ -21,6 +21,10 @@ import {
   Button,
   useColorMode,
   useToast,
+  FormControl,
+  InputGroup,
+  InputLeftElement,
+  Input,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -29,6 +33,7 @@ import {
   FiMenu,
   FiBell,
   FiChevronDown,
+  FiSearch,
 } from "react-icons/fi";
 import { useRouter } from "next/router";
 import { dataState } from "../../../context";
@@ -136,12 +141,12 @@ const NavItem = ({ icon, children, ...rest }) => {
 };
 
 const MobileNav = ({ onOpen, ...rest }) => {
-  const { user, setUser } = dataState();
+  const { user, setUser,searchResult, setSearchResult } = dataState();
   const { colorMode, toggleColorMode } = useColorMode();
   const toast = useToast();
   const router = useRouter();
   const handleLogout = () => {
-    const { token } = user;
+    const { token } = JSON.parse(localStorage.getItem("userInfo"));
     console.log(token);
     const options = {
       method: "GET",
@@ -159,7 +164,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
           title: "Logged out successfully",
           status: "success",
           duration: 1000,
-        })
+        });
         return router.push("/");
       })
       .catch((error) => {
@@ -168,7 +173,38 @@ const MobileNav = ({ onOpen, ...rest }) => {
           title: `Something went wrong ${error.response.data.message}`,
           status: "error",
           duration: 1000,
-        })
+        });
+      });
+  };
+  const handleSearch = (searchData) => {
+
+    if (searchData === "") {
+      return setSearchResult(null);
+    }
+    const { token } = JSON.parse(localStorage.getItem("userInfo"));
+    console.log(token);
+    const options = {
+      method: "POST",
+      url: "http://localhost:1337/searchTransaction",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        searchTerm: searchData,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        setSearchResult(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: `Something went wrong ${error.response.data.message}`,
+          status: "error",
+          duration: 1000,
+        });
       });
   };
 
@@ -192,19 +228,25 @@ const MobileNav = ({ onOpen, ...rest }) => {
         icon={<FiMenu />}
       />
 
-      <Text
-        display={{ base: "flex", md: "none" }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
-        Logo
-      </Text>
-
-      <HStack spacing={{ base: "0", md: "6" }}>
-      <Button onClick={toggleColorMode}>
-                {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-              </Button>
+      <HStack spacing={{ base: "3", md: "6" }}>
+        
+        <FormControl>
+          <InputGroup>
+            <InputLeftElement pointerEvents="none" children={<FiSearch />} />
+            <Input
+              placeholder="Search"
+              onChange={(e) => {
+                handleSearch(e.target.value);
+              }}
+              _placeholder={{
+                color: "gray.400",
+              }}
+            />
+          </InputGroup>
+        </FormControl>
+        <Button onClick={toggleColorMode}>
+          {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+        </Button>
         <Flex alignItems={"center"}>
           <Menu>
             <MenuButton
@@ -213,7 +255,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               _focus={{ boxShadow: "none" }}
             >
               <HStack>
-              <Avatar src='https://bit.ly/broken-link' />
+                <Avatar src="https://bit.ly/broken-link" />
                 <VStack
                   display={{ base: "none", md: "flex" }}
                   alignItems="flex-start"

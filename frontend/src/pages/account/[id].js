@@ -12,12 +12,19 @@ import {
   ModalOverlay,
   Select,
   Stack,
+  Stat,
+  StatArrow,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
   Table,
   TableContainer,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useColorModeValue,
   useDisclosure,
@@ -28,13 +35,21 @@ import React, { useEffect, useState } from "react";
 import MainTemplate from "../components/maintemplate";
 import { useRouter } from "next/router";
 import { Testimonial, TestimonialContent, TestimonialText } from "../homepage";
-import { DeleteIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  CheckCircleIcon,
+  DeleteIcon,
+  MinusIcon,
+  RepeatClockIcon,
+  RepeatIcon,
+} from "@chakra-ui/icons";
 import AddTranjection from "../components/AddTranjection";
 import UpdateTransactions from "../components/UpdateTrans";
 import { dataState } from "../../../context";
 import BalanceChart from "../components/BalanceChart";
 import Loader from "../components/Loader";
 import TransactionChart from "../components/TransactionChart";
+import TransactionTable from "../components/TransTable";
 
 const account = () => {
   const router = useRouter();
@@ -45,16 +60,24 @@ const account = () => {
   const [isShareModal, setIsShareModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
+  const [intChartData, setIntChartData] = useState([]);
+  const [intLabelData, setIntLabelData] = useState([]);
   const [chartLable, setChartLable] = useState([]);
   const [email, setEmail] = useState("");
-  const { user } = dataState();
   const [sampleAccData, setSampleAccData] = useState();
   const [intLoading, setIntLoading] = useState(true);
+  const [limit, setLimit] = useState(15);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [chartVisible, setChartVisibale] = useState(false);
   const toast = useToast();
-  const [currentuserData, setCurrentuserData] = useState()
+  const [currentuserData, setCurrentuserData] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
 
+  const handleRowsPerPageChange = (e) => {
+    const value = parseInt(e.target.value);
+    setRowsPerPage(value);
+  };
   const fetchAccData = () => {
     const user = localStorage.getItem("userInfo");
     const { token } = JSON.parse(user);
@@ -104,7 +127,9 @@ const account = () => {
           return element.text;
         });
         setChartData(newArr);
+        setIntChartData(newArr.slice(0, limit));
         setChartLable(newLablelArr);
+        setIntLabelData(newLablelArr.slice(0, limit));
         setIntLoading(false);
       })
       .catch((error) => {
@@ -118,6 +143,23 @@ const account = () => {
         window.location.href = "/";
       });
   };
+
+  const handleLoadmore = () => {
+    setLimit(limit + 15);
+    setIntChartData(chartData.slice(0, limit));
+    setIntLabelData(chartLable.slice(0, limit));
+  };
+  const handleLoadAllMore = () => {
+    setIntChartData(chartData);
+    setIntLabelData(chartLable);
+  };
+
+  const handleLoadLess = () => {
+    setLimit(15);
+    setIntChartData(chartData.slice(0, limit));
+    setIntLabelData(chartLable.slice(0, limit));
+  };
+
   const handleShareAcc = () => {
     setIsShareModal(true);
     onOpen();
@@ -220,13 +262,36 @@ const account = () => {
   useEffect(() => {
     if (!localStorage.getItem("userInfo")) {
       window.location.href = "/";
-    }
-    else{
-      setCurrentuserData(JSON.parse(localStorage.getItem("userInfo")))
+    } else {
+      setCurrentuserData(JSON.parse(localStorage.getItem("userInfo")));
       fetchSignleAcc();
       fetchAccData();
     }
   }, []);
+
+  const handleClick = () => {
+    if (
+      currentPage < Math.ceil(transData && transData.data.length / rowsPerPage)
+    ) {
+      setCurrentPage(currentPage + 1);
+    } else {
+      setCurrentPage(
+        Math.ceil(transData && transData.data.length / rowsPerPage)
+      );
+    }
+  };
+  const handleDescreased = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    } else {
+      setCurrentPage(1);
+    }
+  };
+
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows =
+    transData && transData.data.slice(indexOfFirstRow, indexOfLastRow);
 
   return intLoading == true ? (
     <Loader />
@@ -283,38 +348,53 @@ const account = () => {
           alignItems={"center"}
           justifyContent={"space-between"}
         >
-          {currentuserData && sampleAccData.owner == currentuserData.user.id && (
-            <Button
-              onClick={handleShareAcc}
-              colorScheme={useColorModeValue("blackAlpha", "blue")}
-            >
-              Share Account
-            </Button>
-          )}
+          {currentuserData &&
+            sampleAccData.owner == currentuserData.user.id && (
+              <Button
+                onClick={handleShareAcc}
+                colorScheme={useColorModeValue("blackAlpha", "blue")}
+              >
+                Share Account
+              </Button>
+            )}
           <AddTranjection accId={id} fetchSignleAcc={fetchSignleAcc} />
         </Stack>
-
-        <Stack direction={"row"} my={3} justifyContent={"space-evenly"}>
-          <Testimonial>
-            <TestimonialContent>
-              <Heading
-                textAlign="center"
-                size={"lg"}
-                color={useColorModeValue("green", "green.400")}
-              >
-                {transData.income}
-              </Heading>
-              <TestimonialText>Income</TestimonialText>
-            </TestimonialContent>
-          </Testimonial>
-          <Testimonial>
-            <TestimonialContent>
-              <Heading textAlign="center" size={"lg"} color={"red"}>
-                {transData.expenses}
-              </Heading>
-              <TestimonialText>Expense</TestimonialText>
-            </TestimonialContent>
-          </Testimonial>
+        <Stack
+          direction={{ lg: "row", sm: "column" }}
+          spacing={5}
+          my={3}
+          justifyContent={"space-evenly"}
+          alignItems={"center"}
+        >
+          <Stat boxShadow={"md"} p={2}>
+            <StatLabel>Income</StatLabel>
+            <StatNumber color={useColorModeValue("green", "green.400")}>
+              {transData.income}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              {transData.incomePercentageChange}%
+            </StatHelpText>
+          </Stat>
+          <Stat
+            boxShadow={"lg"}
+            p={2}
+            alignItems={"center"}
+            justifyContent={"center"}
+          >
+            <StatLabel>Total balance</StatLabel>
+            <StatNumber color={useColorModeValue("blue.600", "blue.400")}>
+              {transData.balance}
+            </StatNumber>
+          </Stat>
+          <Stat boxShadow={"md"} p={2}>
+            <StatLabel>Expense</StatLabel>
+            <StatNumber color={"red"}>{transData.expenses}</StatNumber>
+            <StatHelpText>
+              <StatArrow type="decrease" />
+              {transData.expensePercentageChange}%
+            </StatHelpText>
+          </Stat>
         </Stack>
         {transData.data.length > 0 && (
           <Stack spacing={"8"}>
@@ -356,27 +436,58 @@ const account = () => {
             </Flex>
 
             <Flex
+              flexDirection={"column"}
               justifyContent={"center"}
               my={3}
               alignItems={"center"}
               alignSelf={"center"}
-              width={{ base: "85%", sm: "100%", md: "75%", lg: "70%" }}
+              width={{ base: "90%", sm: "full", md: "75%", lg: "70%" }}
             >
-              <TransactionChart chartLable={chartLable} chartData={chartData} />
+              <TransactionChart
+                chartLable={intLabelData}
+                chartData={intChartData}
+              />
+              <Stack
+                direction={"row"}
+                my={2}
+                spacing={4}
+                justifyContent={"space-between"}
+              >
+                <Button onClick={handleLoadmore}>
+                  <AddIcon />
+                </Button>
+                <Button onClick={handleLoadLess}>
+                  <RepeatClockIcon />
+                </Button>
+                <Button onClick={handleLoadAllMore}>
+                  <CheckCircleIcon />
+                </Button>
+              </Stack>
             </Flex>
           </Stack>
         )}
-        <TableContainer my={2} px={3}>
+        <TableContainer
+          width={"100%"}
+          my={2}
+          px={{ base: 1, md: 3 }}
+          overflowX={"auto"}
+        >
           <Heading size={"lg"} my={2}>
             Recent transactions
           </Heading>
-          <Table textAlign={"center"}>
+
+          <Table
+            textAlign={"center"}
+            size={{ base: "sm", sm: "md", md: "lg" }}
+            width={"100%"}
+            overflowX={"auto"}
+          >
             <Thead>
               <Tr>
                 <Th>#</Th>
                 <Th>Text</Th>
                 <Th>Transfer</Th>
-                <Th>category</Th>
+                <Th>Category</Th>
                 <Th isNumeric>Amount</Th>
                 <Th width={"-moz-fit-content"} colSpan={2} textAlign={"center"}>
                   Action
@@ -384,14 +495,19 @@ const account = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {transData.data.length > 0 ? (
-                transData.data.map((trans, i) => {
-                  return (
-                    <Tr key={trans.id}>
-                      <Td>{i + 1}</Td>
+              {currentRows.map((trans, i) => {
+                return (
+                  <Tooltip
+                    label={`last updated by ${trans.updatedBy.name}`}
+                    key={trans.id}
+                  >
+                    <Tr>
+                      <Td flexDirection={"row"} alignItems={"center"}>
+                        {i + 1 + (currentPage - 1) * rowsPerPage}
+                      </Td>
                       <Td>{trans.text}</Td>
                       <Td>{trans.transfer}</Td>
-                      <Td>{trans.category}</Td>
+                      <Td>{trans.category.name}</Td>
                       <Td color={trans.amount < 0 ? "red" : "green"}>
                         {trans.amount}
                       </Td>
@@ -411,16 +527,54 @@ const account = () => {
                         </Button>
                       </Td>
                     </Tr>
-                  );
-                })
-              ) : (
-                <Tr>
-                  <Td colSpan={6}>No data</Td>
-                </Tr>
-              )}
+                  </Tooltip>
+                );
+              })}
             </Tbody>
           </Table>
         </TableContainer>
+        <Flex
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
+          <Flex
+            flexDirection={"row"}
+            justifyContent={"flex-start"}
+            alignItems={"center"}
+          >
+            <Button size={"sm"} onClick={handleClick}>
+              <AddIcon />
+            </Button>
+            <Button
+              rounded={"full"}
+              justifyContent={"center"}
+              alignItems={"center"}
+              size={"sm"}
+              backgroundColor={"azure"}
+              boxShadow={"md"}
+            >
+              {currentPage}
+            </Button>
+            <Button size={"sm"} onClick={handleDescreased}>
+              <MinusIcon />
+            </Button>
+          </Flex>
+          <Stack>
+            <Select
+              placeholder="items per page"
+              onChange={(e) => handleRowsPerPageChange(e)}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value={transData.data.length}>All</option>
+            </Select>
+          </Stack>
+        </Flex>
       </Flex>
     </MainTemplate>
   );

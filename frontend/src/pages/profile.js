@@ -11,17 +11,23 @@ import {
 import SidebarWithHeader from "./components/navbar";
 import { dataState } from "../../context";
 import Loader from "./components/Loader";
+import { useEffect } from "react";
 
 export default function UserProfileEdit() {
-  const { user } = dataState()
+  const { user } = dataState();
 
+  useEffect(() => {
+    if (!user) {
+      window.location.href = "/";
+    }
+  }, []);
   const userData = user.user;
   console.log("log from profile -->", user);
 
   return (
     <SidebarWithHeader>
       {userData == null ? (
-        <Loader/>
+        <Loader />
       ) : (
         <Flex
           minH={"100vh"}
@@ -46,7 +52,7 @@ export default function UserProfileEdit() {
               <FormLabel>User name</FormLabel>
               <Input
                 placeholder="UserName"
-                value={userData.name&&userData.name}
+                value={userData.name && userData.name}
                 _placeholder={{ color: "gray.500" }}
                 type="text"
               />
@@ -55,7 +61,7 @@ export default function UserProfileEdit() {
               <FormLabel>Email address</FormLabel>
               <Input
                 placeholder="your-email@example.com"
-                value={userData.email&&userData.email}
+                value={userData.email && userData.email}
                 _placeholder={{ color: "gray.500" }}
                 type="email"
               />

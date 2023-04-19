@@ -104,11 +104,11 @@ module.exports = {
         password: hashedPassword,
       }).fetch();
 
-      const defaultAccount = await Accounts.create({
+      await Accounts.create({
         name: `${newUser.name} default account`,
         owner: newUser.id,
       });
-      console.log(defaultAccount);
+      // console.log(defaultAccount);
 
       const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -227,9 +227,9 @@ module.exports = {
         return res.status(404).json({ message: 'Invalid userId' });
       }
 
-      const logoutUser= await User.updateOne({ id: userId }).set({ token: '' });
+      await User.updateOne({ id: userId }).set({ token: '' });
 
-      console.log("this is logout user",logoutUser);
+      // console.log("this is logout user",logoutUser);
       return res.json({
         status: 200,
         message: 'Logout successfully',
@@ -281,7 +281,7 @@ module.exports = {
         name: req.body.name,
         email: req.body.email,
       };
-      console.log(criteria, values);
+      // console.log(criteria, values);
       const updatedUser = await User.updateOne(criteria).set(values);
       return res.json({ userDatam: updatedUser });
     } catch (error) {

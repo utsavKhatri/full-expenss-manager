@@ -5,6 +5,8 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
+const { generateData, generateRandomNames } = require("../utils");
+
 module.exports = {
   /**
    * GET /viewTransaction/:id
@@ -18,20 +20,26 @@ module.exports = {
   getTrsansaction: async (req, res) => {
     try {
       const accountId = req.params.id;
-
-      console.log('====================================');
       console.log(accountId);
-      console.log('====================================');
-      const account = await Accounts.findOne({ id: accountId }).populate(
-        'transactions',
-        { sort: 'createdAt DESC' }
-      );
-      const transactions = account.transactions;
+      const account = await Accounts.findOne({ id: accountId });
+      const transactionsData = await Transaction.find({
+        account: accountId,
+      })
+        .populate("updatedBy")
+        .populate("category")
+        .sort([
+          {
+            createdAt: "DESC",
+          },
+        ]);
+      const balance = await Transaction.sum("amount").where({
+        account: accountId,
+      });
 
       let income = 0;
       let expenses = 0;
 
-      transactions.forEach((element) => {
+      transactionsData.forEach((element) => {
         const h = element.amount;
         if (h < 0) {
           expenses += h;
@@ -39,14 +47,27 @@ module.exports = {
           income += h;
         }
       });
+      const totalIncome = income;
+      const totalExpenses = Math.abs(expenses);
+      const totalAmount = totalIncome + totalExpenses;
 
-      res.json({
-        data: transactions,
-        income,
-        expenses,
+      const incomePercentageChange =
+        ((totalAmount - totalIncome) / totalAmount) * 100;
+      const expensePercentageChange =
+        ((totalAmount - totalExpenses) / totalAmount) * 100;
+
+      const finalData = {
+        data: transactionsData,
+        balance: balance.toFixed(2),
+        income: income.toFixed(2),
+        incomePercentageChange: incomePercentageChange.toFixed(2),
+        expenses: expenses.toFixed(2),
+        expensePercentageChange: expensePercentageChange.toFixed(2),
         accountId,
         nameAccount: account.name,
-      });
+      };
+
+      return res.json(finalData);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -64,23 +85,70 @@ module.exports = {
     try {
       const tID = req.params.tId;
       const { text, amount, transfer, category } = req.body;
+      if (req.body.data) {
+        req.body.data.forEach(async (element) => {
+          await Transaction.create({
+            text: element.text,
+            amount: element.amount,
+            transfer: element.transfer,
+            category: element.category,
+            by: req.user.id,
+            updatedBy: req.user.id,
+            account: tID,
+          });
+        });
+        return res.status(201).json({ message: "success" });
+      }
+
+      if (!req.user.id) {
+        return res.status(404).json({ message: "User not Loggedin" });
+      }
       if (!tID) {
-        return res.status(404).json({ message: 'transaction id required' });
+        return res.status(404).json({ message: "transaction id required" });
       }
 
       if (!text || !amount || !transfer || !category) {
-        return res.status(404).json({ message: 'All fields are required' });
+        return res.status(404).json({ message: "All fields are required" });
       }
 
-      console.log(text, amount);
+      // console.log(text, amount);
       const newTransactions = await Transaction.create({
         text,
         amount,
         transfer,
         category,
+        by: req.user.id,
+        updatedBy: req.user.id,
         account: tID,
       });
       return res.status(201).json({ data: newTransactions });
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
+
+  generateDataForTrans: async (req, res) => {
+    try {
+      const dataLength = req.body.qnty;
+      if (!dataLength) {
+        return res.status(404).json({ message: "qnty field required" });
+      }
+      const data = await generateData(dataLength);
+      return res.json(data);
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
+  generateNames: async (req, res) => {
+    try {
+      const dataLength = req.body.qnty;
+      if (!dataLength) {
+        return res.status(404).json({ message: "qnty field required" });
+      }
+      const data = await generateRandomNames(dataLength);
+      return res.json(data);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -115,15 +183,22 @@ module.exports = {
     try {
       if (!tId) {
         return res.status(404).json({
-          message: 'Transaction id not found',
+          message: "Transaction id not found",
         });
       }
       const criteria = { id: tId };
       const values = req.body;
-      console.log(criteria, values);
-      const updatedTransaction = await Transaction.updateOne(criteria).set(
-        values
-      );
+
+      if (!values) {
+        return res.status(404).json({
+          message: "Atleast one field required",
+        });
+      }
+      // console.log(criteria, values);
+      const updatedTransaction = await Transaction.updateOne(criteria).set({
+        ...values,
+        updatedBy: req.user.id,
+      });
       return res.json({ data: updatedTransaction });
     } catch (error) {
       console.log(error.message);
@@ -142,11 +217,11 @@ module.exports = {
     try {
       const transId = req.params.delId;
 
-      console.log('----delte id--->',transId);
+      console.log(transId);
 
       if (!transId) {
         return res.status(404).json({
-          message: 'Transaction id not found',
+          message: "Transaction id not found",
         });
       }
 
@@ -154,11 +229,11 @@ module.exports = {
 
       if (!isValid) {
         return res.status(404).json({
-          message: 'Transaction id not valid',
+          message: "Transaction id not valid",
         });
       }
       await Transaction.destroy({ id: transId });
-      return res.status(200).json({ message: 'Transaction deleted' });
+      return res.status(200).json({ message: "Transaction deleted" });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);

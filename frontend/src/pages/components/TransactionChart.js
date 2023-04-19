@@ -1,5 +1,4 @@
 import React from "react";
-import { Chart } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   LinearScale,
@@ -24,14 +23,23 @@ ChartJS.register(
   LineController,
   BarController
 );
+import { Bar, Line } from 'react-chartjs-2';
+
 const TransactionChart = ({ chartLable, chartData }) => {
   const labels = [...chartLable];
-
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+  };
   const data = {
-    labels,
+    labels: labels,
     datasets: [
       {
-        type: "bar",
+        fill: true,
         label: "Transactions",
         backgroundColor: chartData.map((ele) => {
           if (ele < 0) {
@@ -48,16 +56,13 @@ const TransactionChart = ({ chartLable, chartData }) => {
             return "rgba(131, 247, 129, 0.9)";
           }
         }),
-        borderWidth: 2,
+        borderWidth:2
       },
     ],
   };
   return (
-    <Chart
-      type="bar"
-      options={{
-        responsive: true,
-      }}
+    <Bar
+      options={options}
       data={data}
     />
   );

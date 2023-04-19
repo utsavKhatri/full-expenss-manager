@@ -10,20 +10,21 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
   Stack,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { dataState } from "../../../context";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-function AddTranjection({accId, fetchSignleAcc}) {
+function AddTranjection({ accId, fetchSignleAcc }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [text, setText] = useState("");
   const [amount, setAmount] = useState();
   const [transfer, setTransfer] = useState("");
   const [category, setCategory] = useState("");
+  const [catlist, setCatlist] = useState();
   const toast = useToast();
   const handleCreateTrans = () => {
     const user = localStorage.getItem("userInfo");
@@ -44,16 +45,15 @@ function AddTranjection({accId, fetchSignleAcc}) {
     axios
       .request(options)
       .then((response) => {
-        console.log(response);
         fetchSignleAcc();
-        if(response.status ==201){
+        if (response.status == 201) {
           fetchSignleAcc();
-          toast({ 
+          toast({
             title: "Transaction created successfully",
             status: "success",
             duration: 1000,
             isClosable: true,
-          })
+          });
           onClose();
         }
       })
@@ -63,12 +63,27 @@ function AddTranjection({accId, fetchSignleAcc}) {
           title: `${error.response.data.message}`,
           status: "error",
           duration: 1000,
-        })
+        });
       });
   };
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:1337/category")
+      .then((res) => {
+        setCatlist(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   return (
     <>
-      <Button colorScheme="whatsapp" onClick={onOpen}> + new transaction</Button>
+      <Button colorScheme="whatsapp" onClick={onOpen}>
+        {" "}
+        + new transaction
+      </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -102,12 +117,17 @@ function AddTranjection({accId, fetchSignleAcc}) {
                 />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>category</FormLabel>
-                <Input
+              <FormLabel>category</FormLabel>
+
+                <Select
                   placeholder="category"
                   onChange={(e) => setCategory(e.target.value)}
-                  required
-                />
+                >
+                  {catlist &&
+                    catlist.map((v) => {
+                      return <option value={v.id}>{v.name}</option>;
+                    })}
+                </Select>
               </FormControl>
             </Stack>
           </ModalBody>

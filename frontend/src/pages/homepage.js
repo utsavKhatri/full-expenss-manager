@@ -18,6 +18,7 @@ import {
   Wrap,
   WrapItem,
   useToast,
+  Flex,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { dataState } from "../../context";
@@ -87,14 +88,17 @@ const Homepage = () => {
   const {
     fetchHomepageData,
     loading,
-    data,setRefresh,
+    data,
+    setRefresh,
     refresh,
     setAccname,
     handleDeleteAcc,
     accname,
+    searchResult,
+    setSearchResult,
   } = dataState();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast()
+  const toast = useToast();
 
   const handleCreateAccount = async () => {
     const user = localStorage.getItem("userInfo");
@@ -123,14 +127,14 @@ const Homepage = () => {
             variant: "left-accent",
             status: "success",
             duration: 2000,
-          })
+          });
         } else {
           toast({
             title: "Account creation failed",
             variant: "left-accent",
             status: "error",
             duration: 2000,
-          })
+          });
         }
       })
       .catch((error) => {
@@ -139,9 +143,9 @@ const Homepage = () => {
           variant: "left-accent",
           status: "error",
           duration: 2000,
-        })
+        });
       });
-      return onClose();
+    return onClose();
   };
   useEffect(() => {
     fetchHomepageData();
@@ -174,6 +178,70 @@ const Homepage = () => {
       </Modal>
       <Box bg={useColorModeValue("gray.100", "gray.900")}>
         <Container maxW={"7xl"} py={16} as={Stack} spacing={12}>
+          {searchResult && (
+            <Flex
+              spacing={0}
+              align={"center"}
+              flexDirection={"column"}
+              width={"100%"}
+              gap={4}
+            >
+              <Heading size={"sm"}>Search result</Heading>
+
+              {searchResult.map((result, i) => (
+                <WrapItem key={i} justifyContent={"center"} width={"100%"}>
+                  <Stack
+                    bg={useColorModeValue("white", "gray.800")}
+                    boxShadow={"sm"}
+                    px={5}
+                    py={3}
+                    rounded={"md"}
+                    borderBlock={"HighlightText"}
+                    borderWidth={"thin"}
+                    borderColor={useColorModeValue("navy", "lime")}
+                    _hover={{
+                      shadow: "lg",
+                      bg: useColorModeValue("white", "gray.700"),
+                      color: useColorModeValue("black", "white"),
+                      borderWidth: 1,
+                      borderBlockColor: useColorModeValue("black", "white"),
+                    }}
+                    align={"center"}
+                    pos={"relative"}
+                    width={"75%"}
+                    key={i + 1}
+                  >
+                    <Link href={`/account/${result.account}`}>
+                      <Flex
+                        flexDirection={"row"}
+                        gap={3}
+                        alignItems={"center"}
+                        justifyContent={"space-evenly"}
+                      >
+                        <Text as={"h3"} fontSize={"md"} textAlign="center">
+                          Text: {result.text}
+                        </Text>
+                        <Text
+                          textAlign={"center"}
+                          color={useColorModeValue("gray.600", "gray.400")}
+                          fontSize={"sm"}
+                        >
+                          Tranfer: {result.transfer}
+                        </Text>
+                        <Text
+                          textAlign={"center"}
+                          color={useColorModeValue("gray.600", "gray.400")}
+                          fontSize={"sm"}
+                        >
+                          Category: {result.category}
+                        </Text>
+                      </Flex>
+                    </Link>
+                  </Stack>
+                </WrapItem>
+              ))}
+            </Flex>
+          )}
           <Stack spacing={0} align={"center"}>
             <Heading>Your Accounts</Heading>
             <Button onClick={onOpen} leftIcon={<AddIcon />}>
@@ -184,7 +252,7 @@ const Homepage = () => {
           <Wrap
             direction={{ base: "column", md: "row" }}
             spacing={{ base: 10, md: 4, lg: 10 }}
-            justify='center'
+            justify="center"
           >
             {data.accData.length ? (
               data.accData.map((v, i) => {
