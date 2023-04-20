@@ -52,9 +52,9 @@ module.exports = {
       const totalAmount = totalIncome + totalExpenses;
 
       const incomePercentageChange =
-        ((totalAmount - totalIncome) / totalAmount) * 100;
-      const expensePercentageChange =
         ((totalAmount - totalExpenses) / totalAmount) * 100;
+      const expensePercentageChange =
+        ((totalAmount - totalIncome) / totalAmount) * 100;
 
       const finalData = {
         data: transactionsData,

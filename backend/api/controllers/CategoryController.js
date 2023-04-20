@@ -9,10 +9,10 @@ module.exports = {
   async find(req, res) {
     try {
       const categories = await Category.find();
-      const data = categories.map((element) => {
-        return element.id;
-      });
-      return res.ok(data);
+      // const data = categories.map((element) => {
+      //   return element.id;
+      // });
+      return res.ok(categories);
     } catch (err) {
       return res.serverError(err);
     }

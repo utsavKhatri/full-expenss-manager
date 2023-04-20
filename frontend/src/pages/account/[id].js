@@ -118,7 +118,6 @@ const account = () => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data);
         setTransData(response.data);
         const newArr = response.data.data.map((element) => {
           return element.amount;
@@ -369,7 +368,10 @@ const account = () => {
           <Stat boxShadow={"md"} p={2}>
             <StatLabel>Income</StatLabel>
             <StatNumber color={useColorModeValue("green", "green.400")}>
-              {transData.income}
+              {new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: "INR",
+              }).format(transData.income)}
             </StatNumber>
             <StatHelpText>
               <StatArrow type="increase" />
@@ -384,12 +386,21 @@ const account = () => {
           >
             <StatLabel>Total balance</StatLabel>
             <StatNumber color={useColorModeValue("blue.600", "blue.400")}>
-              {transData.balance}
+              {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(transData.balance)}
             </StatNumber>
           </Stat>
           <Stat boxShadow={"md"} p={2}>
             <StatLabel>Expense</StatLabel>
-            <StatNumber color={"red"}>{transData.expenses}</StatNumber>
+            <StatNumber color={"red"}>
+              {" "}
+              {new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: "INR",
+              }).format(transData.expenses)}
+            </StatNumber>
             <StatHelpText>
               <StatArrow type="decrease" />
               {transData.expensePercentageChange}%
@@ -509,7 +520,10 @@ const account = () => {
                       <Td>{trans.transfer}</Td>
                       <Td>{trans.category.name}</Td>
                       <Td color={trans.amount < 0 ? "red" : "green"}>
-                        {trans.amount}
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(trans.amount)}
                       </Td>
                       <Td width={"-moz-fit-content"}>
                         <UpdateTransactions
