@@ -49,7 +49,6 @@ import { dataState } from "../../../context";
 import BalanceChart from "../components/BalanceChart";
 import Loader from "../components/Loader";
 import TransactionChart from "../components/TransactionChart";
-import TransactionTable from "../components/TransTable";
 
 const account = () => {
   const router = useRouter();
@@ -387,9 +386,9 @@ const account = () => {
             <StatLabel>Total balance</StatLabel>
             <StatNumber color={useColorModeValue("blue.600", "blue.400")}>
               {new Intl.NumberFormat("en-IN", {
-                          style: "currency",
-                          currency: "INR",
-                        }).format(transData.balance)}
+                style: "currency",
+                currency: "INR",
+              }).format(transData.balance)}
             </StatNumber>
           </Stat>
           <Stat boxShadow={"md"} p={2}>

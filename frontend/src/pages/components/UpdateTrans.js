@@ -10,12 +10,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
   Stack,
   VStack,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { EditIcon } from "@chakra-ui/icons";
 
@@ -26,7 +27,8 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
   const [amount, setAmount] = useState(updateTransData.amount);
   const [transfer, setTransfer] = useState(updateTransData.transfer);
   const [category, setCategory] = useState(updateTransData.category);
-  const toast = useToast()
+  const toast = useToast();
+  const [catlist, setCatlist] = useState();
 
   const updateTransactionGet = () => {
     onOpen();
@@ -42,6 +44,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
     axios
       .request(options)
       .then((response) => {
+        console.log("&^$*&^---> ", response.data.data);
         setUpdateTransData(response.data.data);
         if (isOpen) {
           onClose();
@@ -81,7 +84,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
             status: "success",
             duration: 2000,
             isClosable: true,
-          })
+          });
           onClose();
         }
       })
@@ -92,10 +95,20 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
           status: "error",
           duration: 2000,
           isClosable: true,
-        })
+        });
       });
     onClose();
   };
+  useEffect(() => {
+    axios
+      .get("http://localhost:1337/category")
+      .then((res) => {
+        setCatlist(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <>
@@ -143,12 +156,22 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
               </FormControl>
               <FormControl isRequired>
                 <FormLabel>category</FormLabel>
-                <Input
-                  defaultValue={updateTransData.category}
+
+                <Select
                   placeholder="category"
                   onChange={(e) => setCategory(e.target.value)}
-                  required
-                />
+                >
+                  <option
+                    value={updateTransData.category && updateTransData.category.id}
+                    selected
+                  >
+                    {updateTransData.category && updateTransData.category.name}
+                  </option>
+                  {catlist &&
+                    catlist.map((v) => {
+                      return <option value={v.id}>{v.name}</option>;
+                    })}
+                </Select>
               </FormControl>
             </Stack>
           </ModalBody>

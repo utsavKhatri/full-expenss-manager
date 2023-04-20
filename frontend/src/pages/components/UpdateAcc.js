@@ -25,7 +25,7 @@ const UpdateAcc = ({ accId }) => {
   const [accData, setAccData] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { fetchHomepageData } = dataState();
-const toast = useToast();
+  const toast = useToast();
   const fetchSingleAcc = () => {
     onOpen();
     const user = localStorage.getItem("userInfo");
@@ -71,7 +71,7 @@ const toast = useToast();
           status: "success",
           duration: 2000,
           isClosable: true,
-        })
+        });
         setName(accData.name);
         onClose();
       })
@@ -82,7 +82,7 @@ const toast = useToast();
           variant: "left-accent",
           status: "error",
           duration: 2000,
-        })
+        });
       });
   };
   return (

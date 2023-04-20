@@ -164,7 +164,7 @@ module.exports = {
   editTransaction: async (req, res) => {
     const tId = req.params.id;
     try {
-      const transactions = await Transaction.findOne({ id: tId });
+      const transactions = await Transaction.findOne({ id: tId }).populate("category");
       return res.json({ data: transactions });
     } catch (error) {
       console.log(error.message);
