@@ -49,10 +49,10 @@ import TransactionChart from "../components/TransactionChart";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Report from "../components/Report";
+import { dataState } from "../../../context";
 
 const account = () => {
   const router = useRouter();
-
   const { id } = router.query;
   const [shareList, setShareList] = useState();
   const [transData, setTransData] = useState();
@@ -258,14 +258,6 @@ const account = () => {
         });
       });
   };
-  const [downloadLoading, setDownloadLoading] = useState(false);
-  const handleDownload = async () => {
-    setDownloadLoading(true);
-    const doc = new jsPDF();
-    doc.autoTable({ html: "#my-table" });
-    doc.save("document.pdf");
-    setDownloadLoading(false);
-  };
 
   useEffect(() => {
     if (!localStorage.getItem("userInfo")) {
@@ -368,7 +360,7 @@ const account = () => {
           <AddTranjection accId={id} fetchSignleAcc={fetchSignleAcc} />
         </Stack>
         <Stack
-          direction={{ lg: "row", sm: "column" }}
+          direction={{ base: "column", md: "row" }}
           spacing={5}
           my={3}
           justifyContent={"space-evenly"}
@@ -461,7 +453,7 @@ const account = () => {
               my={3}
               alignItems={"center"}
               alignSelf={"center"}
-              width={{ base: "90%", sm: "full", md: "75%", lg: "70%" }}
+              width={"100%"}
             >
               <TransactionChart
                 chartLable={intLabelData}
@@ -570,7 +562,11 @@ const account = () => {
             justifyContent={"flex-start"}
             alignItems={"center"}
           >
-            <Button size={"sm"} _dark={{ backgroundColor:"#171923", rounded:"full" }} onClick={handleClick}>
+            <Button
+              size={"sm"}
+              _dark={{ backgroundColor: "#171923", rounded: "full" }}
+              onClick={handleClick}
+            >
               <AddIcon />
             </Button>
             <Button
@@ -588,7 +584,7 @@ const account = () => {
                 _dark: {
                   backgroundColor: "#3d3d3d",
                   color: "white",
-                }
+                },
               }}
               _dark={{
                 backgroundColor: "#000000",
@@ -598,12 +594,16 @@ const account = () => {
                 _hover: {
                   backgroundColor: "#3d3d3d",
                   color: "white",
-                }
+                },
               }}
             >
               {currentPage}
             </Button>
-            <Button size={"sm"} _dark={{ backgroundColor:"#171923", rounded:"full" }} onClick={handleDescreased}>
+            <Button
+              size={"sm"}
+              _dark={{ backgroundColor: "#171923", rounded: "full" }}
+              onClick={handleDescreased}
+            >
               <MinusIcon />
             </Button>
           </Flex>

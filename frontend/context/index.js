@@ -8,7 +8,7 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [searchResult, setSearchResult] = useState();
-
+  const [accountId, setId] = useState()
   const [data, setData] = useState();
   const [user, setUser] = useLocalStorage("userInfo", "");
   const [refresh, setRefresh] = useState(false);
@@ -145,7 +145,7 @@ const AuthProvider = ({ children }) => {
         data,
         setData,handleDeleteAcc,handleCreateAccount,
         refresh,
-        setRefresh,searchResult, setSearchResult
+        setRefresh,searchResult, setSearchResult,accountId, setId
       }}
     >
       {children}

@@ -135,6 +135,10 @@ module.exports = {
       if (!tID) {
         return res.status(404).json({ message: "account id required" });
       }
+      const isValid = await Accounts.findOne({ id: tID });
+      if (!isValid) {
+        return res.status(404).json({ message: "account not found" });
+      }
       if (!dataLength) {
         return res.status(404).json({ message: "qnty field required" });
       }

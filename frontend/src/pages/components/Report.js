@@ -8,14 +8,11 @@ import {
   Th,
   Thead,
   Tr,
-  useColorMode,
 } from "@chakra-ui/react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { BsFillFileEarmarkPdfFill } from "react-icons/bs";
 const Report = ({ transData }) => {
-  const { colorMode } = useColorMode();
-
   const generatePDF = () => {
     const doc = new jsPDF();
     const headerStyle = {
