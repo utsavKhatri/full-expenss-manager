@@ -31,24 +31,24 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MainTemplate from "../components/maintemplate";
 import { useRouter } from "next/router";
-import { Testimonial, TestimonialContent, TestimonialText } from "../homepage";
 import {
   AddIcon,
   CheckCircleIcon,
   DeleteIcon,
   MinusIcon,
   RepeatClockIcon,
-  RepeatIcon,
 } from "@chakra-ui/icons";
 import AddTranjection from "../components/AddTranjection";
 import UpdateTransactions from "../components/UpdateTrans";
-import { dataState } from "../../../context";
 import BalanceChart from "../components/BalanceChart";
 import Loader from "../components/Loader";
 import TransactionChart from "../components/TransactionChart";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import Report from "../components/Report";
 
 const account = () => {
   const router = useRouter();
@@ -72,6 +72,7 @@ const account = () => {
   const [currentuserData, setCurrentuserData] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
+  const reportRef = useRef();
 
   const handleRowsPerPageChange = (e) => {
     const value = parseInt(e.target.value);
@@ -117,6 +118,7 @@ const account = () => {
     axios
       .request(options)
       .then((response) => {
+        console.log(response.data);
         setTransData(response.data);
         const newArr = response.data.data.map((element) => {
           return element.amount;
@@ -255,6 +257,14 @@ const account = () => {
           isClosable: true,
         });
       });
+  };
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const handleDownload = async () => {
+    setDownloadLoading(true);
+    const doc = new jsPDF();
+    doc.autoTable({ html: "#my-table" });
+    doc.save("document.pdf");
+    setDownloadLoading(false);
   };
 
   useEffect(() => {
@@ -481,10 +491,14 @@ const account = () => {
           my={2}
           px={{ base: 1, md: 3 }}
           overflowX={"auto"}
+          ref={reportRef}
         >
-          <Heading size={"lg"} my={2}>
-            Recent transactions
-          </Heading>
+          <Flex justifyContent={"space-between"}>
+            <Heading size={"lg"} my={2}>
+              Recent transactions
+            </Heading>
+            <Report transData={transData} />
+          </Flex>
 
           <Table
             textAlign={"center"}
