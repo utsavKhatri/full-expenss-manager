@@ -17,6 +17,17 @@ module.exports = {
       return res.serverError(err);
     }
   },
+  async getCatId(req, res) {
+    try {
+      const categories = await Category.find();
+      const data = categories.map((element) => {
+        return element.id;
+      });
+      return res.ok(data);
+    } catch (err) {
+      return res.serverError(err);
+    }
+  },
 
   async findOne(req, res) {
     try {

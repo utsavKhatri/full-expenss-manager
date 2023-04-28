@@ -20,7 +20,7 @@ const mailData = {
     pass: process.env.PASS,
   },
 };
-async function generateData(numEntries) {
+async function generateData(numEntries,tID,currentUser) {
   const categories = [
     "643fce35569a635b776fd002",
     "643fce50706bb35bb80a8e67",
@@ -35,57 +35,57 @@ async function generateData(numEntries) {
     "643fce9e706bb35bb80a8e70",
     "643fcea3706bb35bb80a8e71",
     "643fceaa706bb35bb80a8e72",
-    "643fe5466871c673ca25e25a",
+    "643fe5466871c673ca25e253",
+    "643fe5466871c673ca25e254",
+    "643fe5466871c673ca25e255",
+    "643fe5466871c673ca25e256",
     "643fe5466871c673ca25e257",
     "643fe5466871c673ca25e258",
-    "643fe5466871c673ca25e256",
     "643fe5466871c673ca25e259",
-    "643fe5466871c673ca25e254",
-    "643fe5466871c673ca25e253",
-    "643fe5466871c673ca25e255",
-    "643fe5466871c673ca25e25c",
+    "643fe5466871c673ca25e25a",
     "643fe5466871c673ca25e25b",
+    "643fe5466871c673ca25e25c",
     "643fe5466871c673ca25e25d",
     "643fe5466871c673ca25e25e",
     "643fe5466871c673ca25e25f",
     "643fe5466871c673ca25e260",
+    "643fe5466871c673ca25e261",
     "643fe5466871c673ca25e262",
     "643fe5466871c673ca25e263",
-    "643fe5466871c673ca25e261",
     "643fe5466871c673ca25e264",
     "643fe5466871c673ca25e265",
     "643fe5466871c673ca25e266",
-    "643fe5466871c673ca25e269",
     "643fe5466871c673ca25e267",
     "643fe5466871c673ca25e268",
+    "643fe5466871c673ca25e269",
     "643fe5466871c673ca25e26a",
+    "643fe5466871c673ca25e26b",
     "643fe5466871c673ca25e26c",
     "643fe5466871c673ca25e26d",
-    "643fe5466871c673ca25e26b",
-    "643fe5466871c673ca25e26f",
-    "643fe5466871c673ca25e273",
-    "643fe5466871c673ca25e271",
-    "643fe5466871c673ca25e274",
-    "643fe5466871c673ca25e272",
-    "643fe5466871c673ca25e270",
-    "643fe5466871c673ca25e275",
     "643fe5466871c673ca25e26e",
+    "643fe5466871c673ca25e26f",
+    "643fe5466871c673ca25e270",
+    "643fe5466871c673ca25e271",
+    "643fe5466871c673ca25e272",
+    "643fe5466871c673ca25e273",
+    "643fe5466871c673ca25e274",
+    "643fe5466871c673ca25e275",
     "643fe5466871c673ca25e276",
     "643fe5466871c673ca25e277",
-    "643fe5466871c673ca25e279",
     "643fe5466871c673ca25e278",
+    "643fe5466871c673ca25e279",
     "643fe5466871c673ca25e27a",
-    "643fe5466871c673ca25e27c",
-    "643fe5466871c673ca25e27f",
     "643fe5466871c673ca25e27b",
+    "643fe5466871c673ca25e27c",
     "643fe5466871c673ca25e27d",
     "643fe5466871c673ca25e27e",
+    "643fe5466871c673ca25e27f",
     "643fe5466871c673ca25e280",
     "643fe5466871c673ca25e281",
     "643fe5466871c673ca25e282",
-    "643fe5466871c673ca25e284",
     "643fe5466871c673ca25e283",
-    "643fe5466871c673ca25e285",
+    "643fe5466871c673ca25e284",
+    "643fe5466871c673ca25e285"
   ];
   const transfers = [
     "Electric Company",
@@ -279,7 +279,7 @@ async function generateData(numEntries) {
     let transfer = await transfers[
       Math.floor(Math.random() * transfers.length)
     ];
-    let amount = await parseFloat(Math.random() * 10000 - 5000).toFixed(2);
+    let amount = await parseFloat(Math.random() * 100000 - 50000).toFixed(2);
     let text =
       (await transactions[Math.floor(Math.random() * transactions.length)]) +
       "#" +
@@ -289,6 +289,9 @@ async function generateData(numEntries) {
       amount: amount,
       transfer: transfer,
       category: category,
+      account:tID,
+      by:currentUser,
+      updatedBy:currentUser
     };
     data["data"].push(entry);
   }

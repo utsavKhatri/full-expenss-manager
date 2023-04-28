@@ -127,6 +127,25 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+  addLargeGeneratedTransaction: async (req, res) => {
+    try {
+      const dataLength = req.body.qnty;
+      const tID = req.params.tId;
+      const currentUser = req.user.id;
+      if (!tID) {
+        return res.status(404).json({ message: "account id required" });
+      }
+      if (!dataLength) {
+        return res.status(404).json({ message: "qnty field required" });
+      }
+      const { data } = await generateData(dataLength, tID, currentUser);
+      await Transaction.createEach(data);
+      return res.status(201).json({ message: "success" });
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
 
   generateDataForTrans: async (req, res) => {
     try {
@@ -134,7 +153,7 @@ module.exports = {
       if (!dataLength) {
         return res.status(404).json({ message: "qnty field required" });
       }
-      const data = await generateData(dataLength);
+      const data = await generateData(parseInt(dataLength));
       return res.json(data);
     } catch (error) {
       console.log(error.message);
