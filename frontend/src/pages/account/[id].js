@@ -497,7 +497,7 @@ const account = () => {
             <Heading size={"lg"} my={2}>
               Recent transactions
             </Heading>
-            <Report transData={transData} />
+            {transData.data.length > 0 && <Report transData={transData} />}
           </Flex>
 
           <Table
@@ -570,7 +570,7 @@ const account = () => {
             justifyContent={"flex-start"}
             alignItems={"center"}
           >
-            <Button size={"sm"} onClick={handleClick}>
+            <Button size={"sm"} _dark={{ backgroundColor:"#171923", rounded:"full" }} onClick={handleClick}>
               <AddIcon />
             </Button>
             <Button
@@ -580,10 +580,30 @@ const account = () => {
               size={"sm"}
               backgroundColor={"azure"}
               boxShadow={"md"}
+              _hover={{
+                backgroundColor: "#e3ffff",
+                color: "black",
+                boxShadow: "lg",
+                cursor: "pointer",
+                _dark: {
+                  backgroundColor: "#3d3d3d",
+                  color: "white",
+                }
+              }}
+              _dark={{
+                backgroundColor: "#000000",
+                color: "white",
+                boxShadow: "lg",
+                cursor: "pointer",
+                _hover: {
+                  backgroundColor: "#3d3d3d",
+                  color: "white",
+                }
+              }}
             >
               {currentPage}
             </Button>
-            <Button size={"sm"} onClick={handleDescreased}>
+            <Button size={"sm"} _dark={{ backgroundColor:"#171923", rounded:"full" }} onClick={handleDescreased}>
               <MinusIcon />
             </Button>
           </Flex>
