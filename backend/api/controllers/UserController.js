@@ -5,9 +5,9 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
-const { createToken, mailData } = require('../utils');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
+const { createToken } = require("../utils");
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 
 module.exports = {
   /**
@@ -25,7 +25,7 @@ module.exports = {
       if (!email || !password) {
         return res
           .status(404)
-          .json({ message: 'email and password missing', error: true });
+          .json({ message: "email and password missing", error: true });
       }
 
       // Check if user exists in the database
@@ -34,14 +34,14 @@ module.exports = {
       if (!user) {
         return res
           .status(404)
-          .json({ message: 'Invalid credentials', error: true });
+          .json({ message: "Invalid credentials", error: true });
       }
 
       // Check if the password is correct
       const passwordMatches = await bcrypt.compare(password, user.password);
       if (!passwordMatches) {
         return res.status(401).json({
-          message: 'Invalid Password',
+          message: "Invalid Password",
           error: true,
         });
       }
@@ -85,13 +85,13 @@ module.exports = {
       if (!name || !email || !password) {
         return res
           .status(404)
-          .json({ message: 'name, email and password missing' });
+          .json({ message: "name, email and password missing" });
       }
 
       // Check if user already exists in the database
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(409).json({ message: 'User already exists' });
+        return res.status(409).json({ message: "User already exists" });
       }
 
       // Hash the password
@@ -111,7 +111,7 @@ module.exports = {
       // console.log(defaultAccount);
 
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        service: "gmail",
         auth: {
           user: process.env.GMAIL_USERNAME,
           pass: process.env.GMAIL_PASS,
@@ -119,9 +119,9 @@ module.exports = {
       });
 
       const mailOptions = {
-        from: 'expenssManger1234@gmail.com', // sender address
+        from: "expenssManger1234@gmail.com", // sender address
         to: newUser.email, // list of receivers
-        subject: 'Welcome email', // Subject line
+        subject: "Welcome email", // Subject line
         html: `<!DOCTYPE html>
         <html>
         <head>
@@ -224,15 +224,15 @@ module.exports = {
     const userId = req.user.id;
     try {
       if (!userId) {
-        return res.status(404).json({ message: 'Invalid userId' });
+        return res.status(404).json({ message: "Invalid userId" });
       }
 
-      await User.updateOne({ id: userId }).set({ token: '' });
+      await User.updateOne({ id: userId }).set({ token: "" });
 
       // console.log("this is logout user",logoutUser);
       return res.json({
         status: 200,
-        message: 'Logout successfully',
+        message: "Logout successfully",
       });
     } catch (error) {
       return res.serverError(error.message);
@@ -247,17 +247,17 @@ module.exports = {
    * @rejects {Error} - If failed log error
    */
   editProfile: async (req, res) => {
-    const userId = req.params.id;
+    const userId = req.user.id;
     try {
       if (!userId) {
-        return res.status(404).json({ message: 'id not found' });
+        return res.status(404).json({ message: "id not found" });
       }
 
       const user = await User.findOne({ id: userId });
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
-      return res.json({ user });
+      return res.json(user);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -274,16 +274,15 @@ module.exports = {
    */
   updateProfile: async (req, res) => {
     try {
-      const userId = req.params.id;
+      const userId = req.user.id;
 
       const criteria = { id: userId };
       const values = {
         name: req.body.name,
-        email: req.body.email,
       };
       // console.log(criteria, values);
       const updatedUser = await User.updateOne(criteria).set(values);
-      return res.json({ userDatam: updatedUser });
+      return res.json({ status: 200, userDatam: updatedUser });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -301,16 +300,16 @@ module.exports = {
     const id = req.params.id;
     try {
       if (!id) {
-        return res.status(404).json({ message: 'missing user id' });
+        return res.status(404).json({ message: "missing user id" });
       }
       const validUser = await User.findOne({ id });
       if (!validUser) {
-        return res.status(401).json({ message: 'invalid user id' });
+        return res.status(401).json({ message: "invalid user id" });
       }
 
       await Accounts.destroy({ owner: id });
       await User.destroy({ id: id });
-      return req.json({ status: 200, message: 'User deleted successfully' });
+      return req.json({ status: 200, message: "User deleted successfully" });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);

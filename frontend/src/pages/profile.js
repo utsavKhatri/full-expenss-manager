@@ -7,26 +7,78 @@ import {
   Input,
   Stack,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/react";
 import SidebarWithHeader from "./components/navbar";
 import { dataState } from "../../context";
 import Loader from "./components/Loader";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 export default function UserProfileEdit() {
-  const { user } = dataState();
-
+  const [name, setName] = useState("");
+  const [profile, setProfile] = useState();
+  const toast = useToast();
+  const router = useRouter();
+  const [refresh, setRefresh] = useState(false);
   useEffect(() => {
-    if (!user) {
-      window.location.href = "/";
-    }
-  }, []);
-  const userData = user.user;
-  console.log("log from profile -->", user);
-
+    const user = localStorage.getItem("userInfo");
+    const { token } = JSON.parse(user);
+    axios
+      .get("http://localhost:1337/editProfile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        setProfile(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast({
+          title: "Something went wrong",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  }, [refresh]);
+  const handleupdateProfile = () => {
+    const user = localStorage.getItem("userInfo");
+    const { token } = JSON.parse(user);
+    const options = {
+      method: "PUT",
+      url: `http://localhost:1337/editProfile`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        name: name,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        console.log(response.data);
+        if (response.data.status == 200) {
+          toast({
+            title: "Profile Updated Successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          setRefresh(!refresh);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   return (
     <SidebarWithHeader>
-      {userData == null ? (
+      {profile == null ? (
         <Loader />
       ) : (
         <Flex
@@ -52,7 +104,8 @@ export default function UserProfileEdit() {
               <FormLabel>User name</FormLabel>
               <Input
                 placeholder="UserName"
-                value={userData.name && userData.name}
+                defaultValue={profile && profile.name}
+                onChange={(e) => setName(e.target.value)}
                 _placeholder={{ color: "gray.500" }}
                 type="text"
               />
@@ -61,17 +114,10 @@ export default function UserProfileEdit() {
               <FormLabel>Email address</FormLabel>
               <Input
                 placeholder="your-email@example.com"
-                value={userData.email && userData.email}
+                defaultValue={profile && profile.email}
                 _placeholder={{ color: "gray.500" }}
                 type="email"
-              />
-            </FormControl>
-            <FormControl id="password" isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                placeholder="password"
-                _placeholder={{ color: "gray.500" }}
-                type="password"
+                disabled
               />
             </FormControl>
             <Stack spacing={6} direction={["column", "row"]}>
@@ -82,6 +128,7 @@ export default function UserProfileEdit() {
                 _hover={{
                   bg: "red.500",
                 }}
+                onClick={() => setName("")}
               >
                 Cancel
               </Button>
@@ -92,6 +139,7 @@ export default function UserProfileEdit() {
                 _hover={{
                   bg: "blue.500",
                 }}
+                onClick={handleupdateProfile}
               >
                 Submit
               </Button>
