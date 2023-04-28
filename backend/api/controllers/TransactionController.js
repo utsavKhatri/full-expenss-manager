@@ -42,19 +42,30 @@ module.exports = {
       transactionsData.forEach((element) => {
         const h = element.amount;
         if (h < 0) {
-          expenses += h;
+          expenses += Math.abs(h);
         } else {
           income += h;
         }
       });
       const totalIncome = income;
       const totalExpenses = Math.abs(expenses);
-      const totalAmount = totalIncome + totalExpenses;
+      const totalAmount = totalIncome - totalExpenses;
+
+      console.log(
+        "this is ba;ance by d,",
+        balance,
+        "this is by me",
+        totalAmount
+      );
 
       const incomePercentageChange =
-        ((totalAmount - totalExpenses) / totalAmount) * 100;
+        ((totalIncome - totalExpenses) / 100) * 100;
+      console.log(
+        "ashgdhjagsdjhags-> ",
+        (totalIncome - totalExpenses) / totalAmount
+      );
       const expensePercentageChange =
-        ((totalAmount - totalIncome) / totalAmount) * 100;
+        (1 - (totalIncome - totalExpenses) / 100) * 100;
 
       const finalData = {
         data: transactionsData,

@@ -51,7 +51,7 @@ module.exports.models = {
    ***************************************************************************/
 
   /* Telling the database to alter the table if it already exists. */
-  migrate: 'alter',
+  migrate: 'safe',
 
   /***************************************************************************
    *                                                                          *
