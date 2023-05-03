@@ -21,6 +21,7 @@ module.exports = {
     try {
       const accountId = req.params.id;
       console.log(accountId);
+
       const account = await Accounts.findOne({ id: accountId });
       const transactionsData = await Transaction.find({
         account: accountId,
@@ -32,6 +33,7 @@ module.exports = {
             createdAt: "DESC",
           },
         ]);
+      // console.log(transactionsData);
       const balance = await Transaction.sum("amount").where({
         account: accountId,
       });
@@ -51,19 +53,19 @@ module.exports = {
       const totalExpenses = Math.abs(expenses);
       const totalAmount = totalIncome - totalExpenses;
 
-      console.log(
-        "this is ba;ance by d,",
-        balance,
-        "this is by me",
-        totalAmount
-      );
+      // console.log(
+      //   "this is ba;ance by d,",
+      //   balance,
+      //   "this is by me",
+      //   totalAmount
+      // );
 
       const incomePercentageChange =
         ((totalIncome - totalExpenses) / 100) * 100;
-      console.log(
-        "ashgdhjagsdjhags-> ",
-        (totalIncome - totalExpenses) / totalAmount
-      );
+      // console.log(
+      //   "ashgdhjagsdjhags-> ",
+      //   (totalIncome - totalExpenses) / totalAmount
+      // );
       const expensePercentageChange =
         (1 - (totalIncome - totalExpenses) / 100) * 100;
 
@@ -79,6 +81,113 @@ module.exports = {
       };
 
       return res.json(finalData);
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
+  getTransactionByDura: async (req, res) => {
+    try {
+      const accountId = req.params.id;
+      console.log(accountId);
+
+      if (!req.query.filter) {
+        return res.json({
+          message: "Filter is required",
+        });
+      }
+      console.log(req.query);
+
+      const now = new Date();
+      let startDate;
+      let endDate;
+
+      if (req.query.filter == "Weeks") {
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const daysSinceMonday = (dayOfWeek + 6) % 7; // days since Monday (0 = Monday, 1 = Tuesday, etc.)
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - daysSinceMonday
+        );
+        endDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + (6 - daysSinceMonday)
+        );
+      }
+      if (req.query.filter == "Months") {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      }
+      if (req.query.filter == "Years") {
+        startDate = new Date(now.getFullYear(), 0, 1);
+        endDate = new Date(now.getFullYear(), 11, 31);
+      }
+      if (req.query.filter == "All") {
+        startDate = new Date(0);
+        endDate = now;
+      }
+
+      const searchQuery = {
+        account: accountId,
+        createdAt: {
+          ">": Date.parse(startDate),
+          "<": Date.parse(endDate),
+        },
+      };
+
+      // if (req.query.filter == "Months") {
+      //   searchQuery = {
+      //     account: accountId,
+      //     createdAt: {
+      //       ">": Date.parse(
+      //         new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      //       ),
+      //       "<": Date.parse(
+      //         new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+      //       ),
+      //     },
+      //   };
+      // }
+      // if (req.query.filter == "Years") {
+      //   searchQuery = {
+      //     account: accountId,
+      //     createdAt: {
+      //       ">": Date.parse(
+      //         new Date(
+      //           new Date().getFullYear(),
+      //           new Date().getMonth(),
+      //           new Date().getDate() - 365
+      //         )
+      //       ),
+      //       "<": Date.parse(
+      //         new Date(
+      //           new Date().getFullYear(),
+      //           new Date().getMonth(),
+      //           new Date().getDate() + 365
+      //         )
+      //       ),
+      //     },
+      //   };
+      // }
+      // if (req.query.filter == "All") {
+      //   searchQuery = {
+      //     account: accountId,
+      //   };
+      // }
+
+      console.log(searchQuery);
+      const transactionsData = await Transaction.find(searchQuery)
+        .populate("updatedBy")
+        .populate("category")
+        .sort([
+          {
+            createdAt: "DESC",
+          },
+        ]);
+      // console.log(transactionsData);
+      return res.json(transactionsData);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);

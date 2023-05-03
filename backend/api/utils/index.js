@@ -20,7 +20,7 @@ const mailData = {
     pass: process.env.PASS,
   },
 };
-async function generateData(numEntries,tID,currentUser) {
+async function generateData(numEntries, tID, currentUser) {
   const categories = [
     "643fce35569a635b776fd002",
     "643fce50706bb35bb80a8e67",
@@ -85,7 +85,7 @@ async function generateData(numEntries,tID,currentUser) {
     "643fe5466871c673ca25e282",
     "643fe5466871c673ca25e283",
     "643fe5466871c673ca25e284",
-    "643fe5466871c673ca25e285"
+    "643fe5466871c673ca25e285",
   ];
   const transfers = [
     "Electric Company",
@@ -284,14 +284,24 @@ async function generateData(numEntries,tID,currentUser) {
       (await transactions[Math.floor(Math.random() * transactions.length)]) +
       "#" +
       (Math.floor(Math.random() * 100) + 1);
+    const now = Date.now();
+    let earliestDate = new Date(1679996764000).getTime(); // Replace with your desired earliest date in Unix timestamp
+    let latestDate = now;
+
+    let createdAt =
+      Math.floor(Math.random() * (latestDate - earliestDate + 1)) +
+      earliestDate;
+
+    console.log(new Date(createdAt).toLocaleDateString());
     let entry = {
       text: text,
       amount: amount,
       transfer: transfer,
       category: category,
-      account:tID,
-      by:currentUser,
-      updatedBy:currentUser
+      account: tID,
+      by: currentUser,
+      updatedBy: currentUser,
+      createdAt: createdAt,
     };
     data["data"].push(entry);
   }

@@ -23,6 +23,7 @@ module.exports.routes = {
   "GET /editTransaction/:id": "TransactionController.editTransaction",
   "GET /editAccount/:id": "AccountsController.editAccount",
   "GET /viewTransaction/:id": "TransactionController.getTrsansaction",
+  "GET /transaction/duration/:id": "TransactionController.getTransactionByDura",
   "GET /logout": "UserController.userLogout",
   "GET /share/:id": "AccountsController.share",
   "DELETE /delAccount/:accId": "AccountsController.delAccount",

@@ -45,11 +45,9 @@ import AddTranjection from "../components/AddTranjection";
 import UpdateTransactions from "../components/UpdateTrans";
 import BalanceChart from "../components/BalanceChart";
 import Loader from "../components/Loader";
-import TransactionChart from "../components/TransactionChart";
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Report from "../components/Report";
-import { dataState } from "../../../context";
+import ApexTransactionChart from "../components/ApexTransactionChart";
 
 const account = () => {
   const router = useRouter();
@@ -59,9 +57,11 @@ const account = () => {
   const [isShareModal, setIsShareModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
+  const [chartData1, setChartData1] = useState([]);
   const [intChartData, setIntChartData] = useState([]);
   const [intLabelData, setIntLabelData] = useState([]);
   const [chartLable, setChartLable] = useState([]);
+  const [chartLable1, setChartLable1] = useState([]);
   const [email, setEmail] = useState("");
   const [sampleAccData, setSampleAccData] = useState();
   const [intLoading, setIntLoading] = useState(true);
@@ -71,6 +71,7 @@ const account = () => {
   const toast = useToast();
   const [currentuserData, setCurrentuserData] = useState();
   const [currentPage, setCurrentPage] = useState(1);
+  const [intervalData, setIntervalData] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const reportRef = useRef();
 
@@ -124,7 +125,7 @@ const account = () => {
           return element.amount;
         });
         const newLablelArr = response.data.data.map((element) => {
-          return element.text;
+          return new Date(element.createdAt).toISOString();
         });
         setChartData(newArr);
         setIntChartData(newArr.slice(0, limit));
@@ -145,16 +146,21 @@ const account = () => {
   };
 
   const handleLoadmore = () => {
+    setIntervalData(false);
     setLimit(limit + 15);
     setIntChartData(chartData.slice(0, limit));
     setIntLabelData(chartLable.slice(0, limit));
   };
   const handleLoadAllMore = () => {
+    setIntervalData(false);
+
     setIntChartData(chartData);
     setIntLabelData(chartLable);
   };
 
   const handleLoadLess = () => {
+    setIntervalData(false);
+
     setLimit(15);
     setIntChartData(chartData.slice(0, limit));
     setIntLabelData(chartLable.slice(0, limit));
@@ -260,6 +266,7 @@ const account = () => {
   };
 
   useEffect(() => {
+    // Client-side-only code
     if (!localStorage.getItem("userInfo")) {
       window.location.href = "/";
     } else {
@@ -286,6 +293,43 @@ const account = () => {
     } else {
       setCurrentPage(1);
     }
+  };
+  const handleSelectOption = (e) => {
+    console.log(e.target.value);
+    console.log(
+      `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`
+    );
+    const user = localStorage.getItem("userInfo");
+    const { token } = JSON.parse(user);
+    const options = {
+      method: "GET",
+      url: `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        const newArr = response.data.map((element) => {
+          return element.amount;
+        });
+        const newLablelArr = response.data.map((element) => {
+          return new Date(element.createdAt).toISOString();
+        });
+        setChartData1(newArr);
+        setChartLable1(newLablelArr);
+        setIntervalData(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: "visit to homepage, something went wrong",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      });
   };
 
   const indexOfLastRow = currentPage * rowsPerPage;
@@ -452,13 +496,12 @@ const account = () => {
               justifyContent={"center"}
               my={3}
               alignItems={"center"}
-              alignSelf={"center"}
-              width={"100%"}
             >
-              <TransactionChart
-                chartLable={intLabelData}
-                chartData={intChartData}
-              />
+              <Stack width={"full"}>
+              <ApexTransactionChart
+                chartLable={intervalData == true ? chartLable1 : intLabelData}
+                chartData={intervalData == true ? chartData1 : intChartData}
+              /></Stack>
               <Stack
                 direction={"row"}
                 my={2}
@@ -474,6 +517,12 @@ const account = () => {
                 <Button onClick={handleLoadAllMore}>
                   <CheckCircleIcon />
                 </Button>
+                <Select onChange={handleSelectOption}>
+                  <option value="Weeks">This Weeks</option>
+                  <option value="Months">This Months</option>
+                  <option value="Years">This Years</option>
+                  <option value="All">All</option>
+                </Select>
               </Stack>
             </Flex>
           </Stack>
@@ -505,6 +554,7 @@ const account = () => {
                 <Th>Transfer</Th>
                 <Th>Category</Th>
                 <Th isNumeric>Amount</Th>
+                <Th>Date</Th>
                 <Th width={"-moz-fit-content"} colSpan={2} textAlign={"center"}>
                   Action
                 </Th>
@@ -529,6 +579,13 @@ const account = () => {
                           style: "currency",
                           currency: "INR",
                         }).format(trans.amount)}
+                      </Td>
+                      <Td>
+                        {
+                          new Date(trans.createdAt).toLocaleDateString(
+                            "en-IN",
+                          )
+                        }
                       </Td>
                       <Td width={"-moz-fit-content"}>
                         <UpdateTransactions

@@ -9,6 +9,7 @@ import {
   Legend,
   Tooltip,
   LineController,
+  Filler,
   BarController,
 } from "chart.js";
 
@@ -17,6 +18,7 @@ ChartJS.register(
   CategoryScale,
   BarElement,
   PointElement,
+  Filler,
   LineElement,
   Legend,
   Tooltip,
@@ -50,6 +52,7 @@ const TransactionChart = ({ chartLable, chartData }) => {
 
   useEffect(() => {
     setOptions({
+      tension:0,
       responsive: true,
       scales: {
         x: {
@@ -123,26 +126,29 @@ const TransactionChart = ({ chartLable, chartData }) => {
       {
         fill: true,
         label: "Transactions",
-        backgroundColor: chartData.map((ele) => {
-          if (ele < 0) {
-            return "rgba(255, 0, 0, 0.4)";
-          } else {
-            return "rgba(131, 247, 129, 0.4)";
-          }
-        }),
+        lineTension: 0,   
+        // backgroundColor: chartData.map((ele) => {
+        //   if (ele < 0) {
+        //     return "rgba(255, 0, 0, 0.4)";
+        //   } else {
+        //     return "rgba(131, 247, 129, 0.4)";
+        //   }
+        // }),
+        // borderColor: chartData.map((ele) => {
+        //   if (ele < 0) {
+        //     return "rgba(255, 0, 0, 0.9)";
+        //   } else {
+        //     return "rgba(131, 247, 129, 0.9)";
+        //   }
+        // }),
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
         data: chartData,
-        borderColor: chartData.map((ele) => {
-          if (ele < 0) {
-            return "rgba(255, 0, 0, 0.9)";
-          } else {
-            return "rgba(131, 247, 129, 0.9)";
-          }
-        }),
         borderWidth: 2,
       },
     ],
   };
-  return <Bar options={options} data={data} />;
+  return <Line options={options} data={data} />;
 };
 
 export default TransactionChart;
