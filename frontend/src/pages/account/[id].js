@@ -48,6 +48,7 @@ import Loader from "../components/Loader";
 import "jspdf-autotable";
 import Report from "../components/Report";
 import ApexTransactionChart from "../components/ApexTransactionChart";
+import MaterialTransTable from "../components/MaterialTransTable";
 
 const account = () => {
   const router = useRouter();
@@ -540,8 +541,9 @@ const account = () => {
             </Heading>
             {transData.data.length > 0 && <Report transData={transData} />}
           </Flex>
-
-          <Table
+            
+            <MaterialTransTable trasactionData={transData.data}/>
+          {/* <Table
             textAlign={"center"}
             size={{ base: "sm", sm: "md", md: "lg" }}
             width={"100%"}
@@ -607,7 +609,7 @@ const account = () => {
                 );
               })}
             </Tbody>
-          </Table>
+          </Table> */}
         </TableContainer>
         <Flex
           flexDirection={"row"}

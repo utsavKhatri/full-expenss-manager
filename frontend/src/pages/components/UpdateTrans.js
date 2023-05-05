@@ -28,6 +28,8 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
   const [transfer, setTransfer] = useState(updateTransData.transfer);
   const [category, setCategory] = useState(updateTransData.category);
   const toast = useToast();
+  const [isIncome, setIsIncome] = useState(true)
+
   const [catlist, setCatlist] = useState();
 
   const updateTransactionGet = () => {
@@ -71,6 +73,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
         amount: amount,
         category: category,
         transfer: transfer,
+        isIncome: isIncome
       },
     };
     axios
@@ -171,6 +174,17 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
                     catlist.map((v) => {
                       return <option value={v.id}>{v.name}</option>;
                     })}
+                </Select>
+              </FormControl>
+              <FormControl isRequired>
+              <FormLabel>Type</FormLabel>
+
+                <Select
+                  placeholder="type"
+                  onChange={(e) => setIsIncome(e.target.value)}
+                >
+                  <option value={true}>Income</option>
+                  <option value={false}>Expenses</option>
                 </Select>
               </FormControl>
             </Stack>

@@ -21,6 +21,7 @@
     "sails-mongo": "^2.0.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "eslint": "5.16.0"
   },
   "scripts": {

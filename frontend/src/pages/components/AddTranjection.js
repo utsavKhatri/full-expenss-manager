@@ -25,6 +25,7 @@ function AddTranjection({ accId, fetchSignleAcc }) {
   const [transfer, setTransfer] = useState("");
   const [category, setCategory] = useState("");
   const [catlist, setCatlist] = useState();
+  const [isIncome, setIsIncome] = useState(true)
   const toast = useToast();
   const handleCreateTrans = () => {
     const user = localStorage.getItem("userInfo");
@@ -40,6 +41,7 @@ function AddTranjection({ accId, fetchSignleAcc }) {
         amount: amount,
         transfer: transfer,
         category: category,
+        isIncome: isIncome
       },
     };
     axios
@@ -127,6 +129,17 @@ function AddTranjection({ accId, fetchSignleAcc }) {
                     catlist.map((v) => {
                       return <option value={v.id}>{v.name}</option>;
                     })}
+                </Select>
+              </FormControl>
+              <FormControl isRequired>
+              <FormLabel>Type</FormLabel>
+
+                <Select
+                  placeholder="type"
+                  onChange={(e) => setIsIncome(e.target.value)}
+                >
+                  <option value={true}>Income</option>
+                  <option value={false}>Expenses</option>
                 </Select>
               </FormControl>
             </Stack>

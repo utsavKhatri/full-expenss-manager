@@ -42,15 +42,14 @@ module.exports = {
       let expenses = 0;
 
       transactionsData.forEach((element) => {
-        const h = element.amount;
-        if (h < 0) {
-          expenses += Math.abs(h);
+        if (element.isIncome) {
+          expenses += element.amount;
         } else {
-          income += h;
+          income += element.amount;
         }
       });
       const totalIncome = income;
-      const totalExpenses = Math.abs(expenses);
+      const totalExpenses = expenses;
       const totalAmount = totalIncome - totalExpenses;
 
       // console.log(
@@ -61,17 +60,17 @@ module.exports = {
       // );
 
       const incomePercentageChange =
-        ((totalIncome - totalExpenses) / 100) * 100;
+        ((totalIncome - totalExpenses) / totalIncome) * 100;
       // console.log(
       //   "ashgdhjagsdjhags-> ",
       //   (totalIncome - totalExpenses) / totalAmount
       // );
       const expensePercentageChange =
-        (1 - (totalIncome - totalExpenses) / 100) * 100;
+        (1 - (totalIncome - totalExpenses) / totalIncome) * 100;
 
       const finalData = {
         data: transactionsData,
-        balance: balance.toFixed(2),
+        balance: totalAmount.toFixed(2),
         income: income.toFixed(2),
         incomePercentageChange: incomePercentageChange.toFixed(2),
         expenses: expenses.toFixed(2),
@@ -103,18 +102,22 @@ module.exports = {
       let endDate;
 
       if (req.query.filter == "Weeks") {
-        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const daysSinceMonday = (dayOfWeek + 6) % 7; // days since Monday (0 = Monday, 1 = Tuesday, etc.)
-        startDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate() - daysSinceMonday
-        );
-        endDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate() + (6 - daysSinceMonday)
-        );
+        let today = new Date();
+
+        // Get the day of the week (0 is Sunday, 1 is Monday, etc.)
+        let dayOfWeek = today.getDay();
+
+        // Calculate the date of the start of the current week
+        let startDate2 = new Date(today);
+        startDate2.setDate(today.getDate() - dayOfWeek);
+
+        // Calculate the date of the end of the current week
+        let endDate2 = new Date(today);
+        endDate2.setDate(today.getDate() - dayOfWeek + 6);
+
+        // Format the dates as strings
+        startDate = startDate2.toDateString();
+        endDate = endDate2.toDateString();
       }
       if (req.query.filter == "Months") {
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -136,46 +139,6 @@ module.exports = {
           "<": Date.parse(endDate),
         },
       };
-
-      // if (req.query.filter == "Months") {
-      //   searchQuery = {
-      //     account: accountId,
-      //     createdAt: {
-      //       ">": Date.parse(
-      //         new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-      //       ),
-      //       "<": Date.parse(
-      //         new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-      //       ),
-      //     },
-      //   };
-      // }
-      // if (req.query.filter == "Years") {
-      //   searchQuery = {
-      //     account: accountId,
-      //     createdAt: {
-      //       ">": Date.parse(
-      //         new Date(
-      //           new Date().getFullYear(),
-      //           new Date().getMonth(),
-      //           new Date().getDate() - 365
-      //         )
-      //       ),
-      //       "<": Date.parse(
-      //         new Date(
-      //           new Date().getFullYear(),
-      //           new Date().getMonth(),
-      //           new Date().getDate() + 365
-      //         )
-      //       ),
-      //     },
-      //   };
-      // }
-      // if (req.query.filter == "All") {
-      //   searchQuery = {
-      //     account: accountId,
-      //   };
-      // }
 
       console.log(searchQuery);
       const transactionsData = await Transaction.find(searchQuery)
@@ -204,7 +167,7 @@ module.exports = {
   addTrsansaction: async (req, res) => {
     try {
       const tID = req.params.tId;
-      const { text, amount, transfer, category } = req.body;
+      const { text, amount, transfer, category, isIncome } = req.body;
       if (req.body.data) {
         req.body.data.forEach(async (element) => {
           await Transaction.create({
@@ -240,6 +203,7 @@ module.exports = {
         by: req.user.id,
         updatedBy: req.user.id,
         account: tID,
+        isIncome,
       });
       return res.status(201).json({ data: newTransactions });
     } catch (error) {

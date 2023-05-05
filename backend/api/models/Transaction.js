@@ -15,6 +15,10 @@ module.exports = {
       type: 'number',
       required: true,
     },
+    isIncome: {
+      type: 'boolean',
+      required: true,
+    },
     transfer: { type: 'string', required: true },
     category: { model: 'Category', required: true },
     account: {
