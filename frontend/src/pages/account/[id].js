@@ -30,8 +30,9 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
+import { ExportToCsv } from 'export-to-csv';
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import MainTemplate from "../components/maintemplate";
 import { useRouter } from "next/router";
 import {
@@ -48,7 +49,9 @@ import Loader from "../components/Loader";
 import "jspdf-autotable";
 import Report from "../components/Report";
 import ApexTransactionChart from "../components/ApexTransactionChart";
-import MaterialTransTable from "../components/MaterialTransTable";
+import { createTheme, FormControl, InputLabel, ThemeProvider } from "@mui/material";
+import MaterialReactTable from "material-react-table";
+import ExportData from "../components/ExportData";
 
 const account = () => {
   const router = useRouter();
@@ -71,15 +74,11 @@ const account = () => {
   const [chartVisible, setChartVisibale] = useState(false);
   const toast = useToast();
   const [currentuserData, setCurrentuserData] = useState();
-  const [currentPage, setCurrentPage] = useState(1);
   const [intervalData, setIntervalData] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
   const reportRef = useRef();
+  const theme = createTheme();
+  console.log("theme", theme);
 
-  const handleRowsPerPageChange = (e) => {
-    const value = parseInt(e.target.value);
-    setRowsPerPage(value);
-  };
   const fetchAccData = () => {
     const user = localStorage.getItem("userInfo");
     const { token } = JSON.parse(user);
@@ -267,34 +266,23 @@ const account = () => {
   };
 
   useEffect(() => {
-    // Client-side-only code
     if (!localStorage.getItem("userInfo")) {
       window.location.href = "/";
     } else {
       setCurrentuserData(JSON.parse(localStorage.getItem("userInfo")));
       fetchSignleAcc();
       fetchAccData();
+      axios
+        .get("http://localhost:1337/category")
+        .then((res) => {
+          setCatlist(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }, []);
 
-  const handleClick = () => {
-    if (
-      currentPage < Math.ceil(transData && transData.data.length / rowsPerPage)
-    ) {
-      setCurrentPage(currentPage + 1);
-    } else {
-      setCurrentPage(
-        Math.ceil(transData && transData.data.length / rowsPerPage)
-      );
-    }
-  };
-  const handleDescreased = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    } else {
-      setCurrentPage(1);
-    }
-  };
   const handleSelectOption = (e) => {
     console.log(e.target.value);
     console.log(
@@ -333,10 +321,74 @@ const account = () => {
       });
   };
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows =
-    transData && transData.data.slice(indexOfFirstRow, indexOfLastRow);
+
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "text",
+        header: "Text",
+      },
+      {
+        accessorKey: "transfer",
+        header: "Transfer",
+      },
+      {
+        accessorKey: "category.name",
+        header: "Category",
+        enableEditing: false
+      },
+      {
+        accessorKey: "amount",
+        header: "Amount",
+        Cell: ({ cell }) => {
+          return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+          }).format(cell.getValue())
+        }
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Date",
+        enableEditing: false,
+        Cell: ({ cell }) => {
+          return new Date(cell.getValue()).toLocaleDateString()
+        }
+      }
+    ],
+    []
+  );
+
+  const csvOptions = {
+    fieldSeparator: ',',
+    quoteStrings: '"',
+    decimalSeparator: '.',
+    showLabels: true,
+    useBom: true,
+    useKeysAsHeaders: false,
+    headers: columns.map((c) => c.header),
+  };
+
+  const csvExporter = new ExportToCsv(csvOptions);
+
+  const handleExportRows = (rows) => {
+    csvExporter.generateCsv(rows.map((row) => {
+      return {
+        text: row.original.text,
+        transfer: row.original.transfer,
+        category: row.original.category.name,
+        amount: row.original.amount,
+        createdAt: new Date(row.original.createdAt).toLocaleDateString()
+      }
+    }));
+  };
+
+  const handleExportData = () => {
+    csvExporter.generateCsv(data);
+  };
+
+
 
   return intLoading == true ? (
     <Loader />
@@ -499,10 +551,11 @@ const account = () => {
               alignItems={"center"}
             >
               <Stack width={"full"}>
-              <ApexTransactionChart
-                chartLable={intervalData == true ? chartLable1 : intLabelData}
-                chartData={intervalData == true ? chartData1 : intChartData}
-              /></Stack>
+                <ApexTransactionChart
+                  chartLable={intervalData == true ? chartLable1 : intLabelData}
+                  chartData={intervalData == true ? chartData1 : intChartData}
+                />
+              </Stack>
               <Stack
                 direction={"row"}
                 my={2}
@@ -535,152 +588,63 @@ const account = () => {
           overflowX={"auto"}
           ref={reportRef}
         >
-          <Flex justifyContent={"space-between"}>
-            <Heading size={"lg"} my={2}>
-              Recent transactions
-            </Heading>
-            {transData.data.length > 0 && <Report transData={transData} />}
-          </Flex>
-            
-            <MaterialTransTable trasactionData={transData.data}/>
-          {/* <Table
-            textAlign={"center"}
-            size={{ base: "sm", sm: "md", md: "lg" }}
-            width={"100%"}
-            overflowX={"auto"}
-          >
-            <Thead>
-              <Tr>
-                <Th>#</Th>
-                <Th>Text</Th>
-                <Th>Transfer</Th>
-                <Th>Category</Th>
-                <Th isNumeric>Amount</Th>
-                <Th>Date</Th>
-                <Th width={"-moz-fit-content"} colSpan={2} textAlign={"center"}>
-                  Action
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {currentRows.map((trans, i) => {
-                return (
-                  <Tooltip
-                    label={`last updated by ${trans.updatedBy.name}`}
-                    key={trans.id}
-                  >
-                    <Tr>
-                      <Td flexDirection={"row"} alignItems={"center"}>
-                        {i + 1 + (currentPage - 1) * rowsPerPage}
-                      </Td>
-                      <Td>{trans.text}</Td>
-                      <Td>{trans.transfer}</Td>
-                      <Td>{trans.category.name}</Td>
-                      <Td color={trans.amount < 0 ? "red" : "green"}>
-                        {new Intl.NumberFormat("en-IN", {
-                          style: "currency",
-                          currency: "INR",
-                        }).format(trans.amount)}
-                      </Td>
-                      <Td>
-                        {
-                          new Date(trans.createdAt).toLocaleDateString(
-                            "en-IN",
-                          )
-                        }
-                      </Td>
-                      <Td width={"-moz-fit-content"}>
-                        <UpdateTransactions
-                          transId={trans.id}
-                          fetchSignleAcc={fetchSignleAcc}
-                        />
-                      </Td>
-                      <Td width={"-moz-fit-content"}>
-                        <Button
-                          onClick={() => deleteTrans(trans.id)}
-                          leftIcon={<DeleteIcon />}
-                          color={"red.600"}
-                        >
-                          Delete
-                        </Button>
-                      </Td>
-                    </Tr>
-                  </Tooltip>
-                );
-              })}
-            </Tbody>
-          </Table> */}
+          <ThemeProvider theme={theme}>
+            <MaterialReactTable
+              columns={columns}
+              data={transData.data}
+              enableRowSelection
+              positionToolbarAlertBanner="bottom"
+              renderTopToolbarCustomActions={({ table }) => (
+                <ExportData table={table} deleteTrans={deleteTrans} handleExportData={handleExportData} handleExportRows={handleExportRows} />
+              )}
+              enableEditing={true}
+              editingMode="modal"
+              onEditingRowSave={
+                ({ exitEditingMode, row, values }) => {
+                  console.log("row", values);
+                  const user = localStorage.getItem("userInfo");
+                  const { token } = JSON.parse(user);
+                  const options = {
+                    method: "PUT",
+                    url: `http://localhost:1337/editTransaction/${row.original.id}`,
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                    data: {
+                      ...values
+                    },
+                  };
+                  axios
+                    .request(options)
+                    .then((response) => {
+                      console.log("log inside update--->", response);
+                      if (response.status == 200) {
+                        fetchSignleAcc();
+                        toast({
+                          title: "Transaction Updated",
+                          status: "success",
+                          duration: 2000,
+                          isClosable: true,
+                        });
+                        exitEditingMode();
+                      }
+                    })
+                    .catch((error) => {
+                      console.log(error);
+                      toast({
+                        title: `Transaction Not Updated, ${error.response.data.message}`,
+                        status: "error",
+                        duration: 2000,
+                        isClosable: true,
+                      });
+                      exitEditingMode();
+                    });
+                }
+              }
+            />
+          </ThemeProvider>
+
         </TableContainer>
-        <Flex
-          flexDirection={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-        >
-          <Flex
-            flexDirection={"row"}
-            justifyContent={"flex-start"}
-            alignItems={"center"}
-          >
-            <Button
-              size={"sm"}
-              _dark={{ backgroundColor: "#171923", rounded: "full" }}
-              onClick={handleClick}
-            >
-              <AddIcon />
-            </Button>
-            <Button
-              rounded={"full"}
-              justifyContent={"center"}
-              alignItems={"center"}
-              size={"sm"}
-              backgroundColor={"azure"}
-              boxShadow={"md"}
-              _hover={{
-                backgroundColor: "#e3ffff",
-                color: "black",
-                boxShadow: "lg",
-                cursor: "pointer",
-                _dark: {
-                  backgroundColor: "#3d3d3d",
-                  color: "white",
-                },
-              }}
-              _dark={{
-                backgroundColor: "#000000",
-                color: "white",
-                boxShadow: "lg",
-                cursor: "pointer",
-                _hover: {
-                  backgroundColor: "#3d3d3d",
-                  color: "white",
-                },
-              }}
-            >
-              {currentPage}
-            </Button>
-            <Button
-              size={"sm"}
-              _dark={{ backgroundColor: "#171923", rounded: "full" }}
-              onClick={handleDescreased}
-            >
-              <MinusIcon />
-            </Button>
-          </Flex>
-          <Stack>
-            <Select
-              placeholder="items per page"
-              onChange={(e) => handleRowsPerPageChange(e)}
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value={transData.data.length}>All</option>
-            </Select>
-          </Stack>
-        </Flex>
       </Flex>
     </MainTemplate>
   );
