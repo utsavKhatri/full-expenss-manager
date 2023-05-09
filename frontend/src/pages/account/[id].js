@@ -48,7 +48,6 @@ import Loader from "../components/Loader";
 import "jspdf-autotable";
 import Report from "../components/Report";
 import ApexTransactionChart from "../components/ApexTransactionChart";
-import MaterialTransTable from "../components/MaterialTransTable";
 
 const account = () => {
   const router = useRouter();
@@ -499,10 +498,10 @@ const account = () => {
               alignItems={"center"}
             >
               <Stack width={"full"}>
-              <ApexTransactionChart
-                chartLable={intervalData == true ? chartLable1 : intLabelData}
-                chartData={intervalData == true ? chartData1 : intChartData}
-              /></Stack>
+                <ApexTransactionChart
+                  chartLable={intervalData == true ? chartLable1 : intLabelData}
+                  chartData={intervalData == true ? chartData1 : intChartData}
+                /></Stack>
               <Stack
                 direction={"row"}
                 my={2}
@@ -541,9 +540,7 @@ const account = () => {
             </Heading>
             {transData.data.length > 0 && <Report transData={transData} />}
           </Flex>
-            
-            <MaterialTransTable trasactionData={transData.data}/>
-          {/* <Table
+          <Table
             textAlign={"center"}
             size={{ base: "sm", sm: "md", md: "lg" }}
             width={"100%"}
@@ -609,7 +606,7 @@ const account = () => {
                 );
               })}
             </Tbody>
-          </Table> */}
+          </Table>
         </TableContainer>
         <Flex
           flexDirection={"row"}
