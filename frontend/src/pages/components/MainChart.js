@@ -26,8 +26,7 @@ ChartJS.register(
   BarController
 );
 import { Bar, Line } from "react-chartjs-2";
-
-const TransactionChart = ({ chartLable, chartData }) => {
+const MainChart = ({ chartLable, chartData }) => {
   const labels = [...chartLable];
   const [options, setOptions] = useState({});
   useEffect(() => {
@@ -128,6 +127,6 @@ const TransactionChart = ({ chartLable, chartData }) => {
     ],
   };
   return <Line options={options} data={data} />;
-};
+}
 
-export default TransactionChart;
+export default MainChart

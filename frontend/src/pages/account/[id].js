@@ -26,6 +26,7 @@ import {
   Thead,
   Tooltip,
   Tr,
+  useColorMode,
   useColorModeValue,
   useDisclosure,
   useToast,
@@ -71,10 +72,15 @@ const account = ({ id }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [chartVisible, setChartVisibale] = useState(false);
   const toast = useToast();
+  const { colorMode } = useColorMode();
   const [currentuserData, setCurrentuserData] = useState();
   const [intervalData, setIntervalData] = useState(false);
   const reportRef = useRef();
-  const theme = createTheme();
+  const theme = createTheme({
+    palette: {
+      mode: colorMode,
+    },
+  });
   console.log("theme", theme);
 
   const fetchAccData = () => {
@@ -123,7 +129,7 @@ const account = ({ id }) => {
           return parseFloat(element.amount);
         });
         const newLablelArr = response.data.data.map((element) => {
-          return new Date(element.createdAt).toISOString();
+          return new Date(element.createdAt).toDateString();
         });
         setChartData(newArr);
         setIntChartData(newArr.slice(0, limit));

@@ -116,7 +116,7 @@ module.exports = {
         previousIncome: 0,
         previousExpenses: 0,
         previousBalance: 0,
-        user:id
+        user:newUser.id
       }).fetch();
       await Accounts.updateOne({ id: accountDefault.id }).set({
         analytics: analyticsId.id
