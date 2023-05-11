@@ -12,9 +12,11 @@ module.exports = {
     },
     income: {
       type: "number",
+      defaultsTo: 0
     },
     expense: {
       type: "number",
+      defaultsTo: 0
     },
     balance: {
       type: "number",
@@ -28,6 +30,17 @@ module.exports = {
     previousBalance: {
       type: "number",
     },
+    incomePercentageChange: {
+      type: "number",
+      defaultsTo: 0
+    },
+    expensePercentageChange: {
+      type: "number",
+      defaultsTo: 0
+    },
+    user: {
+      model: "User",
+    }
 
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗

@@ -28,6 +28,7 @@ module.exports.routes = {
   "GET /share/:id": "AccountsController.share",
   "DELETE /delAccount/:accId": "AccountsController.delAccount",
   "DELETE /delUser/:id": "UserController.delUser",
+  "GET /dahsboard": "UserController.dashBoard",
 
   "POST /searchTransaction": "AccountsController.searchTransactions",
   "PUT /editTransaction/:id": "TransactionController.updateTransaction",
@@ -47,7 +48,7 @@ module.exports.routes = {
   "POST /category": "CategoryController.create",
   "PUT /category/:id": "CategoryController.update",
   "DELETE /category/:id": "CategoryController.delete",
-  "POST /largeDataInsert/:tId":"TransactionController.addLargeGeneratedTransaction",
+  "POST /largeDataInsert/:tId": "TransactionController.addLargeGeneratedTransaction",
   /***************************************************************************
    *                                                                          *
    * More custom routes here...                                               *

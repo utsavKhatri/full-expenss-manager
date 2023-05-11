@@ -104,9 +104,22 @@ module.exports = {
         password: hashedPassword,
       }).fetch();
 
-      await Accounts.create({
+      const accountDefault = await Accounts.create({
         name: `${newUser.name} default account`,
         owner: newUser.id,
+      }).fetch();
+      const analyticsId = await AccountAnalytics.create({
+        account: accountDefault.id,
+        income: 0,
+        expense: 0,
+        balance: 0,
+        previousIncome: 0,
+        previousExpenses: 0,
+        previousBalance: 0,
+        user:id
+      }).fetch();
+      await Accounts.updateOne({ id: accountDefault.id }).set({
+        analytics: analyticsId.id
       });
       // console.log(defaultAccount);
 
@@ -310,6 +323,22 @@ module.exports = {
       await Accounts.destroy({ owner: id });
       await User.destroy({ id: id });
       return req.json({ status: 200, message: "User deleted successfully" });
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
+  dashBoard: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const listAccounts = await Accounts.find({ owner: userId }).populateAll();
+      const listAllTransaction = await Transaction.find({ by: userId }).populateAll();
+      const analyticsData = await AccountAnalytics.find({ user: userId });
+      return res.json({
+        listAccounts,
+        listAllTransaction,
+        analyticsData
+      });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);

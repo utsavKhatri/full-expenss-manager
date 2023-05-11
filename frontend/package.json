@@ -29,7 +29,7 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.28",
     "material-react-table": "^1.11.3",
-    "next": "13.3.0",
+    "next": "13.4.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",
     "react-chartjs-2": "^5.2.0",

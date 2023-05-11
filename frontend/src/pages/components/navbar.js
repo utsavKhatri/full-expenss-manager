@@ -29,7 +29,7 @@ import {
 import {
   FiHome,
   FiCompass,
-  FiSettings,
+  FiBox,
   FiMenu,
   FiBell,
   FiChevronDown,
@@ -42,7 +42,8 @@ import Link from "next/link";
 import { InfoOutlineIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 const LinkItems = [
-  { name: "Home", icon: FiHome, href: "/homepage" },
+  { name: "Dashboard", icon: FiHome, href: "/dashboard" },
+  { name: "Accounts", icon: FiBox, href: "/homepage" },
   { name: "Shared account", icon: FiCompass, href: "/sharedacc" },
   { name: "Profile", icon: InfoOutlineIcon, href: "/profile" },
 ];

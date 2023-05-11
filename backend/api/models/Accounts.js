@@ -17,9 +17,12 @@ module.exports = {
       collection: "transaction",
       via: "account",
     },
-    analytics:{
-      collection: "accountAnalytics",
-      via: "account",
+    analytics: {
+      model: "AccountAnalytics",
+    },
+    balance: {
+      type: "number",
+      defaultsTo: 0,
     }
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗

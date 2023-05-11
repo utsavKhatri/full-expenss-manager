@@ -48,14 +48,12 @@ import BalanceChart from "../components/BalanceChart";
 import Loader from "../components/Loader";
 import "jspdf-autotable";
 import Report from "../components/Report";
-import ApexTransactionChart from "../components/ApexTransactionChart";
 import { createTheme, FormControl, InputLabel, ThemeProvider } from "@mui/material";
 import MaterialReactTable from "material-react-table";
 import ExportData from "../components/ExportData";
+import TransactionChart from "../components/TransactionChart";
 
-const account = () => {
-  const router = useRouter();
-  const { id } = router.query;
+const account = ({ id }) => {
   const [shareList, setShareList] = useState();
   const [transData, setTransData] = useState();
   const [isShareModal, setIsShareModal] = useState(false);
@@ -122,7 +120,7 @@ const account = () => {
         console.log(response.data);
         setTransData(response.data);
         const newArr = response.data.data.map((element) => {
-          return element.amount;
+          return parseFloat(element.amount);
         });
         const newLablelArr = response.data.data.map((element) => {
           return new Date(element.createdAt).toISOString();
@@ -301,7 +299,7 @@ const account = () => {
       .request(options)
       .then((response) => {
         const newArr = response.data.map((element) => {
-          return element.amount;
+          return parseFloat(element.amount);
         });
         const newLablelArr = response.data.map((element) => {
           return new Date(element.createdAt).toISOString();
@@ -551,7 +549,7 @@ const account = () => {
               alignItems={"center"}
             >
               <Stack width={"full"}>
-                <ApexTransactionChart
+                <TransactionChart
                   chartLable={intervalData == true ? chartLable1 : intLabelData}
                   chartData={intervalData == true ? chartData1 : intChartData}
                 />
@@ -649,5 +647,13 @@ const account = () => {
     </MainTemplate>
   );
 };
+export async function getServerSideProps(context) {
+  {
+    const { query } = context
+    return {
+      props: { id: query.id }, // will be passed to the page component as props
+    };
+  }
+}
 
 export default account;

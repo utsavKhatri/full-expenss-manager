@@ -19,6 +19,7 @@ import {
   WrapItem,
   useToast,
   Flex,
+  Highlight,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { dataState } from "../../context";
@@ -28,6 +29,7 @@ import Link from "next/link";
 import UpdateAcc from "./components/UpdateAcc";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import Loader from "./components/Loader";
+import AddBalanceModal from "./components/AddBalanceModal";
 
 export const Testimonial = ({ children }) => {
   return <Box>{children}</Box>;
@@ -268,20 +270,26 @@ const Homepage = () => {
                       key={i + 1}
                     >
                       <Link href={`/account/${v.id}`}>
-                        <Heading as={"h3"} fontSize={"xl"} textAlign="center">
-                          Name: {v.name}
-                        </Heading>
-                        <Text
-                          textAlign={"center"}
-                          color={useColorModeValue("gray.600", "gray.400")}
-                          fontSize={"sm"}
-                        >
-                          Acc. No: {v.id}
-                        </Text>
+                        <Stack spacing={3} mb={2}>
+                          <Heading as={"h3"} fontSize={"xl"} textAlign="center">
+                            Name: {v.name}
+                          </Heading>
+                          <Heading size='md' textAlign="center">
+                            Available Balance: {v.balance.toFixed(2)}
+                          </Heading>
+                          <Text
+                            textAlign={"center"}
+                            color={useColorModeValue("gray.600", "gray.400")}
+                            fontSize={"sm"}
+                          >
+                            Acc. No: {v.id}
+                          </Text>
+                        </Stack>
                       </Link>
                       <Stack
                         direction={"row"}
                         justifyContent={"space-between"}
+                        alignItems={"center"}
                         w={"50%"}
                         px={5}
                       >
@@ -290,6 +298,7 @@ const Homepage = () => {
                           onClick={() => handleDeleteAcc(v.id)}
                         />
                         <UpdateAcc accId={v.id} />
+                        <AddBalanceModal accId={v.id} />
                       </Stack>
                     </Stack>
                   </WrapItem>

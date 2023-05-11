@@ -67,6 +67,20 @@ module.exports = {
         return res.status(404).json({ message: "id not found" });
       }
       const account = await Accounts.create({ name: name, owner: id }).fetch();
+      const analyticsId = await AccountAnalytics.create({
+        account: account.id,
+        income: 0,
+        expense: 0,
+        balance: 0,
+        previousIncome: 0,
+        previousExpenses: 0,
+        previousBalance: 0,
+        user: id
+      }).fetch();
+      await Accounts.updateOne({ id: account.id }).set({
+        analytics: analyticsId.id
+      });
+
       return res.status(201).json({ data: account });
     } catch (error) {
       console.log(error.message);
@@ -109,6 +123,15 @@ module.exports = {
       if (!accountData) {
         return res.status(404).json({ message: "Account not found" });
       }
+      if (!req.body) {
+        return res.status(404).json({ message: "body not found" });
+      }
+      if (req.body.balance) {
+        req.body.balance = accountData.balance + parseFloat(req.body.balance);
+        await AccountAnalytics.updateOne({ account: accountId }).set({
+          balance: req.body.balance
+        });
+      }
 
       const criteria = { id: accountId };
       const values = req.body;
@@ -137,7 +160,7 @@ module.exports = {
       if (!isValid) {
         return res.status(404).json({ message: "account not found" });
       }
-
+      await AccountAnalytics.destroy({ account: id });
       await Transaction.destroy({ account: id });
       await Accounts.destroy({ id: id });
       return res.status(200).json({ message: "account deleted" });
@@ -445,6 +468,7 @@ module.exports = {
             { text: { contains: searchTerm } },
             { transfer: { contains: searchTerm } },
             { category: { contains: searchTerm } },
+            { amount: { contains: searchTerm } },
           ],
         },
         {
