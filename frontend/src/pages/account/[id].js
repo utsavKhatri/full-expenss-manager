@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Heading,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -64,6 +65,7 @@ const account = ({ id }) => {
   const [intChartData, setIntChartData] = useState([]);
   const [intLabelData, setIntLabelData] = useState([]);
   const [chartLable, setChartLable] = useState([]);
+  const [showDownloadBtn, setShowDownloadBtn] = useState(false);
   const [chartLable1, setChartLable1] = useState([]);
   const [email, setEmail] = useState("");
   const [sampleAccData, setSampleAccData] = useState();
@@ -599,7 +601,13 @@ const account = ({ id }) => {
               enableRowSelection
               positionToolbarAlertBanner="bottom"
               renderTopToolbarCustomActions={({ table }) => (
-                <ExportData table={table} deleteTrans={deleteTrans} handleExportData={handleExportData} handleExportRows={handleExportRows} />
+                <>
+                  <Button onClick={() => setShowDownloadBtn(!showDownloadBtn)}>
+                    {showDownloadBtn ? "Hide" : "Export"}
+                  </Button>
+                  {
+                    showDownloadBtn && <ExportData setShowDownloadBtn={setShowDownloadBtn} showDownloadBtn={showDownloadBtn} table={table} deleteTrans={deleteTrans} handleExportData={handleExportData} handleExportRows={handleExportRows} />
+                  }</>
               )}
               enableEditing={true}
               editingMode="modal"

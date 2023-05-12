@@ -4,10 +4,13 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import {
   DeleteIcon,
 } from "@chakra-ui/icons";
+import { IconButton } from "@chakra-ui/react";
 
-const ExportData = ({ table, handleExportData, deleteTrans, handleExportRows }) => {
+const ExportData = ({ table, handleExportData, deleteTrans, handleExportRows, setShowDownloadBtn, showDownloadBtn }) => {
   return (
+
     <Box sx={{ display: "flex", gap: "1rem", p: "0.5rem", flexWrap: "wrap" }}>
+
       <Button onClick={handleExportData} startIcon={<FileDownloadIcon />}>
         Export All Data
       </Button>
@@ -55,6 +58,7 @@ const ExportData = ({ table, handleExportData, deleteTrans, handleExportRows }) 
         Delete Transaction
       </Button>
     </Box>
+
   );
 };
 
