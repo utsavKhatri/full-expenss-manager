@@ -195,15 +195,15 @@ module.exports = {
             accountAnalytics.previousIncome == 0
               ? 100
               : ((amount - accountAnalytics.previousIncome) /
-                  accountAnalytics.previousIncome) *
-                100;
+                accountAnalytics.previousIncome) *
+              100;
         } else {
           accountAnalytics.expensePercentageChange =
             accountAnalytics.previousExpense == 0
               ? 100
               : ((amount - accountAnalytics.previousExpense) /
-                  accountAnalytics.previousExpense) *
-                100;
+                accountAnalytics.previousExpense) *
+              100;
         }
         console.log(
           accountAnalytics.incomePercentageChange,
@@ -262,22 +262,25 @@ module.exports = {
       data.map(async (element) => {
         tempBalance += element.amount;
       });
-      await Accounts.updateOne({ id: tID }).set({
-        balance: tempBalance + 2398,
-      });
-      await AccountAnalytics.updateOne({ account: tID }).set({
-        balance: tempBalance + 2398,
-      })
-      const accountAnalytics = await AccountAnalytics.findOne({ account: tID });
-      if (accountAnalytics) {
+      if (isValid.balance < tempBalance) {
+        await Accounts.updateOne({ id: tID }).set({
+          balance: tempBalance + 2398,
+        });
+        await AccountAnalytics.updateOne({ account: tID }).set({
+          balance: tempBalance + 2398,
+        });
+      }
+      const accountAnalytics2 = await AccountAnalytics.findOne({ account: tID });
+      if (accountAnalytics2) {
         data.forEach(async (element) => {
+          const accountAnalytics = await AccountAnalytics.findOne({ account: tID });
           if (element.isIncome) {
             accountAnalytics.incomePercentageChange =
               accountAnalytics.previousIncome == 0
                 ? 100
                 : ((element.amount - accountAnalytics.previousIncome) /
-                    accountAnalytics.previousIncome) *
-                  100;
+                  accountAnalytics.previousIncome) *
+                100;
           } else {
             if (accountAnalytics.balance < element.amount) {
               console.log("Insufficient Balance");
@@ -286,8 +289,8 @@ module.exports = {
               accountAnalytics.previousExpense == 0
                 ? 100
                 : ((element.amount - accountAnalytics.previousExpense) /
-                    accountAnalytics.previousExpense) *
-                  100;
+                  accountAnalytics.previousExpense) *
+                100;
           }
           await AccountAnalytics.updateOne({ account: tID }).set({
             income: element.isIncome
@@ -302,7 +305,7 @@ module.exports = {
             previousIncome: element.isIncome
               ? parseFloat(element.amount)
               : accountAnalytics.previousIncome,
-            previousExpenses: !element.isIncome
+            previousExpense: !element.isIncome
               ? parseFloat(element.amount)
               : accountAnalytics.previousExpenses,
             previousBalance: accountAnalytics.previousBalance,

@@ -43,7 +43,7 @@ async function generateData(numEntries, tID, currentUser) {
       by: currentUser,
       updatedBy: currentUser,
       isIncome:faker.datatype.boolean(),
-      createdAt: faker.date.between('2020-01-01T00:00:00.000Z', '2023-06-01T00:00:00.000Z'),
+      createdAt: faker.date.between('2022-01-01T00:00:00.000Z', '2023-06-01T00:00:00.000Z'),
     };
     data["data"].push(entry);
   }

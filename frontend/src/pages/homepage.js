@@ -20,6 +20,7 @@ import {
   useToast,
   Flex,
   Highlight,
+  IconButton,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { dataState } from "../../context";
@@ -153,6 +154,21 @@ const Homepage = () => {
     fetchHomepageData();
   }, [refresh]);
 
+  const generateRandomGradient = () => {
+    const schemes = [
+      ['#d9d9d9', '#b3b3b3'],
+      ['#E9E9E9', '#F6F6F6'],
+      ['#bcc6cc', '#eee'],
+    ];
+    const randomScheme = schemes[Math.floor(Math.random() * schemes.length)];
+    const gradient = `linear-gradient(to right bottom, ${randomScheme[0]}, ${randomScheme[1]})`;
+    return gradient;
+  };
+
+
+
+
+
   return loading == true ? (
     <Loader />
   ) : (
@@ -260,48 +276,155 @@ const Homepage = () => {
               data.accData.map((v, i) => {
                 return (
                   <WrapItem key={i} justifyContent={"center"}>
-                    <Stack
-                      bg={useColorModeValue("white", "gray.800")}
-                      boxShadow={"lg"}
-                      p={8}
-                      rounded={"xl"}
-                      align={"center"}
+                    <Box
+                      width={"400px"}
+                      height={"250px"}
+                      bg={generateRandomGradient}
+                      boxShadow={"xl"}
+                      borderRadius={"xl"}
+                      borderColor={useColorModeValue("navy", "lime")}
                       pos={"relative"}
+                      color={useColorModeValue("black", "white")}
                       key={i + 1}
+                      overflow="hidden"
+                      _hover={{
+                        boxShadow: "dark-lg",
+                      }}
                     >
-                      <Link href={`/account/${v.id}`}>
-                        <Stack spacing={3} mb={2}>
-                          <Heading as={"h3"} fontSize={"xl"} textAlign="center">
-                            Name: {v.name}
-                          </Heading>
-                          <Heading size='md' textAlign="center">
-                            Available Balance: {v.balance.toFixed(2)}
-                          </Heading>
-                          <Text
-                            textAlign={"center"}
-                            color={useColorModeValue("gray.600", "gray.400")}
-                            fontSize={"sm"}
-                          >
-                            Acc. No: {v.id}
-                          </Text>
-                        </Stack>
-                      </Link>
-                      <Stack
-                        direction={"row"}
-                        justifyContent={"space-between"}
-                        alignItems={"center"}
-                        w={"50%"}
-                        px={5}
+                      <Link
+                        href={`/account/${v.id}`}
                       >
-                        <DeleteIcon
-                          color="red"
+                        <Box
+                          width={"100%"}
+                          height={"40px"}
+                          bg={"linear-gradient(to right bottom, #7d7d7d, #555555)"}
+                          pos={"absolute"}
+                          top={0}
+                          left={0}
+                          zIndex={-1}
+                          borderBottomLeftRadius={"xl"}
+                          borderBottomRightRadius={"xl"}
+                        />
+                        <Box pos="absolute" bottom={8} left={8}>
+                          <Text
+                            fontSize="xs"
+                            fontWeight="bold"
+                            letterSpacing="wider"
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            Card Number
+                          </Text>
+                          <Text
+                            fontSize="xl"
+                            fontWeight="bold"
+                            mt={1}
+                            color={useColorModeValue("black", "white")}
+                            fontFamily="OCR A Std, monospace"
+                            letterSpacing="0.01em"
+                            textTransform="uppercase"
+                          >
+                            **** **** **** {v.id.slice(-4)}
+                          </Text>
+                        </Box>
+
+                        <Box pos="absolute" bottom={8} right={8}>
+                          <Text
+                            fontSize="xs"
+                            fontWeight="bold"
+                            letterSpacing="wider"
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            Valid Thru
+                          </Text>
+                          <Text
+                            fontSize="18px"
+                            fontWeight="bold"
+                            mt={1}
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            12/23
+                          </Text>
+                        </Box>
+                        <Box pos="absolute" top={4} left={4}>
+                          <Text
+                            fontSize="12px"
+                            fontWeight="bold"
+                            mt={1}
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            CARD HOLDER
+                          </Text>
+                          <Text
+                            fontSize="12px"
+                            fontWeight="bold"
+                            mt={1}
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            {v.name}
+                          </Text>
+                        </Box>
+                        <Box pos="absolute" top={4} right={4}>
+                          <Text
+                            fontSize="12px"
+                            fontWeight="bold"
+                            mt={1}
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            BALANCE
+                          </Text>
+                          <Text
+                            fontSize="12px"
+                            fontWeight="bold"
+                            mt={1}
+                            color={useColorModeValue("black", "white")}
+                            textTransform="uppercase"
+                          >
+                            {new Intl.NumberFormat("en-IN", {
+                              style: "currency",
+                              currency: "INR",
+                            }).format(v.balance.toFixed(2))}
+                          </Text>
+                        </Box>
+                      </Link>
+                      <Box
+                        pos="absolute"
+                        bottom={0}
+                        left={0}
+                        width="100%"
+                        height="40px"
+                        px={6}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        opacity={0}
+                        transition="opacity 0.2s ease-in-out"
+                        _hover={{
+                          opacity: 1,
+                          bg: useColorModeValue("gray.150", "gray.800"),
+                          borderTopLeftRadius: "0",
+                          borderTopRightRadius: "0",
+                          borderBottomLeftRadius: "xl",
+                          borderBottomRightRadius: "xl",
+                        }}
+                      >
+                        <IconButton
+                          icon={<DeleteIcon />}
+                          color={"red"}
+                          background={"none"} aria-label="Delete account"
                           onClick={() => handleDeleteAcc(v.id)}
                         />
                         <UpdateAcc accId={v.id} />
                         <AddBalanceModal accId={v.id} />
-                      </Stack>
-                    </Stack>
+                      </Box>
+                    </Box>
                   </WrapItem>
+
                 );
               })
             ) : (
@@ -315,3 +438,8 @@ const Homepage = () => {
 };
 
 export default Homepage;
+
+
+
+
+

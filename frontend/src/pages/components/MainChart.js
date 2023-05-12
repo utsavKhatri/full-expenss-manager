@@ -104,7 +104,7 @@ const MainChart = ({ chartLable, chartData }) => {
       {
         fill: true,
         label: "Transactions",
-        tension: 0.5,
+        tension: 0.4,
         backgroundColor: chartData.map((ele) => {
           if (ele < 0) {
             return "rgba(255, 0, 0, 0.4)";

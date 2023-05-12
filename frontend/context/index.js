@@ -7,6 +7,8 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
+  const [stock, setStock] = useState([]);
+
   const [searchResult, setSearchResult] = useState();
   const [accountId, setId] = useState()
   const [data, setData] = useState();
@@ -45,6 +47,29 @@ const AuthProvider = ({ children }) => {
         })
       });
   };
+  const getChartData = () => {
+    const user = localStorage.getItem("userInfo");
+    const { token } = JSON.parse(user);
+    axios
+      .get("http://localhost:1337/dahsboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        let tempData = res.data.listAllTransaction.map((transaction) => {
+          return {
+            close: transaction.amount,
+            date: new Date(transaction.createdAt).toISOString(),
+          }
+        })
+        console.log(tempData);
+        setStock(tempData);
+      }).catch((err) => {
+        console.log(err);
+      })
+  }
 
   const handleCreateAccount = async () => {
     const user = localStorage.getItem("userInfo");
@@ -146,6 +171,7 @@ const AuthProvider = ({ children }) => {
         setData,handleDeleteAcc,handleCreateAccount,
         refresh,
         setRefresh,searchResult, setSearchResult,accountId, setId
+        ,stock, setStock, getChartData
       }}
     >
       {children}
