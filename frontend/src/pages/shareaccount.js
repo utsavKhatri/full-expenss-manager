@@ -22,7 +22,7 @@ const shareaccount = () => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setShareList(response.data);
         setLoading(false);
       })

@@ -55,7 +55,7 @@ const dashboard = () => {
         },
       })
       .then((res) => {
-        console.log("this is analytics-> ", res.data);
+        // console.log("this is analytics-> ", res.data);
         setAnalytics(res.data);
         setLoading(false);
         let tempIncome = 0;
@@ -329,7 +329,7 @@ export const getExpensePercentageChange = (data) => {
   data.analyticsData.map((account) => {
     expensePercentageChange += account.expensePercentageChange;
   });
-  console.log(expensePercentageChange);
+  // console.log(expensePercentageChange);
   return (expensePercentageChange / length).toFixed(2);
 };
 export const getIncomePercentageChange = (data) => {

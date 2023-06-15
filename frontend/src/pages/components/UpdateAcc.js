@@ -40,7 +40,7 @@ const UpdateAcc = ({ accId }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data.data);
+        // console.log(response.data.data);
         setAccData(response.data.data);
       })
       .catch((error) => {
@@ -63,7 +63,7 @@ const UpdateAcc = ({ accId }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         fetchSingleAcc();
         fetchHomepageData();
         toast({

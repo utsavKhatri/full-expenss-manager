@@ -40,7 +40,7 @@ const AddBalanceModal = ({ accId }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         fetchHomepageData();
         toast({
           title: "Account updated successfully",

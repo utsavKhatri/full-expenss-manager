@@ -35,7 +35,7 @@ export default function SignupCard() {
       password:password,
       name:name,
     }).then((response) => {
-      console.log(response);
+      // console.log(response);
       if(response.status == 200){
         toast({
           title: 'signup sucess',

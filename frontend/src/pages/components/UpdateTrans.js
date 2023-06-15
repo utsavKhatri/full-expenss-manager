@@ -46,7 +46,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
     axios
       .request(options)
       .then((response) => {
-        console.log("&^$*&^---> ", response.data.data);
+        // console.log("&^$*&^---> ", response.data.data);
         setUpdateTransData(response.data.data);
         if (isOpen) {
           onClose();
@@ -56,7 +56,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
         console.log(error);
       });
 
-    console.log(updateTransData);
+    // console.log(updateTransData);
     onOpen();
   };
   const updateTransaction = () => {
@@ -79,7 +79,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
     axios
       .request(options)
       .then((response) => {
-        console.log("log inside update--->", response);
+        // console.log("log inside update--->", response);
         if (response.status == 200) {
           fetchSignleAcc();
           toast({

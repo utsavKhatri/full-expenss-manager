@@ -44,7 +44,7 @@ module.exports = {
   async create(req, res) {
     try {
       if (req.body.data) {
-        console.log(req.body.data);
+        // console.log(req.body.data);
         req.body.data.map(async (element) => {
           await Category.create({
             name: element,

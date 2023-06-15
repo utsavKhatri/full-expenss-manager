@@ -59,6 +59,7 @@ import {
 import MaterialReactTable from 'material-react-table';
 import ExportData from '../components/ExportData';
 import TransactionChart from '../components/TransactionChart';
+import ApexTransactionChart from '../components/ApexTransactionChart';
 
 const account = ({ id }) => {
   const [shareList, setShareList] = useState();
@@ -88,7 +89,6 @@ const account = ({ id }) => {
       mode: colorMode,
     },
   });
-  console.log('theme', theme);
 
   const fetchAccData = () => {
     const user = localStorage.getItem('userInfo');
@@ -103,7 +103,7 @@ const account = ({ id }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data.data);
+        // console.log(response.data.data);
         setSampleAccData(response.data.data);
       })
       .catch((error) => {
@@ -130,7 +130,7 @@ const account = ({ id }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setTransData(response.data);
         const newArr = response.data.data.map((element) => {
           return parseFloat(element.amount);
@@ -192,7 +192,7 @@ const account = ({ id }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         setShareList(response.data);
         setLoading(false);
       })
@@ -207,7 +207,7 @@ const account = ({ id }) => {
       });
   };
   const handleShareToUser = () => {
-    console.log('email to send---> ', email);
+    // console.log('email to send---> ', email);
     const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
@@ -223,7 +223,7 @@ const account = ({ id }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         if (response.status == 200) {
           onClose();
           toast({
@@ -295,10 +295,10 @@ const account = ({ id }) => {
   }, []);
 
   const handleSelectOption = (e) => {
-    console.log(e.target.value);
-    console.log(
-      `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`
-    );
+    // console.log(e.target.value);
+    // console.log(
+    //   `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`
+    // );
     const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
@@ -560,7 +560,7 @@ const account = ({ id }) => {
               alignItems={'center'}
             >
               <Stack width={'full'}>
-                <TransactionChart
+                <ApexTransactionChart
                   chartLable={intervalData == true ? chartLable1 : intLabelData}
                   chartData={intervalData == true ? chartData1 : intChartData}
                 />
@@ -623,7 +623,7 @@ const account = ({ id }) => {
               enableEditing={true}
               editingMode="modal"
               onEditingRowSave={({ exitEditingMode, row, values }) => {
-                console.log('row', values);
+                // console.log('row', values);
                 const user = localStorage.getItem('userInfo');
                 const { token } = JSON.parse(user);
                 const options = {
@@ -639,7 +639,7 @@ const account = ({ id }) => {
                 axios
                   .request(options)
                   .then((response) => {
-                    console.log('log inside update--->', response);
+                    // console.log('log inside update--->', response);
                     if (response.status == 200) {
                       fetchSignleAcc();
                       toast({

@@ -159,7 +159,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         setUser(null);
         toast({
           title: "Logged out successfully",
@@ -183,7 +183,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
       return setSearchResult(null);
     }
     const { token } = JSON.parse(localStorage.getItem("userInfo"));
-    console.log(token);
+    // console.log(token);
     const options = {
       method: "POST",
       url: "http://localhost:1337/searchTransaction",

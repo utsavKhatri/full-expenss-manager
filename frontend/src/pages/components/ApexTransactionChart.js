@@ -7,7 +7,7 @@ const ReactApexChart = dynamic(() => import('react-apexcharts'), {
 
 const ApexTransactionChart = ({ chartLable, chartData }) => {
   const [isWindow, setIsWindow] = useState(false);
-  console.log(chartData);
+  // console.log(chartData);
   const options = {
     chart: {
       height: 280,

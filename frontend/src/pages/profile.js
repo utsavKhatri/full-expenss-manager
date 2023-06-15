@@ -32,7 +32,7 @@ export default function UserProfileEdit() {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setProfile(res.data);
       })
       .catch((err) => {
@@ -64,7 +64,7 @@ export default function UserProfileEdit() {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         if (response.data.status == 200) {
           toast({
             title: "Profile Updated Successfully",

@@ -54,14 +54,14 @@ module.exports = {
   getTransactionByDura: async (req, res) => {
     try {
       const accountId = req.params.id;
-      console.log(accountId);
+      // console.log(accountId);
 
       if (!req.query.filter) {
         return res.json({
           message: "Filter is required",
         });
       }
-      console.log(req.query);
+      // console.log(req.query);
 
       const now = new Date();
       let startDate;
@@ -106,7 +106,7 @@ module.exports = {
         },
       };
 
-      console.log(searchQuery);
+      // console.log(searchQuery);
       const transactionsData = await Transaction.find(searchQuery)
         .populate("updatedBy")
         .populate("category")
@@ -205,10 +205,10 @@ module.exports = {
                 accountAnalytics.previousExpense) *
               100;
         }
-        console.log(
-          accountAnalytics.incomePercentageChange,
-          accountAnalytics.expensePercentageChange
-        );
+        // console.log(
+        //   accountAnalytics.incomePercentageChange,
+        //   accountAnalytics.expensePercentageChange
+        // );
         await AccountAnalytics.updateOne({ account: tID }).set({
           income:
             isIncome == "true"
@@ -473,7 +473,7 @@ module.exports = {
     try {
       const transId = req.params.delId;
 
-      console.log(transId);
+      // console.log(transId);
 
       if (!transId) {
         return res.status(404).json({

@@ -56,7 +56,7 @@ module.exports = {
    */
   addAccount: async (req, res) => {
     const { name } = req.body;
-    console.log("name--->", req.body);
+    // console.log("name--->", req.body);
     const id = req.user.id;
     /* This is a try catch block. It is used to catch errors. */
     try {
@@ -180,7 +180,7 @@ module.exports = {
    */
   share: async (req, res) => {
     try {
-      console.log("get share page", req.user.id);
+      // console.log("get share page", req.user.id);
 
       if (!req.params.id) {
         return res.status(404).json({ message: "id not found" });

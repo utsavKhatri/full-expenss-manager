@@ -27,7 +27,7 @@ const Login = () => {
   const route = useRouter();
 
   const handleLogin = () => {
-    console.log("email, pass", email, password);
+    // console.log("email, pass", email, password);
     const config = {
       email: email,
       password: password,
@@ -35,7 +35,7 @@ const Login = () => {
     axios
       .post("http://localhost:1337/login", config)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         setUser(response.data.data);
         route.push("/homepage");
         toast({
