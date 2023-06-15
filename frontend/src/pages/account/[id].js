@@ -31,29 +31,34 @@ import {
   useColorModeValue,
   useDisclosure,
   useToast,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import { ExportToCsv } from 'export-to-csv';
-import axios from "axios";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import MainTemplate from "../components/maintemplate";
-import { useRouter } from "next/router";
+import axios from 'axios';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import MainTemplate from '../components/maintemplate';
+import { useRouter } from 'next/router';
 import {
   AddIcon,
   CheckCircleIcon,
   DeleteIcon,
   MinusIcon,
   RepeatClockIcon,
-} from "@chakra-ui/icons";
-import AddTranjection from "../components/AddTranjection";
-import UpdateTransactions from "../components/UpdateTrans";
-import BalanceChart from "../components/BalanceChart";
-import Loader from "../components/Loader";
-import "jspdf-autotable";
-import Report from "../components/Report";
-import { createTheme, FormControl, InputLabel, ThemeProvider } from "@mui/material";
-import MaterialReactTable from "material-react-table";
-import ExportData from "../components/ExportData";
-import TransactionChart from "../components/TransactionChart";
+} from '@chakra-ui/icons';
+import AddTranjection from '../components/AddTranjection';
+import UpdateTransactions from '../components/UpdateTrans';
+import BalanceChart from '../components/BalanceChart';
+import Loader from '../components/Loader';
+import 'jspdf-autotable';
+import Report from '../components/Report';
+import {
+  createTheme,
+  FormControl,
+  InputLabel,
+  ThemeProvider,
+} from '@mui/material';
+import MaterialReactTable from 'material-react-table';
+import ExportData from '../components/ExportData';
+import TransactionChart from '../components/TransactionChart';
 
 const account = ({ id }) => {
   const [shareList, setShareList] = useState();
@@ -67,7 +72,7 @@ const account = ({ id }) => {
   const [chartLable, setChartLable] = useState([]);
   const [showDownloadBtn, setShowDownloadBtn] = useState(false);
   const [chartLable1, setChartLable1] = useState([]);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [sampleAccData, setSampleAccData] = useState();
   const [intLoading, setIntLoading] = useState(true);
   const [limit, setLimit] = useState(15);
@@ -83,13 +88,13 @@ const account = ({ id }) => {
       mode: colorMode,
     },
   });
-  console.log("theme", theme);
+  console.log('theme', theme);
 
   const fetchAccData = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
-      method: "GET",
+      method: 'GET',
       url: `http://localhost:1337/editAccount/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -104,19 +109,19 @@ const account = ({ id }) => {
       .catch((error) => {
         console.log(error);
         toast({
-          title: "visit to homepage, something went wrong",
-          status: "error",
+          title: 'visit to homepage, something went wrong',
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
-        window.location.href = "/";
+        window.location.href = '/';
       });
   };
   const fetchSignleAcc = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
-      method: "GET",
+      method: 'GET',
       url: `http://localhost:1337/viewTransaction/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -142,12 +147,12 @@ const account = ({ id }) => {
       .catch((error) => {
         console.log(error);
         toast({
-          title: "visit to homepage, something went wrong",
-          status: "error",
+          title: 'visit to homepage, something went wrong',
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
-        window.location.href = "/";
+        window.location.href = '/';
       });
   };
 
@@ -175,10 +180,10 @@ const account = ({ id }) => {
   const handleShareAcc = () => {
     setIsShareModal(true);
     onOpen();
-    const user = localStorage.getItem("userInfo");
+    const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
-      method: "GET",
+      method: 'GET',
       url: `http://localhost:1337/share/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -195,18 +200,18 @@ const account = ({ id }) => {
         console.log(error);
         toast({
           title: error.response.data.message,
-          status: "error",
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
       });
   };
   const handleShareToUser = () => {
-    console.log("email to send---> ", email);
-    const user = localStorage.getItem("userInfo");
+    console.log('email to send---> ', email);
+    const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
-      method: "POST",
+      method: 'POST',
       url: `http://localhost:1337/account/share/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -222,8 +227,8 @@ const account = ({ id }) => {
         if (response.status == 200) {
           onClose();
           toast({
-            title: "Share Successfully",
-            status: "success",
+            title: 'Share Successfully',
+            status: 'success',
             duration: 3000,
             isClosable: true,
           });
@@ -234,7 +239,7 @@ const account = ({ id }) => {
         console.log(error);
         toast({
           title: error.response.data.message,
-          status: "error",
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
@@ -242,7 +247,7 @@ const account = ({ id }) => {
   };
 
   const deleteTrans = (tId) => {
-    const user = localStorage.getItem("userInfo");
+    const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
 
     axios
@@ -253,8 +258,8 @@ const account = ({ id }) => {
       })
       .then((response) => {
         toast({
-          title: "Transaction Deleted Successfully",
-          status: "success",
+          title: 'Transaction Deleted Successfully',
+          status: 'success',
           duration: 3000,
           isClosable: true,
         });
@@ -264,7 +269,7 @@ const account = ({ id }) => {
         console.log(error);
         toast({
           title: error.response.data.message,
-          status: "error",
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
@@ -272,14 +277,14 @@ const account = ({ id }) => {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem("userInfo")) {
-      window.location.href = "/";
+    if (!localStorage.getItem('userInfo')) {
+      window.location.href = '/';
     } else {
-      setCurrentuserData(JSON.parse(localStorage.getItem("userInfo")));
+      setCurrentuserData(JSON.parse(localStorage.getItem('userInfo')));
       fetchSignleAcc();
       fetchAccData();
       axios
-        .get("http://localhost:1337/category")
+        .get('http://localhost:1337/category')
         .then((res) => {
           setCatlist(res.data);
         })
@@ -294,10 +299,10 @@ const account = ({ id }) => {
     console.log(
       `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`
     );
-    const user = localStorage.getItem("userInfo");
+    const user = localStorage.getItem('userInfo');
     const { token } = JSON.parse(user);
     const options = {
-      method: "GET",
+      method: 'GET',
       url: `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -319,49 +324,47 @@ const account = ({ id }) => {
       .catch((error) => {
         console.log(error);
         toast({
-          title: "visit to homepage, something went wrong",
-          status: "error",
+          title: 'visit to homepage, something went wrong',
+          status: 'error',
           duration: 3000,
           isClosable: true,
         });
       });
   };
 
-
-
   const columns = useMemo(
     () => [
       {
-        accessorKey: "text",
-        header: "Text",
+        accessorKey: 'text',
+        header: 'Text',
       },
       {
-        accessorKey: "transfer",
-        header: "Transfer",
+        accessorKey: 'transfer',
+        header: 'Transfer',
       },
       {
-        accessorKey: "category.name",
-        header: "Category",
-        enableEditing: false
+        accessorKey: 'category.name',
+        header: 'Category',
+        enableEditing: false,
       },
       {
-        accessorKey: "amount",
-        header: "Amount",
+        accessorKey: 'amount',
+        header: 'Amount',
         Cell: ({ cell }) => {
-          return new Intl.NumberFormat("en-IN", {
-            style: "currency",
-            currency: "INR",
-          }).format(cell.getValue())
-        }
+          return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+          }).format(cell.getValue());
+        },
       },
       {
-        accessorKey: "createdAt",
-        header: "Date",
+        accessorKey: 'createdAt',
+        header: 'Date',
         enableEditing: false,
         Cell: ({ cell }) => {
-          return new Date(cell.getValue()).toLocaleDateString()
-        }
-      }
+          return new Date(cell.getValue()).toLocaleDateString();
+        },
+      },
     ],
     []
   );
@@ -379,22 +382,22 @@ const account = ({ id }) => {
   const csvExporter = new ExportToCsv(csvOptions);
 
   const handleExportRows = (rows) => {
-    csvExporter.generateCsv(rows.map((row) => {
-      return {
-        text: row.original.text,
-        transfer: row.original.transfer,
-        category: row.original.category.name,
-        amount: row.original.amount,
-        createdAt: new Date(row.original.createdAt).toLocaleDateString()
-      }
-    }));
+    csvExporter.generateCsv(
+      rows.map((row) => {
+        return {
+          text: row.original.text,
+          transfer: row.original.transfer,
+          category: row.original.category.name,
+          amount: row.original.amount,
+          createdAt: new Date(row.original.createdAt).toLocaleDateString(),
+        };
+      })
+    );
   };
 
   const handleExportData = () => {
     csvExporter.generateCsv(data);
   };
-
-
 
   return intLoading == true ? (
     <Loader />
@@ -404,20 +407,20 @@ const account = ({ id }) => {
         <ModalOverlay />
 
         <ModalContent>
-          <ModalHeader textTransform={"capitalize"}>
+          <ModalHeader textTransform={'capitalize'}>
             {isShareModal == true
-              ? "Share to following user"
-              : "add transactions"}
+              ? 'Share to following user'
+              : 'add transactions'}
           </ModalHeader>
           <ModalCloseButton />
 
           <ModalBody>
-            <Heading size={"sm"} my={"2"} textAlign={"left"} fontSize={"sm"}>
-              {" "}
-              previosly you sahre account with{" "}
+            <Heading size={'sm'} my={'2'} textAlign={'left'} fontSize={'sm'}>
+              {' '}
+              previosly you sahre account with{' '}
               {shareList &&
                 shareList.sharedList.map((v) => {
-                  return v.name + ",";
+                  return v.name + ',';
                 })}
             </Heading>
             {loading == false && (
@@ -436,7 +439,7 @@ const account = ({ id }) => {
             )}
           </ModalBody>
           <ModalFooter>
-            <Stack direction={"row"}>
+            <Stack direction={'row'}>
               <Button onClick={onClose}>Close</Button>
               <Button onClick={handleShareToUser}>Share</Button>
             </Stack>
@@ -444,18 +447,18 @@ const account = ({ id }) => {
         </ModalContent>
       </Modal>
 
-      <Flex p={4} direction={"column"} gap={5}>
+      <Flex p={4} direction={'column'} gap={5}>
         <Stack
-          direction={"row"}
-          w={"100%"}
-          alignItems={"center"}
-          justifyContent={"space-between"}
+          direction={'row'}
+          w={'100%'}
+          alignItems={'center'}
+          justifyContent={'space-between'}
         >
           {currentuserData &&
             sampleAccData.owner == currentuserData.user.id && (
               <Button
                 onClick={handleShareAcc}
-                colorScheme={useColorModeValue("blackAlpha", "blue")}
+                colorScheme={useColorModeValue('blackAlpha', 'blue')}
               >
                 Share Account
               </Button>
@@ -463,18 +466,18 @@ const account = ({ id }) => {
           <AddTranjection accId={id} fetchSignleAcc={fetchSignleAcc} />
         </Stack>
         <Stack
-          direction={{ base: "column", md: "row" }}
+          direction={{ base: 'column', md: 'row' }}
           spacing={5}
           my={3}
-          justifyContent={"space-evenly"}
-          alignItems={"center"}
+          justifyContent={'space-evenly'}
+          alignItems={'center'}
         >
-          <Stat boxShadow={"md"} p={2}>
+          <Stat boxShadow={'md'} p={2}>
             <StatLabel>Income</StatLabel>
-            <StatNumber color={useColorModeValue("green", "green.400")}>
-              {new Intl.NumberFormat("en-IN", {
-                style: "currency",
-                currency: "INR",
+            <StatNumber color={useColorModeValue('green', 'green.400')}>
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
               }).format(transData.income)}
             </StatNumber>
             <StatHelpText>
@@ -483,26 +486,26 @@ const account = ({ id }) => {
             </StatHelpText>
           </Stat>
           <Stat
-            boxShadow={"lg"}
+            boxShadow={'lg'}
             p={2}
-            alignItems={"center"}
-            justifyContent={"center"}
+            alignItems={'center'}
+            justifyContent={'center'}
           >
             <StatLabel>Total balance</StatLabel>
-            <StatNumber color={useColorModeValue("blue.600", "blue.400")}>
-              {new Intl.NumberFormat("en-IN", {
-                style: "currency",
-                currency: "INR",
+            <StatNumber color={useColorModeValue('blue.600', 'blue.400')}>
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
               }).format(transData.balance)}
             </StatNumber>
           </Stat>
-          <Stat boxShadow={"md"} p={2}>
+          <Stat boxShadow={'md'} p={2}>
             <StatLabel>Expense</StatLabel>
-            <StatNumber color={"red"}>
-              {" "}
-              {new Intl.NumberFormat("en-IN", {
-                style: "currency",
-                currency: "INR",
+            <StatNumber color={'red'}>
+              {' '}
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
               }).format(transData.expenses)}
             </StatNumber>
             <StatHelpText>
@@ -512,16 +515,16 @@ const account = ({ id }) => {
           </Stat>
         </Stack>
         {transData.data.length > 0 && (
-          <Stack spacing={"8"}>
+          <Stack spacing={'8'}>
             <Button
-              textTransform={"capitalize"}
-              textAlign={"center"}
-              color={useColorModeValue("black", "black")}
-              backgroundColor={"#ffe100"}
+              textTransform={'capitalize'}
+              textAlign={'center'}
+              color={useColorModeValue('black', 'black')}
+              backgroundColor={'#ffe100'}
               _hover={{
-                backgroundColor: "#ffeb57",
-                color: "black",
-                boxShadow: "lg",
+                backgroundColor: '#ffeb57',
+                color: 'black',
+                boxShadow: 'lg',
               }}
               boxShadow="md"
               p="6"
@@ -532,17 +535,17 @@ const account = ({ id }) => {
             </Button>
 
             <Flex
-              display={chartVisible ? "flex" : "none"}
-              justifyContent={"center"}
+              display={chartVisible ? 'flex' : 'none'}
+              justifyContent={'center'}
               my={2}
-              width={"100%"}
-              alignItems={"center"}
-              direction={"column"}
+              width={'100%'}
+              alignItems={'center'}
+              direction={'column'}
             >
-              <Heading size={"md"} mb={3} textAlign={"center"}>
+              <Heading size={'md'} mb={3} textAlign={'center'}>
                 previous income and expenss chart
               </Heading>
-              <Box justifyContent={"center"} width={"80"}>
+              <Box justifyContent={'center'} width={'80'}>
                 <BalanceChart
                   income={transData.income}
                   expenses={transData.expenses}
@@ -551,22 +554,22 @@ const account = ({ id }) => {
             </Flex>
 
             <Flex
-              flexDirection={"column"}
-              justifyContent={"center"}
+              flexDirection={'column'}
+              justifyContent={'center'}
               my={3}
-              alignItems={"center"}
+              alignItems={'center'}
             >
-              <Stack width={"full"}>
+              <Stack width={'full'}>
                 <TransactionChart
                   chartLable={intervalData == true ? chartLable1 : intLabelData}
                   chartData={intervalData == true ? chartData1 : intChartData}
                 />
               </Stack>
               <Stack
-                direction={"row"}
+                direction={'row'}
                 my={2}
                 spacing={4}
-                justifyContent={"space-between"}
+                justifyContent={'space-between'}
               >
                 <Button onClick={handleLoadmore}>
                   <AddIcon />
@@ -588,10 +591,10 @@ const account = ({ id }) => {
           </Stack>
         )}
         <TableContainer
-          width={"100%"}
+          width={'100%'}
           my={2}
           px={{ base: 1, md: 3 }}
-          overflowX={"auto"}
+          overflowX={'auto'}
           ref={reportRef}
         >
           <ThemeProvider theme={theme}>
@@ -603,59 +606,64 @@ const account = ({ id }) => {
               renderTopToolbarCustomActions={({ table }) => (
                 <>
                   <Button onClick={() => setShowDownloadBtn(!showDownloadBtn)}>
-                    {showDownloadBtn ? "Hide" : "Export"}
+                    {showDownloadBtn ? 'Hide' : 'Export'}
                   </Button>
-                  {
-                    showDownloadBtn && <ExportData setShowDownloadBtn={setShowDownloadBtn} showDownloadBtn={showDownloadBtn} table={table} deleteTrans={deleteTrans} handleExportData={handleExportData} handleExportRows={handleExportRows} />
-                  }</>
+                  {showDownloadBtn && (
+                    <ExportData
+                      setShowDownloadBtn={setShowDownloadBtn}
+                      showDownloadBtn={showDownloadBtn}
+                      table={table}
+                      deleteTrans={deleteTrans}
+                      handleExportData={handleExportData}
+                      handleExportRows={handleExportRows}
+                    />
+                  )}
+                </>
               )}
               enableEditing={true}
               editingMode="modal"
-              onEditingRowSave={
-                ({ exitEditingMode, row, values }) => {
-                  console.log("row", values);
-                  const user = localStorage.getItem("userInfo");
-                  const { token } = JSON.parse(user);
-                  const options = {
-                    method: "PUT",
-                    url: `http://localhost:1337/editTransaction/${row.original.id}`,
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                    data: {
-                      ...values
-                    },
-                  };
-                  axios
-                    .request(options)
-                    .then((response) => {
-                      console.log("log inside update--->", response);
-                      if (response.status == 200) {
-                        fetchSignleAcc();
-                        toast({
-                          title: "Transaction Updated",
-                          status: "success",
-                          duration: 2000,
-                          isClosable: true,
-                        });
-                        exitEditingMode();
-                      }
-                    })
-                    .catch((error) => {
-                      console.log(error);
+              onEditingRowSave={({ exitEditingMode, row, values }) => {
+                console.log('row', values);
+                const user = localStorage.getItem('userInfo');
+                const { token } = JSON.parse(user);
+                const options = {
+                  method: 'PUT',
+                  url: `http://localhost:1337/editTransaction/${row.original.id}`,
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                  data: {
+                    ...values,
+                  },
+                };
+                axios
+                  .request(options)
+                  .then((response) => {
+                    console.log('log inside update--->', response);
+                    if (response.status == 200) {
+                      fetchSignleAcc();
                       toast({
-                        title: `Transaction Not Updated, ${error.response.data.message}`,
-                        status: "error",
+                        title: 'Transaction Updated',
+                        status: 'success',
                         duration: 2000,
                         isClosable: true,
                       });
                       exitEditingMode();
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    toast({
+                      title: `Transaction Not Updated, ${error.response.data.message}`,
+                      status: 'error',
+                      duration: 2000,
+                      isClosable: true,
                     });
-                }
-              }
+                    exitEditingMode();
+                  });
+              }}
             />
           </ThemeProvider>
-
         </TableContainer>
       </Flex>
     </MainTemplate>
@@ -663,7 +671,7 @@ const account = ({ id }) => {
 };
 export async function getServerSideProps(context) {
   {
-    const { query } = context
+    const { query } = context;
     return {
       props: { id: query.id }, // will be passed to the page component as props
     };
