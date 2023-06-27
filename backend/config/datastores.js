@@ -47,6 +47,6 @@ module.exports.datastores = {
      *                                                                          *
      ***************************************************************************/
     adapter: "sails-mongo",
-    url: "mongodb+srv://UtsavKhatri:03112001@cluster0.fgkbkfa.mongodb.net/expenssMangaer1",
+    url: process.env.MONGO_URL,
   },
 };
