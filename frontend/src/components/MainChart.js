@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   LinearScale,
@@ -11,7 +11,7 @@ import {
   LineController,
   Filler,
   BarController,
-} from "chart.js";
+} from 'chart.js';
 
 ChartJS.register(
   LinearScale,
@@ -25,11 +25,11 @@ ChartJS.register(
   LineController,
   BarController
 );
-import { Bar, Line } from "react-chartjs-2";
-
-const TransactionChart = ({ chartLable, chartData }) => {
-  const labels = [...chartLable];
+import { Line } from 'react-chartjs-2';
+const MainChart = ({ chartLable, chartData }) => {
+  const labels = typeof chartLable == 'object' && [...chartLable];
   const [options, setOptions] = useState({});
+
   useEffect(() => {
     setOptions({
       responsive: true,
@@ -42,7 +42,7 @@ const TransactionChart = ({ chartLable, chartData }) => {
       },
       plugins: {
         legend: {
-          position: "bottom",
+          position: 'bottom',
           labels: {
             font: {
               size: 14,
@@ -52,11 +52,10 @@ const TransactionChart = ({ chartLable, chartData }) => {
       },
     });
   }, []);
-
   useEffect(() => {
     function checkMediaQuery() {
       if (matchMedia) {
-        const mq = window.matchMedia("(max-width: 600px)");
+        const mq = window.matchMedia('(max-width: 600px)');
         if (mq.matches) {
           // hide x-axis on mobile view
           setOptions((prevOptions) => ({
@@ -92,10 +91,10 @@ const TransactionChart = ({ chartLable, chartData }) => {
     }
 
     checkMediaQuery();
-    window.addEventListener("resize", checkMediaQuery);
+    window.addEventListener('resize', checkMediaQuery);
 
     return () => {
-      window.removeEventListener("resize", checkMediaQuery);
+      window.removeEventListener('resize', checkMediaQuery);
     };
   }, []);
 
@@ -104,24 +103,24 @@ const TransactionChart = ({ chartLable, chartData }) => {
     datasets: [
       {
         fill: true,
-        label: "Transactions",
-        tension: 0.5,
+        label: 'Transactions',
+        tension: 0.4,
         backgroundColor: chartData.map((ele) => {
           if (ele < 0) {
-            return "rgba(255, 0, 0, 0.4)";
+            return 'rgba(255, 0, 0, 0.4)';
           } else {
-            return "rgba(131, 247, 129, 0.4)";
+            return 'rgba(131, 247, 129, 0.4)';
           }
         }),
         borderColor: chartData.map((ele) => {
           if (ele < 0) {
-            return "rgba(255, 0, 0, 0.9)";
+            return 'rgba(255, 0, 0, 0.9)';
           } else {
-            return "rgba(131, 247, 129, 0.9)";
+            return 'rgba(131, 247, 129, 0.9)';
           }
         }),
-        borderColor: "rgb(53, 162, 235)",
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
+        borderColor: 'rgb(53, 162, 235)',
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
         data: chartData,
         borderWidth: 2,
       },
@@ -130,4 +129,4 @@ const TransactionChart = ({ chartLable, chartData }) => {
   return <Line options={options} data={data} />;
 };
 
-export default TransactionChart;
+export default MainChart;

@@ -9,7 +9,7 @@ const hiddenRecord = () => {
   const toast = useToast();
   const handleCreateTrans = () => {
     setLoading(true);
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "POST",

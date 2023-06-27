@@ -9,9 +9,9 @@ import {
   useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
-import SidebarWithHeader from "./components/navbar";
+import SidebarWithHeader from "../components/navbar";
 import { dataState } from "../../context";
-import Loader from "./components/Loader";
+import Loader from "../components/Loader";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -23,7 +23,7 @@ export default function UserProfileEdit() {
   const router = useRouter();
   const [refresh, setRefresh] = useState(false);
   useEffect(() => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     axios
       .get("http://localhost:1337/editProfile", {
@@ -49,7 +49,7 @@ export default function UserProfileEdit() {
 
   }, [refresh]);
   const handleupdateProfile = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "PUT",

@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import useLocalStorage from "../../utils";
+import Cookies from "js-cookie";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -37,6 +38,7 @@ const Login = () => {
       .then((response) => {
         // console.log(response);
         setUser(response.data.data);
+        Cookies.set("userInfo", JSON.stringify(response.data.data));
         route.push("/homepage");
         toast({
           title: 'login sucess',
@@ -69,8 +71,7 @@ const Login = () => {
             to enjoy all of our cool{" "}
             <Link href="/" color={"blue.400"}>
               features
-            </Link>{" "}
-            ✌️
+            </Link>
           </Text>
         </Stack>
         <Box

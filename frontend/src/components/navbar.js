@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   IconButton,
   Avatar,
@@ -25,7 +25,7 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   FiHome,
   FiCompass,
@@ -34,27 +34,32 @@ import {
   FiBell,
   FiChevronDown,
   FiSearch,
-} from "react-icons/fi";
-import { useRouter } from "next/router";
-import { dataState } from "../../../context";
-import axios from "axios";
-import Link from "next/link";
-import { InfoOutlineIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+} from 'react-icons/fi';
+import { useRouter } from 'next/router';
+import { dataState } from '../../context';
+import axios from 'axios';
+import Link from 'next/link';
+import { InfoOutlineIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
+import Cookies from 'js-cookie';
 
 const LinkItems = [
-  { name: "Dashboard", icon: FiHome, href: "/dashboard" },
-  { name: "Accounts", icon: FiBox, href: "/homepage" },
-  { name: "Shared account", icon: FiCompass, href: "/sharedacc" },
-  { name: "Profile", icon: InfoOutlineIcon, href: "/profile" },
+  { name: 'Dashboard', icon: FiHome, href: '/dashboard' },
+  { name: 'Accounts', icon: FiBox, href: '/homepage' },
+  { name: 'Shared account', icon: FiCompass, href: '/sharedacc' },
+  { name: 'Profile', icon: InfoOutlineIcon, href: '/profile' },
 ];
 
 export default function SidebarWithHeader({ children }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Box minH="100vh" color={useColorModeValue("black", "white")} bg={useColorModeValue("gray.100", "gray.900")}>
+    <Box
+      minH="100vh"
+      color={useColorModeValue('black', 'white')}
+      bg={useColorModeValue('gray.100', 'gray.900')}
+    >
       <SidebarContent
         onClose={() => onClose}
-        display={{ base: "none", md: "block" }}
+        display={{ base: 'none', md: 'block' }}
       />
       <Drawer
         autoFocus={false}
@@ -82,10 +87,10 @@ const SidebarContent = ({ onClose, ...rest }) => {
   return (
     <Box
       transition="3s ease"
-      bg={useColorModeValue("white", "gray.900")}
+      bg={useColorModeValue('white', 'gray.900')}
       borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.700")}
-      w={{ base: "full", md: 60 }}
+      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+      w={{ base: 'full', md: 60 }}
       pos="fixed"
       h="full"
       {...rest}
@@ -94,23 +99,23 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
           Logo
         </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
-          <Link href={link.href}>{link.name}</Link>
+        <NavItem key={link.name} href={link.href} icon={link.icon}>
+          {link.name}
         </NavItem>
       ))}
     </Box>
   );
 };
 
-const NavItem = ({ icon, children, ...rest }) => {
+const NavItem = ({ icon, children, href, ...rest }) => {
   return (
     <Link
-      href="/"
-      style={{ textDecoration: "none" }}
-      _focus={{ boxShadow: "none" }}
+      href={href}
+      style={{ textDecoration: 'none' }}
+      _focus={{ boxShadow: 'none' }}
     >
       <Flex
         align="center"
@@ -120,8 +125,8 @@ const NavItem = ({ icon, children, ...rest }) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "cyan.400",
-          color: "white",
+          bg: 'cyan.400',
+          color: 'white',
         }}
         {...rest}
       >
@@ -130,7 +135,7 @@ const NavItem = ({ icon, children, ...rest }) => {
             mr="4"
             fontSize="16"
             _groupHover={{
-              color: "white",
+              color: 'white',
             }}
             as={icon}
           />
@@ -142,16 +147,16 @@ const NavItem = ({ icon, children, ...rest }) => {
 };
 
 const MobileNav = ({ onOpen, ...rest }) => {
-  const { user, setUser,searchResult, setSearchResult } = dataState();
+  const { user, setUser, searchResult, setSearchResult } = dataState();
   const { colorMode, toggleColorMode } = useColorMode();
   const toast = useToast();
   const router = useRouter();
   const handleLogout = () => {
-    const { token } = JSON.parse(localStorage.getItem("userInfo"));
+    const { token } = JSON.parse(Cookies.get('userInfo'));
     console.log(token);
     const options = {
-      method: "GET",
-      url: "http://localhost:1337/logout",
+      method: 'GET',
+      url: 'http://localhost:1337/logout',
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -162,31 +167,30 @@ const MobileNav = ({ onOpen, ...rest }) => {
         // console.log(response);
         setUser(null);
         toast({
-          title: "Logged out successfully",
-          status: "success",
+          title: 'Logged out successfully',
+          status: 'success',
           duration: 1000,
         });
-        return router.push("/");
+        return router.push('/');
       })
       .catch((error) => {
         console.log(error);
         toast({
           title: `Something went wrong ${error.response.data.message}`,
-          status: "error",
+          status: 'error',
           duration: 1000,
         });
       });
   };
   const handleSearch = (searchData) => {
-
-    if (searchData === "") {
+    if (searchData === '') {
       return setSearchResult(null);
     }
-    const { token } = JSON.parse(localStorage.getItem("userInfo"));
+    const { token } = JSON.parse(Cookies.get('userInfo'));
     // console.log(token);
     const options = {
-      method: "POST",
-      url: "http://localhost:1337/searchTransaction",
+      method: 'POST',
+      url: 'http://localhost:1337/searchTransaction',
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -203,7 +207,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
         console.log(error);
         toast({
           title: `Something went wrong ${error.response.data.message}`,
-          status: "error",
+          status: 'error',
           duration: 1000,
         });
       });
@@ -215,22 +219,21 @@ const MobileNav = ({ onOpen, ...rest }) => {
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue("white", "gray.900")}
+      bg={useColorModeValue('white', 'gray.900')}
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-      justifyContent={{ base: "space-between", md: "flex-end" }}
+      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+      justifyContent={{ base: 'space-between', md: 'flex-end' }}
       {...rest}
     >
       <IconButton
-        display={{ base: "flex", md: "none" }}
+        display={{ base: 'flex', md: 'none' }}
         onClick={onOpen}
         variant="outline"
         aria-label="open menu"
         icon={<FiMenu />}
       />
 
-      <HStack spacing={{ base: "3", md: "6" }}>
-        
+      <HStack spacing={{ base: '3', md: '6' }}>
         <FormControl>
           <InputGroup>
             <InputLeftElement pointerEvents="none" children={<FiSearch />} />
@@ -240,25 +243,25 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 handleSearch(e.target.value);
               }}
               _placeholder={{
-                color: "gray.400",
+                color: 'gray.400',
               }}
             />
           </InputGroup>
         </FormControl>
         <Button onClick={toggleColorMode}>
-          {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+          {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
         </Button>
-        <Flex alignItems={"center"}>
+        <Flex alignItems={'center'}>
           <Menu>
             <MenuButton
               py={2}
               transition="all 0.3s"
-              _focus={{ boxShadow: "none" }}
+              _focus={{ boxShadow: 'none' }}
             >
               <HStack>
-                <Avatar size={"sm"} src="https://bit.ly/broken-link" />
+                <Avatar size={'sm'} src="https://bit.ly/broken-link" />
                 <VStack
-                  display={{ base: "none", md: "flex" }}
+                  display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2"
@@ -268,14 +271,14 @@ const MobileNav = ({ onOpen, ...rest }) => {
                     {user && user.user.email}
                   </Text>
                 </VStack>
-                <Box display={{ base: "none", md: "flex" }}>
+                <Box display={{ base: 'none', md: 'flex' }}>
                   <FiChevronDown />
                 </Box>
               </HStack>
             </MenuButton>
             <MenuList
-              bg={useColorModeValue("white", "gray.900")}
-              borderColor={useColorModeValue("gray.200", "gray.700")}
+              bg={useColorModeValue('white', 'gray.900')}
+              borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
               <Link href="/profile">
                 <MenuItem>Profile</MenuItem>

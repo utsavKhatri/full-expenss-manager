@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -18,15 +17,7 @@ import {
   StatHelpText,
   StatLabel,
   StatNumber,
-  Table,
   TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tooltip,
-  Tr,
   useColorMode,
   useColorModeValue,
   useDisclosure,
@@ -35,31 +26,25 @@ import {
 import { ExportToCsv } from 'export-to-csv';
 import axios from 'axios';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import MainTemplate from '../components/maintemplate';
-import { useRouter } from 'next/router';
+import MainTemplate from '../../components/maintemplate';
 import {
   AddIcon,
   CheckCircleIcon,
-  DeleteIcon,
-  MinusIcon,
   RepeatClockIcon,
 } from '@chakra-ui/icons';
-import AddTranjection from '../components/AddTranjection';
-import UpdateTransactions from '../components/UpdateTrans';
-import BalanceChart from '../components/BalanceChart';
-import Loader from '../components/Loader';
+import AddTranjection from '../../components/AddTranjection';
+import BalanceChart from '../../components/BalanceChart';
+import Loader from '../../components/Loader';
 import 'jspdf-autotable';
-import Report from '../components/Report';
 import {
   createTheme,
-  FormControl,
-  InputLabel,
   ThemeProvider,
 } from '@mui/material';
 import MaterialReactTable from 'material-react-table';
-import ExportData from '../components/ExportData';
-import TransactionChart from '../components/TransactionChart';
-import ApexTransactionChart from '../components/ApexTransactionChart';
+import ExportData from '../../components/ExportData';
+import ApexTransactionChart from '../../components/ApexTransactionChart';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 
 const account = ({ id }) => {
   const [shareList, setShareList] = useState();
@@ -91,7 +76,7 @@ const account = ({ id }) => {
   });
 
   const fetchAccData = () => {
-    const user = localStorage.getItem('userInfo');
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: 'GET',
@@ -118,7 +103,7 @@ const account = ({ id }) => {
       });
   };
   const fetchSignleAcc = () => {
-    const user = localStorage.getItem('userInfo');
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: 'GET',
@@ -180,7 +165,7 @@ const account = ({ id }) => {
   const handleShareAcc = () => {
     setIsShareModal(true);
     onOpen();
-    const user = localStorage.getItem('userInfo');
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: 'GET',
@@ -208,7 +193,7 @@ const account = ({ id }) => {
   };
   const handleShareToUser = () => {
     // console.log('email to send---> ', email);
-    const user = localStorage.getItem('userInfo');
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: 'POST',
@@ -247,7 +232,7 @@ const account = ({ id }) => {
   };
 
   const deleteTrans = (tId) => {
-    const user = localStorage.getItem('userInfo');
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
 
     axios
@@ -275,12 +260,12 @@ const account = ({ id }) => {
         });
       });
   };
-
+  const router = useRouter();
   useEffect(() => {
-    if (!localStorage.getItem('userInfo')) {
-      window.location.href = '/';
+    if (!Cookies.get('userInfo')) {
+      router.push('/homepage');
     } else {
-      setCurrentuserData(JSON.parse(localStorage.getItem('userInfo')));
+      setCurrentuserData(JSON.parse(Cookies.get('userInfo')));
       fetchSignleAcc();
       fetchAccData();
       axios
@@ -295,11 +280,7 @@ const account = ({ id }) => {
   }, []);
 
   const handleSelectOption = (e) => {
-    // console.log(e.target.value);
-    // console.log(
-    //   `http://localhost:1337/transaction/duration/${id}?filter=${e.target.value}`
-    // );
-    const user = localStorage.getItem('userInfo');
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: 'GET',
@@ -624,7 +605,7 @@ const account = ({ id }) => {
               editingMode="modal"
               onEditingRowSave={({ exitEditingMode, row, values }) => {
                 // console.log('row', values);
-                const user = localStorage.getItem('userInfo');
+                const user = Cookies.get("userInfo");
                 const { token } = JSON.parse(user);
                 const options = {
                   method: 'PUT',
@@ -673,7 +654,7 @@ export async function getServerSideProps(context) {
   {
     const { query } = context;
     return {
-      props: { id: query.id }, // will be passed to the page component as props
+      props: { id: query.id },
     };
   }
 }

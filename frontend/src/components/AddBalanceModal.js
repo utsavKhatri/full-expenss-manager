@@ -17,15 +17,16 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useState } from "react";
-import { dataState } from "../../../context";
+import { dataState } from "../../context";
 import { PlusSquareIcon } from "@chakra-ui/icons";
+import Cookies from "js-cookie";
 const AddBalanceModal = ({ accId }) => {
   const [balance, setBalance] = useState()
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { fetchHomepageData } = dataState();
   const toast = useToast();
   const updateAccData = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "PUT",

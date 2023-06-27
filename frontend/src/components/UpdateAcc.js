@@ -18,7 +18,8 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useState } from "react";
-import { dataState } from "../../../context";
+import { dataState } from "../../context";
+import Cookies from "js-cookie";
 
 const UpdateAcc = ({ accId }) => {
   const [name, setName] = useState();
@@ -28,7 +29,7 @@ const UpdateAcc = ({ accId }) => {
   const toast = useToast();
   const fetchSingleAcc = () => {
     onOpen();
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "GET",
@@ -48,7 +49,7 @@ const UpdateAcc = ({ accId }) => {
       });
   };
   const updateAccData = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "PUT",

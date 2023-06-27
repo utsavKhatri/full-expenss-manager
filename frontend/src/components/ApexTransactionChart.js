@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useColorMode } from '@chakra-ui/react';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
@@ -7,19 +8,33 @@ const ReactApexChart = dynamic(() => import('react-apexcharts'), {
 
 const ApexTransactionChart = ({ chartLable, chartData }) => {
   const [isWindow, setIsWindow] = useState(false);
-  // console.log(chartData);
+  const { colorMode } = useColorMode();
   const options = {
     chart: {
       height: 280,
       type: 'area',
+      fillTo: 'origin',
+    },
+    tooltip: {
+      theme: colorMode === 'light' ? 'light' : 'dark',
     },
     dataLabels: {
       enabled: false,
     },
+    theme: {
+      mode: colorMode === 'light' ? 'light' : 'dark',
+    },
+    stroke: {
+      width: 1.5,
+    },
+    grid: {
+      show: false,
+    },
     fill: {
       type: 'gradient',
       gradient: {
-        shadeIntensity: 1,
+        shade: colorMode === 'light' ? 'light' : 'dark',
+        shadeIntensity: 0.7,
         opacityFrom: 0.7,
         opacityTo: 0.9,
         stops: [0, 90, 100],
@@ -28,34 +43,20 @@ const ApexTransactionChart = ({ chartLable, chartData }) => {
     xaxis: {
       type: 'datetime',
       categories: chartLable,
-    },
-  };
-  const options2 = {
-    chart: {
-      type: 'bar',
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: '45%',
-        distributed: true,
+      labels: {
+        show: true,
+        style: {
+          colors: colorMode === 'light' ? '#1a1a1a' : '#fff',
+          cssClass: 'apexcharts-xaxis-label',
+        },
       },
     },
-    dataLabels: {
-      enabled: true,
-      dataSets: [
-        {
-          data: chartLable,
-        },
-      ],
-    },
-    legend: {
-      show: false,
-    },
-    xaxis: {
-      categories: chartLable,
+    yaxis: {
       labels: {
+        show: true,
         style: {
-          fontSize: '12px',
+          colors: colorMode === 'light' ? '#1a1a1a' : '#fff',
+          cssClass: 'apexcharts-yaxis-label',
         },
       },
     },

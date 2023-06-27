@@ -33,6 +33,7 @@ const Report = ({ transData }) => {
       fontStyle: "normal",
     };
 
+
     doc.autoTable({
       html: "#my-table",
       startY: 30,

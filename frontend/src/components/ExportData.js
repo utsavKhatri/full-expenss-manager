@@ -4,19 +4,15 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import {
   DeleteIcon,
 } from "@chakra-ui/icons";
-import { IconButton } from "@chakra-ui/react";
 
 const ExportData = ({ table, handleExportData, deleteTrans, handleExportRows, setShowDownloadBtn, showDownloadBtn }) => {
   return (
-
     <Box sx={{ display: "flex", gap: "1rem", p: "0.5rem", flexWrap: "wrap" }}>
-
       <Button onClick={handleExportData} startIcon={<FileDownloadIcon />}>
         Export All Data
       </Button>
       <Button
         disabled={table.getPrePaginationRowModel().rows.length === 0}
-        //export all rows, including from the next page, (still respects filtering and sorting)
         onClick={() => handleExportRows(table.getPrePaginationRowModel().rows)}
         startIcon={<FileDownloadIcon />}
         variant="contained"
@@ -25,7 +21,6 @@ const ExportData = ({ table, handleExportData, deleteTrans, handleExportRows, se
       </Button>
       <Button
         disabled={table.getRowModel().rows.length === 0}
-        //export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
         onClick={() => handleExportRows(table.getRowModel().rows)}
         startIcon={<FileDownloadIcon />}
         variant="contained"
@@ -36,7 +31,6 @@ const ExportData = ({ table, handleExportData, deleteTrans, handleExportRows, se
         disabled={
           !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
         }
-        //only export selected rows
         onClick={() => handleExportRows(table.getSelectedRowModel().rows)}
         startIcon={<FileDownloadIcon />}
         variant="contained"

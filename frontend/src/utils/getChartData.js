@@ -1,9 +1,9 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default async function getChartData() {
   let data = [];
-  let dateScale = [];
-  const user = localStorage.getItem("userInfo");
+  const user = Cookies.get("userInfo");
   const { token } = JSON.parse(user);
   try {
     const res = await axios.get("http://localhost:1337/dahsboard", {

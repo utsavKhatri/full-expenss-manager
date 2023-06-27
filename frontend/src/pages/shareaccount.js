@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import SidebarWithHeader from "./components/navbar";
+import SidebarWithHeader from "../components/navbar";
 import { Flex, Select, Stack } from "@chakra-ui/react";
-import MainTemplate from "./components/maintemplate";
+import MainTemplate from "../components/maintemplate";
 import axios from "axios";
-import Loader from "./components/Loader";
+import Loader from "../components/Loader";
 
 const shareaccount = () => {
   const [shareList, setShareList] = useState();
   const [loading, setLoading] = useState(true);
 
   const fetchShareUserData = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");;
     const { token } = JSON.parse(user);
     const options = {
       method: "GET",

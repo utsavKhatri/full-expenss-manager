@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 function AddTranjection({ accId, fetchSignleAcc }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -28,7 +29,7 @@ function AddTranjection({ accId, fetchSignleAcc }) {
   const [isIncome, setIsIncome] = useState(true)
   const toast = useToast();
   const handleCreateTrans = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "POST",

@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import useLocalStorage from "../utils";
 import axios from "axios";
 import { useDisclosure, useToast } from "@chakra-ui/react";
+import Cookies from "js-cookie";
 
 const AuthContext = createContext();
 
@@ -20,7 +21,7 @@ const AuthProvider = ({ children }) => {
 
 
   const fetchHomepageData = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
 
     const options = {
@@ -33,7 +34,6 @@ const AuthProvider = ({ children }) => {
     axios
       .request(options)
       .then((response) => {
-        // console.log(response.data);
         setData(response.data);
         setLoading(false);
       })
@@ -48,7 +48,7 @@ const AuthProvider = ({ children }) => {
       });
   };
   const getChartData = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     axios
       .get("http://localhost:1337/dahsboard", {
@@ -72,7 +72,7 @@ const AuthProvider = ({ children }) => {
   }
 
   const handleCreateAccount = async () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
 
     const options = {
@@ -118,8 +118,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const handleDeleteAcc = async (accID) => {
-    // console.log("acc id -->", accID);
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "DELETE",

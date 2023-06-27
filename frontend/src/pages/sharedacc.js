@@ -1,6 +1,6 @@
 import React from "react";
 import { Flex, Heading, Stack } from "@chakra-ui/react";
-import MainTemplate from "./components/maintemplate";
+import MainTemplate from "../components/maintemplate";
 import { dataState } from "../../context";
 import {
   Testimonial,
@@ -9,7 +9,7 @@ import {
   TestimonialText,
 } from "./homepage";
 import Link from "next/link";
-import Loader from "./components/Loader";
+import Loader from "../components/Loader";
 
 const sharedacc = () => {
   const { data, loading } = dataState();

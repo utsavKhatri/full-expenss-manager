@@ -19,6 +19,7 @@ import {
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { EditIcon } from "@chakra-ui/icons";
+import Cookies from "js-cookie";
 
 function UpdateTransactions({ transId, fetchSignleAcc }) {
   const [updateTransData, setUpdateTransData] = useState({});
@@ -34,7 +35,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
 
   const updateTransactionGet = () => {
     onOpen();
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "GET",
@@ -60,7 +61,7 @@ function UpdateTransactions({ transId, fetchSignleAcc }) {
     onOpen();
   };
   const updateTransaction = () => {
-    const user = localStorage.getItem("userInfo");
+    const user = Cookies.get("userInfo");
     const { token } = JSON.parse(user);
     const options = {
       method: "PUT",

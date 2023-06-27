@@ -468,7 +468,6 @@ module.exports = {
             { text: { contains: searchTerm } },
             { transfer: { contains: searchTerm } },
             { category: { contains: searchTerm } },
-            { amount: parseFloat(searchTerm) },
           ],
         },
         {

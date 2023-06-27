@@ -1,3 +1,4 @@
+import { Container, Flex } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 
 const RadialBarChart = () => {
@@ -74,7 +75,7 @@ const RadialBarChart = () => {
 
   return (
     <>
-      <div
+      {/* <div
         id="chart"
         ref={chartRef}
         style={{
@@ -95,7 +96,18 @@ const RadialBarChart = () => {
           className="fire-slider"
         />
         <div className="fire-flame"></div>
-      </div>
+      </div> */}
+      <Flex>
+        <iframe
+          height={"670px"}
+          width="100%"
+          src="https://www.youtube.com/embed/WlxcujsvcIY"
+          title="TypeScript for React/Next.js Developers | TypeScript Tutorial for Beginners"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </Flex>
     </>
   );
 };
