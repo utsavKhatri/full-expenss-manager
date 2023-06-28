@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from 'react';
 import {
   IconButton,
@@ -26,6 +26,7 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
+  Hide,
 } from '@chakra-ui/react';
 import {
   FiHome,
@@ -42,14 +43,16 @@ import { dataState } from '@/context';
 
 const LinkItems = [
   { name: 'Dashboard', icon: FiHome, href: '/dashboard' },
-  { name: 'Accounts', icon: FiBox, href: '/homepage' },
-  { name: 'Shared account', icon: FiCompass, href: '/sharedacc' },
+  { name: 'Accounts', icon: FiBox, href: '/' },
+  { name: 'Shared account', icon: FiCompass, href: '/shared' },
   { name: 'Profile', icon: InfoOutlineIcon, href: '/profile' },
 ];
 
 export default function SidebarWithHeader({
+  isShow = false,
   children,
 }: {
+  isShow?: boolean;
   children: React.ReactNode;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -77,7 +80,7 @@ export default function SidebarWithHeader({
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
-      <MobileNav onOpen={onOpen} />
+      <MobileNav onOpen={onOpen} isShow={isShow} />
       <Box ml={{ base: 0, md: 60 }} p="4">
         {children}
       </Box>
@@ -144,8 +147,9 @@ const NavItem = ({ icon, children, href, ...rest }: any) => {
   );
 };
 
-const MobileNav = ({ onOpen, ...rest }: any) => {
-  const { user, setUser, setSearchResult, handleLogout, handleSearch } = dataState();
+const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
+  const { user, setUser, setSearchResult, handleLogout, handleSearch } =
+    dataState();
   const { colorMode, toggleColorMode } = useColorMode();
   const toast = useToast();
 
@@ -170,20 +174,22 @@ const MobileNav = ({ onOpen, ...rest }: any) => {
       />
 
       <HStack spacing={{ base: '3', md: '6' }}>
-        <FormControl>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none" children={<FiSearch />} />
-            <Input
-              placeholder="Search"
-              onChange={(e) => {
-                handleSearch(e.target.value);
-              }}
-              _placeholder={{
-                color: 'gray.400',
-              }}
-            />
-          </InputGroup>
-        </FormControl>
+        {isShow && (
+          <FormControl>
+            <InputGroup>
+              <InputLeftElement pointerEvents="none" children={<FiSearch />} />
+              <Input
+                placeholder="Search"
+                onChange={(e) => {
+                  handleSearch(e.target.value);
+                }}
+                _placeholder={{
+                  color: 'gray.400',
+                }}
+              />
+            </InputGroup>
+          </FormControl>
+        )}
         <Button onClick={toggleColorMode}>
           {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
         </Button>

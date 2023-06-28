@@ -1,0 +1,16 @@
+.amount-true-light {
+  color: rgb(0, 145, 15);
+  background-color: rgb(226, 255, 217);
+}
+.amount-false-light {
+  color: rgb(159, 0, 0);
+  background-color: rgb(255, 217, 217);
+}
+.amount-true-dark {
+  color: rgb(146, 255, 157);
+  background-color: rgb(19, 31, 16);
+}
+.amount-false-dark {
+  color: rgb(255, 173, 173);
+  background-color: rgb(34, 20, 20);
+}

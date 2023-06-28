@@ -114,6 +114,7 @@ module.exports = {
    */
   updateAccount: async (req, res) => {
     const accountId = req.params.id;
+    console.log(accountId);
     try {
       if (!accountId) {
         return res.status(404).json({ message: "id not found" });
@@ -180,8 +181,6 @@ module.exports = {
    */
   share: async (req, res) => {
     try {
-      // console.log("get share page", req.user.id);
-
       if (!req.params.id) {
         return res.status(404).json({ message: "id not found" });
       }

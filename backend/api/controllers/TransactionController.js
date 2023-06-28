@@ -195,15 +195,15 @@ module.exports = {
             accountAnalytics.previousIncome == 0
               ? 100
               : ((amount - accountAnalytics.previousIncome) /
-                accountAnalytics.previousIncome) *
-              100;
+                  accountAnalytics.previousIncome) *
+                100;
         } else {
           accountAnalytics.expensePercentageChange =
             accountAnalytics.previousExpense == 0
               ? 100
               : ((amount - accountAnalytics.previousExpense) /
-                accountAnalytics.previousExpense) *
-              100;
+                  accountAnalytics.previousExpense) *
+                100;
         }
         // console.log(
         //   accountAnalytics.incomePercentageChange,
@@ -270,17 +270,21 @@ module.exports = {
           balance: tempBalance + 2398,
         });
       }
-      const accountAnalytics2 = await AccountAnalytics.findOne({ account: tID });
+      const accountAnalytics2 = await AccountAnalytics.findOne({
+        account: tID,
+      });
       if (accountAnalytics2) {
         data.forEach(async (element) => {
-          const accountAnalytics = await AccountAnalytics.findOne({ account: tID });
+          const accountAnalytics = await AccountAnalytics.findOne({
+            account: tID,
+          });
           if (element.isIncome) {
             accountAnalytics.incomePercentageChange =
               accountAnalytics.previousIncome == 0
                 ? 100
                 : ((element.amount - accountAnalytics.previousIncome) /
-                  accountAnalytics.previousIncome) *
-                100;
+                    accountAnalytics.previousIncome) *
+                  100;
           } else {
             if (accountAnalytics.balance < element.amount) {
               console.log("Insufficient Balance");
@@ -289,8 +293,8 @@ module.exports = {
               accountAnalytics.previousExpense == 0
                 ? 100
                 : ((element.amount - accountAnalytics.previousExpense) /
-                  accountAnalytics.previousExpense) *
-                100;
+                    accountAnalytics.previousExpense) *
+                  100;
           }
           await AccountAnalytics.updateOne({ account: tID }).set({
             income: element.isIncome
@@ -409,7 +413,9 @@ module.exports = {
         ...values,
         updatedBy: req.user.id,
       });
-      const prevoiusAccData = await Accounts.findOne({ id: tID });
+      const prevoiusAccData = await Accounts.findOne({
+        id: updatedTransaction.account,
+      });
 
       await Accounts.updateOne({ id: validId.account }).set({
         balance: updatedTransaction.isIncome
@@ -473,8 +479,6 @@ module.exports = {
     try {
       const transId = req.params.delId;
 
-      // console.log(transId);
-
       if (!transId) {
         return res.status(404).json({
           message: "Transaction id not found",
@@ -482,7 +486,6 @@ module.exports = {
       }
 
       const isValid = await Transaction.findOne({ id: transId });
-
       if (!isValid) {
         return res.status(404).json({
           message: "Transaction id not valid",
@@ -499,24 +502,28 @@ module.exports = {
           ((isValid.amount - preAnalytics.previousIncome) /
             preAnalytics.previousIncome) *
           100;
+        await AccountAnalytics.updateOne({
+          id: preAnalytics.id,
+        }).set({
+          balance: preAnalytics.balance - isValid.amount,
+          income: preAnalytics.income - isValid.amount,
+          incomePercentageChange:
+            preAnalytics.incomePercentageChange - incomePercentageChange,
+        });
       } else {
         expensePercentageChange =
           ((isValid.amount - preAnalytics.previousExpense) /
             preAnalytics.previousExpense) *
           100;
+        await AccountAnalytics.updateOne({
+          id: preAnalytics.id,
+        }).set({
+          balance: preAnalytics.balance - isValid.amount,
+          expense: preAnalytics.expenses - isValid.amount,
+          expensePercentageChange:
+            preAnalytics.expensePercentageChange - expensePercentageChange,
+        });
       }
-
-      await AccountAnalytics.updateOne({
-        account: isValid.account,
-      }).set({
-        balance: preAnalytics.balance - isValid.amount,
-        income: preAnalytics.income - isValid.amount,
-        expense: preAnalytics.expenses - isValid.amount,
-        incomePercentageChange:
-          preAnalytics.incomePercentageChange - incomePercentageChange,
-        expensePercentageChange:
-          preAnalytics.expensePercentageChange - expensePercentageChange,
-      });
       await Accounts.updateOne({ id: isValid.account }).set({
         balance: prevoiusAccData.balance - isValid.amount,
       });

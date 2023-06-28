@@ -16,10 +16,7 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 
 const page = () => {
@@ -64,7 +61,7 @@ const page = () => {
                   justify={'space-between'}
                 >
                   <Checkbox>Remember me</Checkbox>
-                  <Link color={'blue.400'} href="/signup">
+                  <Link color={'blue.400'} href="/auth/signup">
                     Signup
                   </Link>
                 </Stack>

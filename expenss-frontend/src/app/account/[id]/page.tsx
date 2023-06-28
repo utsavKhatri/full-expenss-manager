@@ -1,251 +1,184 @@
 'use client';
-
+import { useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SidebarWithHeader from '@/components/Navbar';
 import { dataState } from '@/context';
-import { Button, ThemeProvider } from '@mui/material';
+import TableComp from '@/components/TableComp';
 import {
-  DataGrid,
-  GridRowsProp,
-  GridColDef,
-  GridActionsCellItem,
-  GridRowModel,
-  GridRowId,
-  GridEventListener,
-  GridRowModesModel,
-  GridRowEditStopReasons,
-  GridRowModes,
-  GridToolbarContainer,
-} from '@mui/x-data-grid';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
-import { randomUUID } from 'crypto';
+  Box,
+  Button,
+  Flex,
+  Stack,
+  Stat,
+  StatArrow,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
+  VStack,
+  useColorModeValue,
+} from '@chakra-ui/react';
+import ApexTransactionChart from '@/components/charts/ApexTransactionChart';
+import BalanceChart from '@/components/charts/BalanceChart';
+import AddBalance from '@/components/AddBalance';
+import AccountShare from '@/components/AccountShare';
 
-const page = ({
-  params,
-}: {
-  params: {
-    id: string;
-  };
-}) => {
-  console.log(params);
+const page = ({ params }: { params: { id: string } }) => {
   const {
-    theme,
     fetchSignleAcc,
     fetchAccData,
-    catData,
-    setCatData,
     accPageLoading,
-    transData,
     sampleAccData,
-    rows,
-    setRows,
+    transData,
+    chartLable,
+    chartData,
+    getCatData,
+    currentuserData,
+    chartVisible,
+    setChartVisibale,
   } = dataState();
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-
-  const id = params.id;
-
-  const router = useRouter();
-
   useEffect(() => {
-    if (Cookies.get('userInfo')) {
-      fetchSignleAcc(id);
-      fetchAccData(id);
-      axios
-        .get('http://localhost:1337/category')
-        .then((res) => {
-          setCatData(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else {
-      router.push('/auth/login');
-    }
-  }, []);
-  if (accPageLoading) return <Loader />;
-  const initialRows: GridRowsProp = transData.data;
-  console.log(initialRows);
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    console.log("sadasdasd",newRowModesModel);
-    setRowModesModel(newRowModesModel);
-  };
+    fetchSignleAcc(params.id);
+    fetchAccData(params.id);
+    getCatData();
+  }, [params.id, fetchSignleAcc, fetchAccData, getCatData]);
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
-
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(
-      rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
-    );
-    return updatedRow;
-  };
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
-
-  const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row: { id: GridRowId }) => row.id !== id));
-  };
-
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id);
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id));
-    }
-  };
-  console.log(catData);
-
-  const columns: GridColDef[] = [
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: 'primary.main',
-              }}
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
-            />,
-          ];
-        }
-
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />,
-        ];
-      },
-    },
-    { field: 'text', headerName: 'Text', editable: true },
-    { field: 'transfer', headerName: 'Transfer', editable: true },
-    {
-      field: 'category',
-      headerName: 'Category',
-      valueGetter: (params) => params.row.category.name,
-      editable: false,
-    },
-    {
-      field: 'amount',
-      headerName: 'Amount',
-      renderCell: (params) => {
-        return new Intl.NumberFormat('en-IN', {
-          style: 'currency',
-          currency: 'INR',
-        }).format(params.row.amount);
-      },
-      editable: true,
-    },
-    {
-      field: 'createdAt',
-      headerName: 'Date',
-      editable: false,
-      renderCell: (params) => {
-        return new Date(params.row.createdAt).toDateString();
-      },
-    },
-  ];
-
-  return (
+  return accPageLoading ? (
+    <Loader />
+  ) : (
     <SidebarWithHeader>
-      <ThemeProvider theme={theme}>
-        <div style={{ height: 300, width: '100%' }}>
-          <DataGrid
-            rows={initialRows}
-            columns={columns}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
-            slots={{
-              toolbar: EditToolbar,
-            }}
-            slotProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-          />
-        </div>
-      </ThemeProvider>
+      <VStack>
+        <Flex flexDirection="column" w="100%">
+          <Stack
+            direction="row"
+            w="100%"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            {currentuserData &&
+              sampleAccData.owner == currentuserData.user.id && (
+                <AccountShare id={transData.accountId} />
+              )}
+            <AddBalance accID={transData.accountId} />
+          </Stack>
+          <AccountPageStat transData={transData} />
+          {transData.data.length > 0 && (
+            <>
+              <Button
+                textTransform={'capitalize'}
+                textAlign={'center'}
+                color={useColorModeValue('black', 'black')}
+                backgroundColor={'#ffe100'}
+                _hover={{
+                  backgroundColor: '#ffeb57',
+                  color: 'black',
+                  boxShadow: 'lg',
+                }}
+                boxShadow="md"
+                p="6"
+                mb={5}
+                rounded="md"
+                onClick={() => setChartVisibale(!chartVisible)}
+              >
+                view chart representation
+              </Button>
+              {chartVisible && (
+                <Flex
+                  flexDirection={{ base: 'column', md: 'row' }}
+                  justifyContent={{ base: 'center', md: 'space-evenly' }}
+                  alignItems="center"
+                  width="100%"
+                  gap={3}
+                >
+                  <Box w={{ base: '100%', md: '45%' }} justifySelf={'center'}>
+                    <BalanceChart
+                      income={transData.income}
+                      expenses={transData.expenses}
+                    />
+                  </Box>
+                  <Box w={{ base: '100%', md: '55%' }}>
+                    <ApexTransactionChart
+                      chartLable={chartLable}
+                      chartData={chartData}
+                    />
+                  </Box>
+                </Flex>
+              )}
+            </>
+          )}
+        </Flex>
+        <TableComp />
+      </VStack>
     </SidebarWithHeader>
   );
 };
 
 export default page;
 
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void;
-}
-
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props;
-
-  const handleClick = () => {
-    const id = randomUUID();
-    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-    }));
-  };
-
+const AccountPageStat = ({ transData }: { transData: any }) => {
   return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
-      </Button>
-    </GridToolbarContainer>
+    <Stack
+      direction={{ base: 'column', md: 'row' }}
+      spacing={5}
+      my={3}
+      justifyContent="space-evenly"
+      alignItems="center"
+    >
+      <Stat
+        boxShadow="md"
+        height="auto"
+        width={{ base: '100%', md: 'auto' }}
+        p={2}
+        flex={1}
+        textAlign="center"
+      >
+        <StatLabel>Income</StatLabel>
+        <StatNumber color={useColorModeValue('green', 'green.400')}>
+          {new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+          }).format(transData.income)}
+        </StatNumber>
+        <StatHelpText>
+          <StatArrow type="increase" />
+          {transData.incomePercentageChange}%
+        </StatHelpText>
+      </Stat>
+      <Stat
+        width={{ base: '100%', md: 'auto' }}
+        boxShadow="md"
+        height="full"
+        p={2}
+        flex={1}
+        textAlign="center"
+      >
+        <StatLabel>Total balance</StatLabel>
+        <StatNumber color={useColorModeValue('blue.600', 'blue.400')}>
+          {new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+          }).format(transData.balance)}
+        </StatNumber>
+      </Stat>
+      <Stat
+        width={{ base: '100%', md: 'auto' }}
+        boxShadow="md"
+        height="auto"
+        p={2}
+        flex={1}
+        textAlign="center"
+      >
+        <StatLabel>Expense</StatLabel>
+        <StatNumber color="red">
+          {new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+          }).format(transData.expenses)}
+        </StatNumber>
+        <StatHelpText>
+          <StatArrow type="decrease" />
+          {transData.expensePercentageChange}%
+        </StatHelpText>
+      </Stat>
+    </Stack>
   );
-}
+};

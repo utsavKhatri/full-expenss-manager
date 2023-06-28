@@ -1,5 +1,6 @@
+'use client';
+
 import { Flex, useColorMode } from '@chakra-ui/react';
-import React from 'react';
 import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const Loader = () => {

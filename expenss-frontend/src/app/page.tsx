@@ -49,7 +49,7 @@ export default function Home() {
   }, []);
 
   return (
-    <SidebarWithHeader>
+    <SidebarWithHeader isShow={true}>
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>

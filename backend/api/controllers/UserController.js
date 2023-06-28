@@ -10,13 +10,13 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
 module.exports = {
+
   /**
-   * POST /login
+   * Logs in a user.
    *
-   * @description  This function is called when the user visits the login page.
-   * @param {Object} req - email, password from body
-   * @return {redirect} - redirect to  "/home"
-   * @rejects {Error} - If failed log error
+   * @param {Object} req - the request object
+   * @param {Object} res - the response object
+   * @return {Object} the response object
    */
   userLogin: async (req, res) => {
     try {
@@ -68,13 +68,13 @@ module.exports = {
     }
   },
 
+
   /**
-   * POST /register
+   * Handle user signup.
    *
-   * @description  This is a function that is called when the user click signup on signup page.
-   * @param {Object} req - name,email, password from body
-   * @return {redirect} - redirect to  "/login"
-   * @rejects {Error} - If failed log error
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The response object.
    */
   userSignup: async (req, res) => {
     try {
@@ -226,12 +226,14 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
+
   /**
-   * /logout
+   * Logs out the user.
    *
-   * @description  This is a function destroy session and logout user
-   * @return {redirect} - redirect to  "/login"
-   * @rejects {Error} - If failed log error
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The response object containing status and message.
    */
   userLogout: async (req, res) => {
     const userId = req.user.id;
@@ -251,13 +253,13 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
-   * GET /editProfile
+   * Edit the user profile.
    *
-   * @description  This is a function render editProfile page for edit profile.
-   * @param {String} req - email
-   * @return {view} - render "pages/editprofile"
-   * @rejects {Error} - If failed log error
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {object} The updated user profile.
    */
   editProfile: async (req, res) => {
     const userId = req.user.id;
@@ -277,13 +279,13 @@ module.exports = {
     }
   },
 
+
   /**
-   * POST /editProfile
+   * Update the profile of a user.
    *
-   * @description  This is a function update user data
-   * @param {Object} req - session.user data
-   * @return {redirect} - redirect to "/"
-   * @rejects {Error} - If failed log error
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The updated user data.
    */
   updateProfile: async (req, res) => {
     try {
@@ -301,13 +303,13 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
-   * GET /delUser/:id
+   * Deletes a user from the database.
    *
-   * @description  This is a function delete user
-   * @param {Number} id - get id of user from params
-   * @return {redirect} - redirect to "/login"
-   * @rejects {Error} - If failed log error
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {object} The response object with a JSON message.
    */
   delUser: async (req, res) => {
     const id = req.params.id;
@@ -328,6 +330,14 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+  /**
+   * Retrieves the dashboard data for a user.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The JSON response containing the list of accounts, 
+   *         list of all transactions, and analytics data.
+   */
   dashBoard: async (req, res) => {
     try {
       const userId = req.user.id;

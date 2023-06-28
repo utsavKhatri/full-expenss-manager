@@ -7,12 +7,7 @@ import {
   useEffect,
   FormEvent,
 } from 'react';
-import {
-  ChakraProvider,
-  useColorMode,
-  useDisclosure,
-  useToast,
-} from '@chakra-ui/react';
+import { ChakraProvider, useColorMode, useToast } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -21,27 +16,121 @@ import { createTheme } from '@mui/material';
 const AuthContext = createContext<any>(null);
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
-  const [stock, setStock] = useState([]);
-
   const [searchResult, setSearchResult] = useState<any>();
-  const [data, setData] = useState();
+  const [data, setData] = useState<any>();
   const [refresh, setRefresh] = useState(false);
   const toast = useToast();
-  const [rows, setRows] = useState()
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [rows, setRows] = useState();
+  const [shareLoading, setShareLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
-  const [chartData1, setChartData1] = useState([]);
-  const [intChartData, setIntChartData] = useState([]);
-  const [intLabelData, setIntLabelData] = useState([]);
   const [chartLable, setChartLable] = useState([]);
-  const [showDownloadBtn, setShowDownloadBtn] = useState(false);
-  const [chartLable1, setChartLable1] = useState([]);
-  const [email, setEmail] = useState('');
   const [sampleAccData, setSampleAccData] = useState();
   const [accPageLoading, setAccPageLoading] = useState(true);
   const [transData, setTransData] = useState();
-  const [catData, setCatData] = useState()
+  const [catData, setCatData] = useState();
+  const [shareList, setShareList] = useState<any>();
+  const [analytics, setAnalytics] = useState<any>();
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [income, setIncome] = useState<number>();
+  const [expenses, setExpenses] = useState<number>();
+  const [balance, setBalance] = useState<number>();
+  const [chartLableD, setChartLableD] = useState([]);
+  const [chartDataD, setChartDataD] = useState([]);
+  const [listIncome, setListIncome] = useState([]);
+  const [listBalance, setListBalance] = useState([]);
+  const [currentuserData, setCurrentuserData] = useState<any>();
+  const [chartVisible, setChartVisibale] = useState(false);
+
+  const router = useRouter();
+
+  const { colorMode } = useColorMode();
+  const theme = createTheme({
+    palette: { mode: colorMode },
+  });
+
+  useEffect(() => {
+    if (Cookies.get('userInfo') == '' || Cookies.get('userInfo') == undefined) {
+      return router.replace('/auth/login');
+    } else {
+      setCurrentuserData(JSON.parse(Cookies.get('userInfo') as any));
+    }
+  }, []);
+
+  const getCatData = () => {
+    axios
+      .get('http://localhost:1337/category')
+      .then((res) => {
+        setCatData(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getDashboardData = () => {
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as string);
+    axios
+      .get('http://localhost:1337/dahsboard', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setAnalytics(res.data);
+        setDashboardLoading(false);
+        let tempIncome = 0;
+        let tempExpenses = 0;
+        let tempBalance = 0;
+        res.data.analyticsData.map(
+          (account: { income: number; expense: number; balance: number }) => {
+            tempIncome += account.income;
+            tempExpenses += account.expense;
+            tempBalance += account.balance;
+          }
+        );
+        setIncome(tempIncome);
+        setExpenses(tempExpenses);
+        setBalance(tempBalance);
+        setChartLableD(
+          res.data.listAllTransaction.map(
+            (transaction: { createdAt: string | number | Date }) => {
+              return new Date(transaction.createdAt).toDateString();
+            }
+          )
+        );
+        setListBalance(
+          res.data.analyticsData.map((account: { balance: any }) => {
+            return account.balance;
+          })
+        );
+        setListIncome(
+          res.data.analyticsData.map(
+            (account: { balance: number; income: number; expense: any }) => {
+              return `Balance: ${account.balance.toFixed(
+                2
+              )}, Income: ${account.income.toFixed(2)}, Expense: ${
+                account.expense
+              }`;
+            }
+          )
+        );
+        setChartDataD(
+          res.data.listAllTransaction.map((transaction: { amount: any }) => {
+            return transaction.amount;
+          })
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+        toast({
+          title: 'Something went wrong',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
 
   const fetchHomepageData = () => {
     const user: any = Cookies.get('userInfo');
@@ -68,30 +157,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           status: 'error',
           duration: 2000,
         });
-      });
-  };
-  const getChartData = () => {
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-    axios
-      .get('http://localhost:1337/dahsboard', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        // console.log(res.data);
-        let tempData = res.data.listAllTransaction.map((transaction: any) => {
-          return {
-            close: transaction.amount,
-            date: new Date(transaction.createdAt).toISOString(),
-          };
-        });
-        console.log(tempData);
-        setStock(tempData);
-      })
-      .catch((err) => {
-        console.log(err);
       });
   };
 
@@ -186,10 +251,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           duration: 2000,
         });
       });
-    return onClose();
   };
-
-  const router = useRouter();
 
   const handleLogout = () => {
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
@@ -210,7 +272,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           status: 'success',
           duration: 1000,
         });
-        return router.push('/');
+        return router.push('/auth');
       })
       .catch((error) => {
         console.log(error);
@@ -283,26 +345,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   };
 
-  useEffect(() => {
-    if (Cookies.get('userInfo') == '' || Cookies.get('userInfo') == undefined)
-      return router.replace('/auth/login');
-  }, []);
-  const { colorMode } = useColorMode();
-  const theme = createTheme({
-    palette: { mode: colorMode },
-    components: {
-      MuiDataGrid: {
-        styleOverrides: {
-          root: {
-            backgroundColor: 'white',
-          },
-        },
-      },
-    },
-  });
-
-  const fetchAccData = (id:string) => {
-    const { token } = JSON.parse(Cookies.get("userInfo") as any);
+  const fetchAccData = (id: string) => {
+    const { token } = JSON.parse(Cookies.get('userInfo') as any);
     const options = {
       method: 'GET',
       url: `http://localhost:1337/editAccount/${id}`,
@@ -326,8 +370,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         window.location.href = '/';
       });
   };
-  const fetchSignleAcc = (id:string) => {
-    const { token } = JSON.parse(Cookies.get("userInfo") as any);
+  const fetchSignleAcc = (id: string) => {
+    const { token } = JSON.parse(Cookies.get('userInfo') as any);
     const options = {
       method: 'GET',
       url: `http://localhost:1337/viewTransaction/${id}`,
@@ -339,11 +383,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       .request(options)
       .then((response) => {
         setTransData(response.data);
-      setRows(response.data.data);
-        const newArr = response.data.data.map((element:any) => {
+        setRows(response.data.data);
+        const newArr = response.data.data.map((element: any) => {
           return parseFloat(element.amount);
         });
-        const newLablelArr = response.data.data.map((element:any) => {
+        const newLablelArr = response.data.data.map((element: any) => {
           return new Date(element.createdAt).toDateString();
         });
         setChartData(newArr);
@@ -362,6 +406,276 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   };
 
+  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    axios
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
+        email: formData.get('email'),
+        password: formData.get('password'),
+        name: formData.get('name'),
+      })
+      .then((response) => {
+        if (response.status == 200) {
+          toast({
+            title: 'signup sucess',
+            variant: 'left-accent',
+            status: 'success',
+            isClosable: true,
+          });
+          router.replace('/auth/login');
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: 'left-accent',
+          status: 'error',
+          isClosable: true,
+        });
+      });
+  };
+
+  const handleTransUpdate = (id: string, values: any) => {
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as any);
+    const options = {
+      method: 'PUT',
+      url: `http://localhost:1337/editTransaction/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        ...values,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        if (response.status == 200) {
+          fetchSignleAcc(values.account);
+          toast({
+            title: 'Transaction Updated',
+            status: 'success',
+            duration: 2000,
+            isClosable: true,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: `Transaction Not Updated, ${error.response.data.message}`,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+        });
+      });
+  };
+
+  const deleteTrans = (tId: string, accId: string) => {
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as any);
+
+    axios
+      .delete(`${process.env.NEXT_PUBLIC_API_URL}/rmTransaction/${tId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        toast({
+          title: 'Transaction Deleted Successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        fetchSignleAcc(accId);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
+
+  const handleCreateTrans = (
+    e: FormEvent<HTMLFormElement>,
+    accId: string,
+    setOpen: any
+  ) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      text: formData.get('text'),
+      amount: formData.get('amount'),
+      transfer: formData.get('transfer'),
+      category: formData.get('category'),
+      isIncome: formData.get('isIncome'),
+    };
+    console.log(data);
+
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as any);
+    const options = {
+      method: 'POST',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/addTransaction/${accId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: data,
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        fetchSignleAcc(accId);
+        if (response.status == 201) {
+          fetchSignleAcc(accId);
+          toast({
+            title: 'Transaction created successfully',
+            status: 'success',
+            duration: 1000,
+            isClosable: true,
+          });
+          setOpen(false);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: `${error.response.data.message}`,
+          status: 'error',
+          duration: 1000,
+        });
+      });
+  };
+
+  const updateAccData = (
+    e: FormEvent<HTMLFormElement>,
+    accId: string,
+    onCloseD: any
+  ) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const balance = formData.get('balance');
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as any);
+    const options = {
+      method: 'PUT',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/editAccount/${accId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        balance: balance,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        fetchHomepageData();
+        toast({
+          title: 'Account updated successfully',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
+        fetchSignleAcc(accId);
+        return onCloseD();
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: 'left-accent',
+          status: 'error',
+          duration: 2000,
+        });
+      });
+  };
+
+  const handleShareAcc = (
+    e: FormEvent<HTMLFormElement>,
+    id: string,
+    onCloseD: any
+  ) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email');
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as any);
+    console.log({
+      email,
+      id,
+    });
+    const options = {
+      method: 'POST',
+      url: `http://localhost:1337/account/share/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: email,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        if (response.status == 200) {
+          onCloseD();
+          toast({
+            title: 'Share Successfully',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+          fetchSignleAcc(id);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
+
+  const getShareList = (id: string, onOpenD: any) => {
+    onOpenD();
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as any);
+    const options = {
+      method: 'GET',
+      url: `http://localhost:1337/share/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        setShareLoading(false);
+        setShareList(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
+
   return (
     <ChakraProvider>
       <AuthContext.Provider
@@ -377,7 +691,41 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           handleDeleteAcc,
           handleLogin,
           fetchSignleAcc,
-          fetchAccData,catData, setCatData, accPageLoading, setAccPageLoading, transData, sampleAccData, rows, setRows
+          fetchAccData,
+          catData,
+          setCatData,
+          accPageLoading,
+          setAccPageLoading,
+          transData,
+          sampleAccData,
+          rows,
+          setRows,
+          handleSignup,
+          handleTransUpdate,
+          handleCreateTrans,
+          deleteTrans,
+          handleShareAcc,
+          chartLable,
+          chartData,
+          updateAccData,
+          shareList,
+          shareLoading,
+          getShareList,
+          getDashboardData,
+          listBalance,
+          listIncome,
+          chartDataD,
+          chartLableD,
+          balance,
+          expenses,
+          income,
+          dashboardLoading,
+          analytics,
+          getCatData,
+          currentuserData,
+          setCurrentuserData,
+          chartVisible,
+          setChartVisibale,
         }}
       >
         {children}
