@@ -69,7 +69,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getCatData = () => {
     axios
-      .get('http://localhost:1337/category')
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/category`)
       .then((res) => {
         setCatData(res.data);
       })
@@ -82,7 +82,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const user = Cookies.get('userInfo');
     const { token } = JSON.parse(user as string);
     axios
-      .get('http://localhost:1337/dahsboard', {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/dahsboard`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -156,7 +156,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const options = {
       method: 'GET',
-      url: 'http://localhost:1337/',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -183,7 +183,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(user);
     const options = {
       method: 'DELETE',
-      url: `http://localhost:1337/delAccount/${accID}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/delAccount/${accID}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -230,7 +230,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const options = {
       method: 'POST',
-      url: 'http://localhost:1337/addAccount',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/addAccount`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -275,7 +275,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const options = {
       method: 'GET',
-      url: 'http://localhost:1337/logout',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/logout`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -307,7 +307,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
     const options = {
       method: 'POST',
-      url: 'http://localhost:1337/searchTransaction',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/searchTransaction`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -364,7 +364,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
     const options = {
       method: 'GET',
-      url: `http://localhost:1337/editAccount/${id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/editAccount/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -389,7 +389,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
     const options = {
       method: 'GET',
-      url: `http://localhost:1337/viewTransaction/${id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/viewTransaction/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -464,7 +464,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(user as any);
     const options = {
       method: 'PUT',
-      url: `http://localhost:1337/editTransaction/${id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/editTransaction/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -632,7 +632,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(user as any);
     const options = {
       method: 'POST',
-      url: `http://localhost:1337/account/share/${id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/account/share/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -671,7 +671,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { token } = JSON.parse(user as any);
     const options = {
       method: 'GET',
-      url: `http://localhost:1337/share/${id}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/share/${id}`,
       headers: {
         Authorization: `Bearer ${token}`,
       },

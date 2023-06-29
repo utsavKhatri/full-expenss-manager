@@ -29,7 +29,7 @@ const page = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     axios
-      .post('http://localhost:1337/signup', {
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
         email: formData.get('email'),
         password: formData.get('password'),
         name: formData.get('name'),
