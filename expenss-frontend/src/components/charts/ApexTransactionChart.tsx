@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
@@ -22,15 +21,15 @@ const ApexTransactionChart = ({
     chart: {
       height: height,
       type: 'area',
+      toolbar: {
+        show: false,
+      },
     },
     tooltip: {
       theme: colorMode === 'light' ? 'light' : 'dark',
     },
     dataLabels: {
       enabled: false,
-    },
-    theme: {
-      mode: colorMode === 'light' ? 'light' : 'dark',
     },
     stroke: {
       width: 1.5,

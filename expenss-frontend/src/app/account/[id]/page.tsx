@@ -8,6 +8,8 @@ import {
   Box,
   Button,
   Flex,
+  Grid,
+  GridItem,
   Stack,
   Stat,
   StatArrow,
@@ -15,19 +17,20 @@ import {
   StatLabel,
   StatNumber,
   VStack,
+  grid,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import ApexTransactionChart from '@/components/charts/ApexTransactionChart';
 import BalanceChart from '@/components/charts/BalanceChart';
 import AddBalance from '@/components/AddBalance';
 import AccountShare from '@/components/AccountShare';
+import AccIncExpChart from '@/components/charts/AccIncExpChart';
 
 const page = ({ params }: { params: { id: string } }) => {
   const {
     fetchSignleAcc,
-    fetchAccData,
     accPageLoading,
-    sampleAccData,
     transData,
     chartLable,
     chartData,
@@ -36,33 +39,42 @@ const page = ({ params }: { params: { id: string } }) => {
     chartVisible,
     setChartVisibale,
   } = dataState();
+  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
   useEffect(() => {
-    fetchSignleAcc(params.id);
-    fetchAccData(params.id);
-    getCatData();
-  }, [params.id, fetchSignleAcc, fetchAccData, getCatData]);
+    setTimeout(async () => {
+      await fetchSignleAcc(params.id);
+      getCatData();
+    }, 1000);
+  }, []);
 
-  return accPageLoading ? (
+  return accPageLoading && transData == undefined ? (
     <Loader />
   ) : (
     <SidebarWithHeader>
       <VStack>
-        <Flex flexDirection="column" w="100%">
+        <Flex flexDirection="column" w={'full'}>
           <Stack
             direction="row"
             w="100%"
             alignItems="center"
             justifyContent="space-between"
           >
-            {currentuserData &&
-              sampleAccData.owner == currentuserData.user.id && (
+            {currentuserData ? (
+              transData.owner == currentuserData.user.id && (
                 <AccountShare id={transData.accountId} />
-              )}
+              )
+            ) : (
+              <Loader />
+            )}
             <AddBalance accID={transData.accountId} />
           </Stack>
-          <AccountPageStat transData={transData} />
+          {isLargerThan800 ? (
+            <AccountPageStat transData={transData} />
+          ) : (
+            <AccountPageStatMobile transData={transData} />
+          )}
           {transData.data.length > 0 && (
-            <>
+            <Stack>
               <Button
                 textTransform={'capitalize'}
                 textAlign={'center'}
@@ -103,7 +115,7 @@ const page = ({ params }: { params: { id: string } }) => {
                   </Box>
                 </Flex>
               )}
-            </>
+            </Stack>
           )}
         </Flex>
         <TableComp />
@@ -122,14 +134,17 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
       my={3}
       justifyContent="space-evenly"
       alignItems="center"
+      height={'fit-content'}
     >
       <Stat
         boxShadow="md"
         height="auto"
         width={{ base: '100%', md: 'auto' }}
+        bg={useColorModeValue('white', '#1a1c1a')}
         p={2}
         flex={1}
         textAlign="center"
+        borderRadius={{ base: 'md' }}
       >
         <StatLabel>Income</StatLabel>
         <StatNumber color={useColorModeValue('green', 'green.400')}>
@@ -146,9 +161,12 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
       <Stat
         width={{ base: '100%', md: 'auto' }}
         boxShadow="md"
-        height="full"
+        height="-moz-max-content"
         p={2}
-        flex={1}
+        bg={useColorModeValue('white', '#141417')}
+        borderRadius={{ base: 'md' }}
+        py={'22.5px'}
+        justifySelf={'stretch'}
         textAlign="center"
       >
         <StatLabel>Total balance</StatLabel>
@@ -163,6 +181,8 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
         width={{ base: '100%', md: 'auto' }}
         boxShadow="md"
         height="auto"
+        bg={useColorModeValue('white', '#171313')}
+        borderRadius={{ base: 'md' }}
         p={2}
         flex={1}
         textAlign="center"
@@ -180,5 +200,119 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
         </StatHelpText>
       </Stat>
     </Stack>
+  );
+};
+
+const AccountPageStatMobile = ({ transData }: { transData: any }) => {
+  return (
+    <Grid
+      templateAreas={`"income expense"
+        "balance balance"
+        `}
+      gridTemplateRows={'auto auto'}
+      gridTemplateColumns={'1fr 1fr'}
+      mt={4}
+      mb={2}
+      gap={4}
+    >
+      <GridItem
+        area={'income'}
+        sx={{
+          position: 'relative',
+          display: 'grid',
+          placeItems: 'left',
+          borderRadius: 'md',
+          boxShadow: 'md',
+        }}
+        bg={useColorModeValue('white', '#1a1c1a')}
+      >
+        <GridItem textAlign={'left'}>
+          <Stat
+            height="auto"
+            width={'100%'}
+            p={4}
+            zIndex={3}
+            bgGradient={'linear(to-t, #000000, trasnsparent)'}
+          >
+            <StatLabel fontSize="lg">Income</StatLabel>
+            <StatNumber
+              fontSize="2xl"
+              color={useColorModeValue('green.500', 'green.200')}
+            >
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+              }).format(transData.income)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="increase" />
+              {transData.incomePercentageChange}%
+            </StatHelpText>
+          </Stat>
+        </GridItem>
+        <GridItem>
+          <AccIncExpChart icomeType={true} key={'incomeAcc'} />
+        </GridItem>
+      </GridItem>
+      <GridItem
+        area={'expense'}
+        sx={{
+          position: 'relative',
+          display: 'grid',
+          placeItems: 'left',
+          borderRadius: 'md',
+          boxShadow: 'md',
+        }}
+        bg={useColorModeValue('white', '#171313')}
+      >
+        <GridItem textAlign={'left'}>
+          <Stat
+            height="auto"
+            width={'100%'}
+            p={4}
+            zIndex={3}
+            bgGradient={'linear(to-t, #000000, trasnsparent)'}
+          >
+            <StatLabel fontSize="lg">Expense</StatLabel>
+            <StatNumber fontSize="2xl" color="red">
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+              }).format(transData.expenses)}
+            </StatNumber>
+            <StatHelpText>
+              <StatArrow type="decrease" />
+              {transData.expensePercentageChange}%
+            </StatHelpText>
+          </Stat>
+        </GridItem>
+        <GridItem>
+          <AccIncExpChart icomeType={false} key={'expenssAcc'} />
+        </GridItem>
+      </GridItem>
+      <GridItem area={'balance'}>
+        <Box
+          bg={useColorModeValue('white', '#141417')}
+          boxShadow="md"
+          borderRadius="md"
+          p={4}
+          textAlign="center"
+          height={'fit-content'}
+        >
+          <Stat>
+            <StatLabel fontSize="lg">Total balance</StatLabel>
+            <StatNumber
+              fontSize="2xl"
+              color={useColorModeValue('blue.600', 'blue.400')}
+            >
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+              }).format(transData.balance)}
+            </StatNumber>
+          </Stat>
+        </Box>
+      </GridItem>
+    </Grid>
   );
 };

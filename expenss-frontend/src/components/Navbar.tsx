@@ -26,14 +26,12 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-  Hide,
 } from '@chakra-ui/react';
 import {
   FiHome,
   FiCompass,
   FiBox,
   FiMenu,
-  FiBell,
   FiChevronDown,
   FiSearch,
 } from 'react-icons/fi';

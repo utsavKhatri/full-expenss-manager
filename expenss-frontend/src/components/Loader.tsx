@@ -4,7 +4,7 @@ import { Flex, useColorMode } from '@chakra-ui/react';
 import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const Loader = () => {
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
   return (
     <Flex
       w={'100%'}

@@ -7,7 +7,12 @@ import {
   useEffect,
   FormEvent,
 } from 'react';
-import { ChakraProvider, useColorMode, useToast } from '@chakra-ui/react';
+import {
+  ChakraProvider,
+  extendTheme,
+  useColorMode,
+  useToast,
+} from '@chakra-ui/react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -23,6 +28,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [rows, setRows] = useState();
   const [shareLoading, setShareLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
+  const [chartDataA, setChartDataA] = useState([]);
   const [chartLable, setChartLable] = useState([]);
   const [sampleAccData, setSampleAccData] = useState();
   const [accPageLoading, setAccPageLoading] = useState(true);
@@ -36,6 +42,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [balance, setBalance] = useState<number>();
   const [chartLableD, setChartLableD] = useState([]);
   const [chartDataD, setChartDataD] = useState([]);
+  const [chartDataI, setChartDataI] = useState([]);
   const [listIncome, setListIncome] = useState([]);
   const [listBalance, setListBalance] = useState([]);
   const [currentuserData, setCurrentuserData] = useState<any>();
@@ -47,13 +54,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const theme = createTheme({
     palette: { mode: colorMode },
   });
-
-  useEffect(() => {
+  const fetchIMPData = async () => {
     if (Cookies.get('userInfo') == '' || Cookies.get('userInfo') == undefined) {
       return router.replace('/auth/login');
     } else {
       setCurrentuserData(JSON.parse(Cookies.get('userInfo') as any));
+      await fetchHomepageData();
     }
+  };
+
+  useEffect(() => {
+    fetchIMPData();
   }, []);
 
   const getCatData = () => {
@@ -92,6 +103,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIncome(tempIncome);
         setExpenses(tempExpenses);
         setBalance(tempBalance);
+        console.log(res.data.listAllTransaction);
         setChartLableD(
           res.data.listAllTransaction.map(
             (transaction: { createdAt: string | number | Date }) => {
@@ -120,6 +132,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             return transaction.amount;
           })
         );
+      setChartDataI(res.data.listAllTransaction.map((transaction: { amount: any,isIncome:boolean }) => {
+        return {
+          amount: transaction.amount,
+          isIncome: transaction.isIncome
+        }
+      }))
       })
       .catch((err) => {
         console.log(err);
@@ -209,7 +227,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     e.preventDefault();
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
     const formData = new FormData(e.currentTarget);
-    console.log(formData.get('accName'));
 
     const options = {
       method: 'POST',
@@ -255,7 +272,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleLogout = () => {
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
-    console.log(token);
+
     const options = {
       method: 'GET',
       url: 'http://localhost:1337/logout',
@@ -272,7 +289,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           status: 'success',
           duration: 1000,
         });
-        return router.push('/auth');
+        return router.push('/auth/login');
       })
       .catch((error) => {
         console.log(error);
@@ -288,7 +305,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       return setSearchResult(null);
     }
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
-    // console.log(token);
     const options = {
       method: 'POST',
       url: 'http://localhost:1337/searchTransaction',
@@ -320,7 +336,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       email: formData.get('email'),
       password: formData.get('password'),
     };
-    console.log(config);
 
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/login`, config)
@@ -387,10 +402,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const newArr = response.data.data.map((element: any) => {
           return parseFloat(element.amount);
         });
+        const newArr2 = response.data.data.map((element: any) => {
+          return {
+            amount: parseFloat(element.amount),
+            isIncome: element.isIncome,
+          }
+        })
         const newLablelArr = response.data.data.map((element: any) => {
           return new Date(element.createdAt).toDateString();
         });
         setChartData(newArr);
+        setChartDataA(newArr2);
         setChartLable(newLablelArr);
         setAccPageLoading(false);
       })
@@ -518,7 +540,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       category: formData.get('category'),
       isIncome: formData.get('isIncome'),
     };
-    console.log(data);
 
     const user = Cookies.get('userInfo');
     const { token } = JSON.parse(user as any);
@@ -609,10 +630,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const email = formData.get('email');
     const user = Cookies.get('userInfo');
     const { token } = JSON.parse(user as any);
-    console.log({
-      email,
-      id,
-    });
     const options = {
       method: 'POST',
       url: `http://localhost:1337/account/share/${id}`,
@@ -676,8 +693,56 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   };
 
+  const chkraTheme = extendTheme({
+    colors: {
+      dark: {
+        50: '#f5f5f5',
+        100: '#e0e0e0',
+        200: '#bdbdbd',
+        300: '#9e9e9e',
+        400: '#757575',
+        500: '#616161',
+        600: '#424242',
+        700: '#303030',
+        800: '#212121',
+        900: '#000000', // Pitch black color
+      },
+      gray: {
+        50: '#fafafa',
+        100: '#f2f2f2',
+        200: '#cccccc',
+        300: '#b3b3b3',
+        400: '#999999',
+        500: '#808080',
+        600: '#666666',
+        700: '#4d4d4d',
+        800: '#333333',
+        900: '#0f0f0f', // Darkest shade of black
+      },
+      amazingLight: {
+        50: '#F8FAFC',
+        100: '#F1F5F9',
+        200: '#E2E8F0',
+        300: '#D3DCE3',
+        400: '#A5B4C4',
+        500: '#7784A6',
+        600: '#657198',
+        700: '#4D5A7B',
+        800: '#3B4664',
+        900: '#29324D',
+      },
+    },
+    styles: {
+      global: {
+        body: {
+          bg: 'dark.900', // Set the background color to the custom pitch black color
+        },
+      },
+    },
+  });
+
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={chkraTheme}>
       <AuthContext.Provider
         value={{
           theme,
@@ -700,6 +765,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           sampleAccData,
           rows,
           setRows,
+          searchResult,
           handleSignup,
           handleTransUpdate,
           handleCreateTrans,
@@ -726,6 +792,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           setCurrentuserData,
           chartVisible,
           setChartVisibale,
+          chartDataI,
+          chartDataA
         }}
       >
         {children}

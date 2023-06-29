@@ -1,11 +1,20 @@
 'use client';
+import Loader from '@/components/Loader';
 import SidebarWithHeader from '@/components/Navbar';
 import { dataState } from '@/context';
-import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+  Flex,
+  Heading,
+  Stack,
+  Text,
+  useColorModeValue,
+} from '@chakra-ui/react';
 import Link from 'next/link';
 
 const SharedAccPage = () => {
-  const { data, sharedAccountsLoading } = dataState();
+  const { data } = dataState();
+  if (data == undefined) return <Loader />;
+
   return (
     <SidebarWithHeader>
       <Flex direction="column" gap={2}>
@@ -13,12 +22,12 @@ const SharedAccPage = () => {
           Welcome to the Shared Account List
         </Heading>
         <Stack>
-          {data?.sharedAccounts.length > 0 ? (
+          {data ? (
             data?.sharedAccounts.map((account: any, index: number) => (
               <Flex
                 key={account.id}
                 p={4}
-                bg="gray.100"
+                bg={useColorModeValue('white', 'gray.800')}
                 borderWidth={1}
                 borderRadius="md"
                 alignItems="center"

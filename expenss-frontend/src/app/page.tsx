@@ -50,9 +50,9 @@ export default function Home() {
 
   return (
     <SidebarWithHeader isShow={true}>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered>
+      <Modal onClose={onClose} isOpen={isOpen} isCentered >
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalHeader>create new account</ModalHeader>
           <ModalCloseButton />
           <ModalBody
@@ -61,6 +61,7 @@ export default function Home() {
             display={'flex'}
             flexDirection={'column'}
             gap={3}
+            bg={useColorModeValue('gray.100', 'gray.900')}
           >
             <Input placeholder="account name" name="accName" />
             <Button type="submit">Create</Button>
@@ -95,7 +96,7 @@ export default function Home() {
                 ) => (
                   <WrapItem key={i} justifyContent={'center'} width={'100%'}>
                     <Stack
-                      bg={useColorModeValue('white', 'gray.800')}
+                      bg={useColorModeValue('white', '#1c1c1c')}
                       boxShadow={'sm'}
                       px={5}
                       py={3}
@@ -105,7 +106,7 @@ export default function Home() {
                       borderColor={useColorModeValue('navy', 'lime')}
                       _hover={{
                         shadow: 'lg',
-                        bg: useColorModeValue('white', 'gray.700'),
+                        bg: useColorModeValue('white', 'gray.800'),
                         color: useColorModeValue('black', 'white'),
                         borderWidth: 1,
                         borderBlockColor: useColorModeValue('black', 'white'),
@@ -188,7 +189,7 @@ const AccountCard = ({
   handleDeleteAcc: any;
 }) => {
   const textColor = useColorModeValue('black', 'white');
-  const bgColor = useColorModeValue('gray.100', 'gray.700');
+  const bgColor = useColorModeValue('gray.50', 'gray.800');
   const cardBgColor = useColorModeValue('gray.300', 'gray.600');
   const cardInfoColor = useColorModeValue('gray.500', 'gray.300');
   const hoverBgColor = useColorModeValue('gray.200', 'gray.800');

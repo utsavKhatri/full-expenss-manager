@@ -14,7 +14,6 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -27,7 +26,7 @@ const page = () => {
         minH={'100vh'}
         align={'center'}
         justify={'center'}
-        bg={useColorModeValue('gray.50', 'gray.800')}
+        bg={useColorModeValue('gray.50', 'gray.900')}
       >
         <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
           <Stack align={'center'}>
@@ -41,7 +40,7 @@ const page = () => {
           </Stack>
           <Box
             rounded={'lg'}
-            bg={useColorModeValue('white', 'gray.700')}
+            bg={useColorModeValue('white', 'gray.800')}
             boxShadow={'lg'}
             p={8}
           >

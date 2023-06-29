@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 import {
   Box,
   Flex,
@@ -12,6 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { getExpensePercentageChange, getIncomePercentageChange } from '@/utils';
+const IncomeExpChart = lazy(() => import('./charts/IncomeChart'));
 
 const DashboardStatistics = ({
   analytics,
@@ -24,6 +25,13 @@ const DashboardStatistics = ({
   expenses: any;
   balance: any;
 }) => {
+  const isGreen = (a: any, b: any) => {
+    if (parseFloat(a) > parseFloat(b)) {
+      return '#2f3630';
+    } else {
+      return '#2e2627';
+    }
+  };
   return (
     <Stack
       spacing={4}
@@ -34,7 +42,7 @@ const DashboardStatistics = ({
       <VStack alignItems="stretch" spacing={4} justifyContent="space-between">
         <Box
           p={8}
-          bg={useColorModeValue('gray.50', 'gray.700')}
+          bg={useColorModeValue('#f5faff', '#2f3136')}
           rounded="lg"
           shadow="lg"
           display="flex"
@@ -52,7 +60,7 @@ const DashboardStatistics = ({
         </Box>
         <Box
           p={8}
-          bg={useColorModeValue('gray.50', 'gray.700')}
+          bg={useColorModeValue('amazingLight.50', '#3b3b3b')}
           rounded="lg"
           shadow="lg"
           display="flex"
@@ -68,55 +76,72 @@ const DashboardStatistics = ({
       </VStack>
       <Box
         p={8}
-        bg={useColorModeValue('white', 'gray.800')}
+        bg={useColorModeValue('white', isGreen(income, expenses))}
         rounded="lg"
         shadow="lg"
         display="flex"
         alignItems="stretch"
         flexDirection="column"
-        borderWidth={1}
-        borderColor={useColorModeValue('gray.200', 'gray.700')}
       >
-        <Flex flexDirection="column" alignItems="flex-start" mb={8}>
-          <Text fontWeight="bold" fontSize="xl">
-            Total Income
-          </Text>
-          <Stat>
-            <Text
-              fontSize="4xl"
-              color={useColorModeValue('green.500', 'green.200')}
-            >
-              {income?.toFixed(2)}
+        <Flex
+          flexDirection="column"
+          alignItems="flex-start"
+          mb={8}
+          position={'relative'}
+        >
+          <Box position={'absolute'} zIndex={2}>
+            <Text fontWeight="bold" fontSize="xl">
+              Total Income
             </Text>
-            <Suspense fallback={<Skeleton />}>
-              <StatHelpText>
-                <StatArrow type="increase" />
-                {getIncomePercentageChange(analytics)}%
-              </StatHelpText>
-            </Suspense>
-          </Stat>
+            <Stat>
+              <Text
+                fontSize="4xl"
+                color={useColorModeValue('green.500', 'green.300')}
+              >
+                {income?.toFixed(2)}
+              </Text>
+              <Suspense fallback={<Skeleton />}>
+                <StatHelpText>
+                  <StatArrow type="increase" />
+                  {getIncomePercentageChange(analytics)}%
+                </StatHelpText>
+              </Suspense>
+            </Stat>{' '}
+          </Box>
+          <IncomeExpChart icomeType={true} key={'income'} />
         </Flex>
-        <Flex flexDirection="column" alignItems="flex-start" mb={8}>
-          <Text fontWeight="bold" fontSize="xl">
-            Total Expense
-          </Text>
-          <Stat>
-            <Text fontSize="4xl" color="red.500">
-              {expenses?.toFixed(2)}
+        <Flex
+          flexDirection="column"
+          alignItems="flex-start"
+          mb={8}
+          position={'relative'}
+        >
+          <Box position={'absolute'} zIndex={2}>
+            <Text fontWeight="bold" fontSize="xl">
+              Total Expense
             </Text>
-            <Suspense fallback={<Skeleton />}>
-              <StatHelpText>
-                <StatArrow type="increase" color="red.500" />
-                {getExpensePercentageChange(analytics)}%
-              </StatHelpText>
-            </Suspense>
-          </Stat>
+            <Stat>
+              <Text fontSize="4xl" color="red.500">
+                {expenses?.toFixed(2)}
+              </Text>
+              <Suspense fallback={<Skeleton />}>
+                <StatHelpText>
+                  <StatArrow type="increase" color="red.500" />
+                  {getExpensePercentageChange(analytics)}%
+                </StatHelpText>
+              </Suspense>
+            </Stat>
+          </Box>
+          <IncomeExpChart icomeType={false} key={'expense'} />
         </Flex>
-        <Flex flexDirection="column" alignItems="flex-start">
-          <Text fontWeight="bold" fontSize="xl">
+        <Flex flexDirection="column" alignItems="flex-start" position={'relative'}>
+         <Box position={'absolute'} zIndex={2}>
+         <Text fontWeight="bold" fontSize="xl">
             Total Balance
           </Text>
           <Text fontSize="4xl">{balance?.toFixed(2)}</Text>
+         </Box>
+          <IncomeExpChart isBalance={true} key={'balance'} />
         </Flex>
       </Box>
     </Stack>

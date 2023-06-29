@@ -22,35 +22,35 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { dataState } from '@/context';
 import AddTransModel from './AddTransModal';
-import { useColorMode } from '@chakra-ui/react';
+import {
+  Box,
+  useColorMode,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react';
+import Loader from './Loader';
 
 const TableComp = () => {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
 
-  const { transData, rows, setRows, handleTransUpdate, deleteTrans } = dataState();
+  const { transData, rows, setRows, handleTransUpdate, deleteTrans } =
+    dataState();
   const { colorMode } = useColorMode();
+  if (transData == undefined) {
+    return <Loader />;
+  }
 
-  const theme = createTheme({
-    palette: { mode: colorMode },
-    components: {
-      // @ts-ignore
-      MuiDataGrid: {
-        styleOverrides: {
-          root: {
-            backgroundColor: colorMode == 'light' ? '#fafafa' : '#1a1a1a',
-            color: colorMode == 'light' ? '#1a1a1a' : '#fafafa',
-            borderColor: colorMode == 'light' ? '#ffffff' : '#1a1a1a',
-          },
-        },
-      },
+ const theme = createTheme({
+    palette: {
+      mode: colorMode,
     },
   });
 
-  const initialRows: GridRowsProp = transData.data;
-
+  const initialRows: GridRowsProp = useMemo(() => transData.data, [transData]);
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     // console.log('New Row Modes Model:', newRowModesModel);
@@ -78,7 +78,7 @@ const TableComp = () => {
       account: updatedRow?.account,
       amount: updatedRow?.amount,
       text: updatedRow?.text,
-      trasnfer: updatedRow?.trasnfer,
+      transfer: updatedRow?.transfer,
       updatedBy: currentUserId,
     };
 
@@ -127,7 +127,7 @@ const TableComp = () => {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 100,
+      flex: 0.8,
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -168,17 +168,21 @@ const TableComp = () => {
           />,
         ];
       },
+      minWidth: 75,
     },
     {
       field: 'text',
       headerName: 'Text',
       editable: true,
+      flex: 2,
+      minWidth: 250,
     },
     {
       field: 'transfer',
       headerName: 'Transfer',
       editable: true,
       flex: 1,
+      minWidth: 100,
     },
     {
       field: 'category',
@@ -186,56 +190,87 @@ const TableComp = () => {
       valueGetter: (params) => params.row.category.name,
       editable: false,
       flex: 1,
+      minWidth: 100,
     },
     {
       field: 'amount',
       headerName: 'Amount',
-      flex: 1,
+      editable: true,
       renderCell: (params) => {
         return new Intl.NumberFormat('en-IN', {
           style: 'currency',
           currency: 'INR',
         }).format(params.row.amount);
       },
-      editable: true,
+      flex: 1.5,
+      minWidth: 100,
       cellClassName: (params) => `amount-${params.row.isIncome}-${colorMode}`,
+    },
+    {
+      field: 'updatedBy',
+      headerName: 'Updated By',
+      editable: false,
+      renderCell: (params) => {
+        return params.row.updatedBy.name;
+      },
+      flex: 1,
+      minWidth: 100,
     },
     {
       field: 'createdAt',
       headerName: 'Date',
       editable: false,
-      flex: 1,
+      flex: 1.5,
       renderCell: (params) => {
         return new Date(params.row.createdAt).toDateString();
+      },
+      minWidth: 150,
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Updated At',
+      editable: false,
+      flex: 1.5,
+      minWidth: 150,
+      renderCell: (params) => {
+        return new Date(params.row.updatedAt).toDateString();
       },
     },
   ];
 
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ height: 'auto', width: '100%' }}>
-        <DataGrid
-          rows={initialRows}
-          columns={columns}
-          editMode="row"
-          rowModesModel={rowModesModel}
-          onRowModesModelChange={handleRowModesModelChange}
-          onRowEditStop={handleRowEditStop}
-          processRowUpdate={processRowUpdate}
-          slots={{
-            toolbar: () => {
-              return (
+      {initialRows.length === 0 ? (
+        <AddTransModel accId={transData.accountId} />
+      ) : (
+        <Box
+          bg={useColorModeValue('white', '#141414')}
+          style={{
+            height: 'auto',
+            width: '100%',
+          }}
+        >
+          <DataGrid
+            rows={initialRows}
+            columns={columns}
+            editMode="row"
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={handleRowModesModelChange}
+            onRowEditStop={handleRowEditStop}
+            processRowUpdate={processRowUpdate}
+            slots={{
+              toolbar: () => (
                 <GridToolbarContainer>
                   <AddTransModel accId={transData.accountId} />
                   <GridToolbarColumnsButton />
                   <GridToolbarFilterButton />
                   <GridToolbarExport />
                 </GridToolbarContainer>
-              );
-            },
-          }}
-        />
-      </div>
+              ),
+            }}
+          />
+        </Box>
+      )}
     </ThemeProvider>
   );
 };

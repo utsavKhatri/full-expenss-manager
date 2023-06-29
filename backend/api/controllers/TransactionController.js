@@ -43,6 +43,7 @@ module.exports = {
         expensePercentageChange: analytics.expensePercentageChange.toFixed(2),
         accountId,
         nameAccount: account.name,
+        owner: account.owner,
       };
 
       return res.json(finalData);
@@ -205,10 +206,6 @@ module.exports = {
                   accountAnalytics.previousExpense) *
                 100;
         }
-        // console.log(
-        //   accountAnalytics.incomePercentageChange,
-        //   accountAnalytics.expensePercentageChange
-        // );
         await AccountAnalytics.updateOne({ account: tID }).set({
           income:
             isIncome == "true"
@@ -402,6 +399,7 @@ module.exports = {
           message: "Atleast one field required",
         });
       }
+      console.log(values);
       if (values.isIncome == "false") {
         const validBalance = await Accounts.findOne({ id: validId.account });
         if (validBalance.balance < values.amount) {

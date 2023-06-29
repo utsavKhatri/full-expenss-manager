@@ -41,6 +41,7 @@ export default function AddTransModel({ accId }: { accId: string }) {
           paddingBlock: 'auto',
         }}
         startIcon={<AddBoxIcon />}
+        color='inherit'
       >
         Add Transaction
       </Button>

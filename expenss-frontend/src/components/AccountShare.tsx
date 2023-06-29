@@ -18,7 +18,7 @@ const AccountShare = ({ id }: { id: string }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     handleShareAcc,
-    sampleAccData,
+    transData,
     shareLoading,
     getShareList,
     shareList,
@@ -56,7 +56,7 @@ const AccountShare = ({ id }: { id: string }) => {
               {!shareLoading && (
                 <Select name="email" placeholder="Select email" size={'md'}>
                   {shareList.users.map((user: any) =>
-                    user.id !== sampleAccData.owner ? (
+                    user.id !== transData.owner ? (
                       <option key={user.id} value={user.email}>
                         {user.name}
                       </option>

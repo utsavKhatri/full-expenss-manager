@@ -1,6 +1,5 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { useColorMode } from '@chakra-ui/react';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 });
@@ -12,7 +11,6 @@ const MainBalanceChart = ({
   chartLable: any;
   chartData: any;
 }) => {
-  const { colorMode } = useColorMode();
   const data = {
     labels: chartLable,
     series: chartData,
@@ -22,20 +20,17 @@ const MainBalanceChart = ({
     chart: {
       type: 'pie',
     },
-    theme: {
-      mode: colorMode,
-    },
     stroke: {
       width: 0.5,
       colors: ['transparent'],
     },
     colors: [
-      '#9B59B6', // Royal Purple
-      '#3498DB', // Royal Blue
-      '#E67E22', // Royal Orange
-      '#2ECC71', // Royal Green
-      '#F1C40F', // Royal Yellow
-      '#E74C3C', // Royal Red
+      '#90CAF9', // Light Blue 200
+      '#1E88E5', // Blue 600
+      '#1565C0', // Blue 800
+      '#64B5F6', // Light Blue 300
+      '#1976D2', // Blue 900
+      '#0D47A1', // Blue 900
     ],
     labels: data.labels,
     legend: {
