@@ -445,7 +445,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             status: 'success',
             isClosable: true,
           });
-          router.replace('/auth/login');
+          router.push('/auth/login');
         }
       })
       .catch((error) => {

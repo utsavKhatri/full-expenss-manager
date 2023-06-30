@@ -11,10 +11,12 @@ import {
   TextField,
   ThemeProvider,
   Typography,
+  createTheme,
 } from '@mui/material';
 import { useState } from 'react';
 import { dataState } from '@/context';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { useColorMode } from '@chakra-ui/react';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -31,7 +33,14 @@ export default function AddTransModel({ accId }: { accId: string }) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const { theme, catData, handleCreateTrans } = dataState();
+  const { catData, handleCreateTrans } = dataState();
+  const { colorMode } = useColorMode();
+
+  const theme = createTheme({
+    palette: {
+      mode: colorMode,
+    },
+  });
 
   return (
     <ThemeProvider theme={theme}>
@@ -41,20 +50,26 @@ export default function AddTransModel({ accId }: { accId: string }) {
           paddingBlock: 'auto',
         }}
         startIcon={<AddBoxIcon />}
-        color='inherit'
+        color="inherit"
       >
         Add Transaction
       </Button>
       <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
+        aria-labelledby="transition-modal"
         open={open}
         onClose={handleClose}
         closeAfterTransition
       >
         <Fade in={open}>
           <Box sx={style}>
-            <Typography variant='h5' textAlign={'center'} gutterBottom>Add transaction</Typography>
+            <Typography
+              variant="h5"
+              color={'primary'}
+              textAlign={'center'}
+              gutterBottom
+            >
+              Add transaction
+            </Typography>
             <Stack
               component={'form'}
               spacing={2}
@@ -112,7 +127,17 @@ export default function AddTransModel({ accId }: { accId: string }) {
                 </Select>
               </FormControl>
               <FormControl fullWidth>
-                <Button type="submit" variant="contained" color="primary">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#2f4e96',
+                      color: '#ffffff',
+                    },
+                  }}
+                >
                   Create
                 </Button>
               </FormControl>

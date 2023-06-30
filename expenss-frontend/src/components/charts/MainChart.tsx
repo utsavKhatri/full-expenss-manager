@@ -1,4 +1,3 @@
-
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
 
@@ -26,6 +25,12 @@ const MainChart = ({
     chart: {
       type: 'line',
       stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    grid: {
+      show: false,
     },
     dataLabels: {
       enabled: false,
@@ -42,14 +47,17 @@ const MainChart = ({
     },
     xaxis: {
       categories: labels,
+      axisTicks: {
+        show: false,
+      },
       labels: {
-        show: true,
-        style:{
+        show: false,
+        style: {
           colors: colorMode === 'light' ? '#858585' : '#e8e8e8',
         },
         formatter: function (val: any) {
           return new Date(val).toLocaleDateString();
-        }
+        },
       },
     },
     yaxis: {
@@ -61,16 +69,26 @@ const MainChart = ({
         },
       },
     },
+    title: {
+      text: 'All Transactions',
+      style: {
+        color: colorMode === 'light' ? '#858585' : '#e8e8e8',
+        fontSize: '16px', 
+      },
+      offsetX: 14,
+    }
   };
 
   return (
-    <Chart
-      options={options}
-      series={series}
-      type="bar"
-      height={350}
-      width={'100%'}
-    />
+    <div style={{ height: 350, width: '100%', marginBlock: 'auto' }}>
+      <Chart
+        options={options}
+        series={series}
+        type="bar"
+        height={350}
+        width={'100%'}
+      />
+    </div>
   );
 };
 

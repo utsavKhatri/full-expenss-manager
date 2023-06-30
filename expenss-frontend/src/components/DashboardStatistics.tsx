@@ -12,34 +12,60 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { getExpensePercentageChange, getIncomePercentageChange } from '@/utils';
+import { dataState } from '@/context';
+const MainChart = lazy(() => import('./charts/MainChart'));
+const MainBalanceChart = lazy(() => import('./charts/MainBalanceChart'));
 const IncomeExpChart = lazy(() => import('./charts/IncomeChart'));
 
-const DashboardStatistics = ({
-  analytics,
-  income,
-  expenses,
-  balance,
-}: {
-  analytics: any;
-  income: any;
-  expenses: any;
-  balance: any;
-}) => {
-  const isGreen = (a: any, b: any) => {
-    if (parseFloat(a) > parseFloat(b)) {
-      return '#2f3630';
-    } else {
-      return '#2e2627';
-    }
-  };
+const DashboardStatistics = () => {
+  const {
+    listBalance,
+    listIncome,
+    chartDataD,
+    chartLableD,
+    balance,
+    expenses,
+    income,
+    analytics,
+  } = dataState();
   return (
     <Stack
       spacing={4}
-      w={{ base: 'full', md: 'auto' }}
-      direction={{ base: 'column', md: 'row' }}
-      alignItems="stretch"
+      w={'full'}
+      height={'full'}
+      direction={{ base: 'column-reverse', xl: 'row' }}
+      alignItems={'stretch'}
+      justifyContent={'stretch'}
     >
-      <VStack alignItems="stretch" spacing={4} justifyContent="space-between">
+      <VStack
+        alignItems="stretch"
+        w={{ base: 'full', xl: '35%' }}
+        spacing={4}
+        justifyContent="space-between"
+      >
+        <Box
+          bg={useColorModeValue('#f5faff', '#232730')}
+          rounded="lg"
+          shadow="lg"
+          py={3}
+        >
+          <MainChart chartLable={chartLableD} chartData={chartDataD} />
+        </Box>
+        <Box
+          bg={useColorModeValue('#f5faff', '#2f3136')}
+          rounded="lg"
+          shadow="lg"
+          py={3}
+        >
+          <MainBalanceChart chartLable={listIncome} chartData={listBalance} />
+        </Box>
+      </VStack>
+      <VStack
+        alignItems="stretch"
+        w={{ base: 'full', xl: '25%' }}
+        spacing={4}
+        justifyContent="space-between"
+      >
         <Box
           p={8}
           bg={useColorModeValue('#f5faff', '#2f3136')}
@@ -54,7 +80,7 @@ const DashboardStatistics = ({
           <Text fontWeight="bold" fontSize="xl" mb={2}>
             Total Accounts
           </Text>
-          <Text fontWeight="bold" fontSize="5xl">
+          <Text fontWeight="bold" fontSize="8xl">
             {analytics?.listAccounts?.length}
           </Text>
         </Box>
@@ -74,9 +100,11 @@ const DashboardStatistics = ({
           <Text fontSize="2xl">{analytics?.listAllTransaction.length}</Text>
         </Box>
       </VStack>
-      <Box
-        p={8}
-        bg={useColorModeValue('white', isGreen(income, expenses))}
+      <VStack
+        py={8}
+        px={6}
+        w={'full'}
+        bg={useColorModeValue('white', '#252830')}
         rounded="lg"
         shadow="lg"
         display="flex"
@@ -96,7 +124,8 @@ const DashboardStatistics = ({
             <Stat>
               <Text
                 fontSize="4xl"
-                color={useColorModeValue('green.500', 'green.300')}
+                padding={0}
+                color={useColorModeValue('green.600', '#62f065')}
               >
                 {income?.toFixed(2)}
               </Text>
@@ -134,16 +163,20 @@ const DashboardStatistics = ({
           </Box>
           <IncomeExpChart icomeType={false} key={'expense'} />
         </Flex>
-        <Flex flexDirection="column" alignItems="flex-start" position={'relative'}>
-         <Box position={'absolute'} zIndex={2}>
-         <Text fontWeight="bold" fontSize="xl">
-            Total Balance
-          </Text>
-          <Text fontSize="4xl">{balance?.toFixed(2)}</Text>
-         </Box>
+        <Flex
+          flexDirection="column"
+          alignItems="flex-start"
+          position={'relative'}
+        >
+          <Box position={'absolute'} zIndex={2}>
+            <Text fontWeight="bold" fontSize="xl">
+              Total Balance
+            </Text>
+            <Text fontSize="4xl">{balance?.toFixed(2)}</Text>
+          </Box>
           <IncomeExpChart isBalance={true} key={'balance'} />
         </Flex>
-      </Box>
+      </VStack>
     </Stack>
   );
 };

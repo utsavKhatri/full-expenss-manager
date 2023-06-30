@@ -31,7 +31,6 @@ const InEXPChart = ({
         },
       ];
 
-
   const options: ApexCharts.ApexOptions = {
     chart: {
       type: 'area',
@@ -44,9 +43,6 @@ const InEXPChart = ({
       curve: 'straight',
       width: 2,
     },
-    fill: {
-      opacity: 1,
-    },
     yaxis: {
       min: 0,
     },
@@ -54,21 +50,47 @@ const InEXPChart = ({
       isBalance
         ? colorMode === 'light'
           ? '#78b9ff'
-          : '#abd4ff'
+          : '#4da4ff'
         : colorMode === 'light'
         ? icomeType
           ? '#a3ffb9'
-          : '#ff8a8a'
+          : '#ff4d4d'
         : icomeType
-        ? '#e9fce8'
-        : '#fce8e8',
+        ? '#98f599'
+        : '#ff9e9e',
     ],
+    fill: {
+      opacity: 0.5,
+      type: 'gradient',
+      gradient: {
+        shade: colorMode,
+        type: 'vertical',
+        shadeIntensity: 0.5,
+        gradientToColors: [
+          isBalance
+            ? colorMode === 'light'
+              ? '#78b9ff80'
+              : '#3b9aff80'
+            : colorMode === 'light'
+            ? icomeType
+              ? '#a3ffb980'
+              : '#ff4d4d66'
+            : icomeType
+            ? '#19ff1d3D'
+            : '#ff454580',
+        ],
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 0,
+        stops: [0, 100],
+      },
+    },
     tooltip: {
       theme: colorMode,
     },
   };
   return (
-    <div style={{ width: '100%', paddingTop: '4rem' }}>
+    <div style={{ width: '100%', paddingTop: '3.8rem' }}>
       <Chart
         options={options}
         series={series}

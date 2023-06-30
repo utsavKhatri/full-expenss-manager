@@ -10,7 +10,7 @@ const Loader = () => {
       w={'100%'}
       justifyContent={'center'}
       alignItems={'center'}
-      h={'100vh'}
+      h={'100dvh'}
     >
       <ScaleLoader color={colorMode === 'light' ? '#000000' : '#ffffff'} />
     </Flex>

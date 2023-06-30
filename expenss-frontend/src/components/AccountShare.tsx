@@ -1,4 +1,3 @@
-
 import { dataState } from '@/context';
 import {
   Button,
@@ -16,19 +15,16 @@ import {
 
 const AccountShare = ({ id }: { id: string }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    handleShareAcc,
-    transData,
-    shareLoading,
-    getShareList,
-    shareList,
-  } = dataState();
+  const { handleShareAcc, transData, shareLoading, getShareList, shareList } =
+    dataState();
 
   return (
     <>
       <Button
         onClick={() => getShareList(id, onOpen)}
         colorScheme={useColorModeValue('blackAlpha', 'blue')}
+        width={{ base: 'full', md: 'auto' }}
+        boxShadow={'lg'}
       >
         Share Account
       </Button>

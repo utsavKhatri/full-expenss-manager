@@ -1,5 +1,6 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
+import { useColorMode, useMediaQuery } from '@chakra-ui/react';
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 });
@@ -15,6 +16,10 @@ const MainBalanceChart = ({
     labels: chartLable,
     series: chartData,
   };
+  const { colorMode } = useColorMode();
+
+  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
+  const [isLargerThan500] = useMediaQuery('(min-width: 500px)');
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -35,16 +40,22 @@ const MainBalanceChart = ({
     labels: data.labels,
     legend: {
       position: 'bottom',
+      horizontalAlign: isLargerThan800 ? 'left' : 'center',
+      labels: {
+        colors: [colorMode == 'dark' ? '#d4d4d4' : '#000'],
+      },
     },
   };
 
   return (
-    <ReactApexChart
-      options={options}
-      series={data.series}
-      type="pie"
-      height={350}
-    />
+    <div style={{ height: 350, width: '100%' }}>
+      <ReactApexChart
+        options={options}
+        series={data.series}
+        type="pie"
+        height={350}
+      />
+    </div>
   );
 };
 

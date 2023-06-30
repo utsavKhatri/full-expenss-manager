@@ -50,7 +50,7 @@ export default function Home() {
 
   return (
     <SidebarWithHeader isShow={true}>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered >
+      <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalHeader>create new account</ModalHeader>
@@ -90,7 +90,6 @@ export default function Home() {
                     account: any;
                     text: string | number | boolean | null | undefined;
                     transfer: string | number | boolean | null | undefined;
-                    category: string | number | boolean | null | undefined;
                   },
                   i: number
                 ) => (
@@ -132,13 +131,6 @@ export default function Home() {
                             fontSize={'sm'}
                           >
                             Tranfer: {result.transfer}
-                          </Text>
-                          <Text
-                            textAlign={'center'}
-                            color={useColorModeValue('gray.600', 'gray.400')}
-                            fontSize={'sm'}
-                          >
-                            Category: {result.category}
                           </Text>
                         </Flex>
                       </Link>

@@ -1,4 +1,3 @@
-
 import { dataState } from '@/context';
 import { PlusSquareIcon } from '@chakra-ui/icons';
 import {
@@ -18,7 +17,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-
 const AddBalance = ({ accID }: { accID: any }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { updateAccData } = dataState();
@@ -28,6 +26,8 @@ const AddBalance = ({ accID }: { accID: any }) => {
         onClick={onOpen}
         colorScheme={useColorModeValue('whatsapp', 'green')}
         leftIcon={<PlusSquareIcon />}
+        width={{ base: 'full', md: 'auto' }}
+        boxShadow={'lg'}
       >
         Add Balance
       </Button>
@@ -39,7 +39,7 @@ const AddBalance = ({ accID }: { accID: any }) => {
           <ModalCloseButton />
           <ModalBody
             as={'form'}
-            onSubmit={(e) => updateAccData(e,accID, onClose)}
+            onSubmit={(e) => updateAccData(e, accID, onClose)}
           >
             <Stack direction={'column'}>
               <FormControl isRequired>

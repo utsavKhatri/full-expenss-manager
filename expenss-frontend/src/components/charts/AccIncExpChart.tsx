@@ -5,7 +5,15 @@ import { dataState } from '@/context';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 });
-const AccIncExpChart = ({ icomeType }: { icomeType?: boolean }) => {
+const AccIncExpChart = ({
+  icomeType,
+  height = 100,
+  className,
+}: {
+  icomeType?: boolean;
+  height?: any;
+  className?: any;
+}) => {
   const { chartDataA } = dataState();
   const { colorMode } = useColorMode();
 
@@ -40,11 +48,11 @@ const AccIncExpChart = ({ icomeType }: { icomeType?: boolean }) => {
         gradientToColors: [
           colorMode === 'light'
             ? icomeType
-              ? '#a3ffb9'
-              : '#ff8a8a'
+              ? '#a3ffb980'
+              : '#ff8a8a80'
             : icomeType
-            ? '#e9fce8'
-            : '#ffc4c4',
+            ? '#66ff0080'
+            : '#ff000080',
         ],
         inverseColors: true,
         opacityFrom: 1,
@@ -53,29 +61,29 @@ const AccIncExpChart = ({ icomeType }: { icomeType?: boolean }) => {
       },
     },
     yaxis: {
-      min: 0,
+      show: false,
     },
     colors: [
       colorMode === 'light'
         ? icomeType
           ? '#a3ffb9'
-          : '#ff8a8a'
+          : '#ff8a8aBF'
         : icomeType
-        ? '#e9fce8'
-        : '#fce8e8',
+        ? '#e9fce800'
+        : '#cf535300',
     ],
     tooltip: {
       theme: colorMode,
     },
   };
   return (
-    <div style={{ width: '100%', marginTop:'-2rem' }}>
+    <div className={className} style={{ width: '100%', marginTop: '-2rem' }}>
       <Chart
         options={options}
         series={series}
         type="area"
         width={'100%'}
-        height={100}
+        height={height}
       />
     </div>
   );

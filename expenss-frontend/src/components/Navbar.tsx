@@ -38,6 +38,7 @@ import {
 import Link from 'next/link';
 import { InfoOutlineIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { dataState } from '@/context';
+import Image from 'next/image';
 
 const LinkItems = [
   { name: 'Dashboard', icon: FiHome, href: '/dashboard' },
@@ -98,10 +99,13 @@ const SidebarContent = ({ onClose, ...rest }: any) => {
       h="full"
       {...rest}
     >
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Logo
-        </Text>
+      <Flex h="20" alignItems="center" mx="8" justifyContent={{ base: 'space-between', md: 'center' }}>
+        <Image
+          alt="logo"
+          width={70}
+          height={30}
+          src="/android-chrome-512x512.png"
+        />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
@@ -173,7 +177,7 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
 
       <HStack spacing={{ base: '3', md: '6' }}>
         {isShow && (
-          <FormControl>
+          <FormControl ml={2}>
             <InputGroup>
               <InputLeftElement pointerEvents="none" children={<FiSearch />} />
               <Input
@@ -188,7 +192,12 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
             </InputGroup>
           </FormControl>
         )}
-        <Button onClick={toggleColorMode}>
+        <Button
+          onClick={toggleColorMode}
+          rounded={'full'}
+          bg={'transparent'}
+          fontSize={'2xl'}
+        >
           {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
         </Button>
         <Flex alignItems={'center'}>

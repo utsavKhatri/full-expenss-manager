@@ -1,5 +1,6 @@
 'use client';
 
+import { dataState } from '@/context';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -14,47 +15,14 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 
 const page = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  const toast = useToast();
-  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
-        email: formData.get('email'),
-        password: formData.get('password'),
-        name: formData.get('name'),
-      })
-      .then((response) => {
-        if (response.status == 200) {
-          toast({
-            title: 'signup sucess',
-            variant: 'left-accent',
-            status: 'success',
-            isClosable: true,
-          });
-          router.push('/auth/login');
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          isClosable: true,
-        });
-      });
-  };
+  const { handleSignup } = dataState();
+
   return (
     <Flex
       minH={'100vh'}
