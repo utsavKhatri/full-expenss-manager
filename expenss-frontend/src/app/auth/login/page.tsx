@@ -12,14 +12,13 @@ import {
   Heading,
   Input,
   Stack,
-  Text,
   useColorModeValue,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 const page = () => {
-  const { handleLogin } = dataState();
+  const { handleLogin, loginLoading } = dataState();
   return (
     <Suspense fallback={<Loader />}>
       <Flex
@@ -65,6 +64,7 @@ const page = () => {
                   _hover={{
                     bg: 'blue.500',
                   }}
+                  isLoading={loginLoading}
                 >
                   Sign in
                 </Button>

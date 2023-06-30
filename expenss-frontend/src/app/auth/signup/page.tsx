@@ -21,7 +21,7 @@ import { useState } from 'react';
 
 const page = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { handleSignup } = dataState();
+  const { handleSignup, signupLoading } = dataState();
 
   return (
     <Flex
@@ -83,6 +83,7 @@ const page = () => {
               _hover={{
                 bg: 'blue.500',
               }}
+              isLoading={signupLoading}
             >
               Sign up
             </Button>

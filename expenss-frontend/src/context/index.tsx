@@ -47,6 +47,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [listBalance, setListBalance] = useState([]);
   const [currentuserData, setCurrentuserData] = useState<any>();
   const [chartVisible, setChartVisibale] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [signupLoading, setSignupLoading] = useState(false)
 
   const router = useRouter();
 
@@ -331,6 +333,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoginLoading(true)
     const formData = new FormData(e.currentTarget);
     const config = {
       email: formData.get('email'),
@@ -340,6 +343,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/login`, config)
       .then((response) => {
+        setLoginLoading(false)
         Cookies.set('userInfo', JSON.stringify(response.data.data));
         router.push('/');
         toast({
@@ -350,6 +354,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       })
       .catch((error) => {
+        setLoginLoading(false)
         console.log(error);
         toast({
           title: error.response.data.message,
@@ -430,6 +435,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleSignup = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSignupLoading(true)
     const formData = new FormData(e.currentTarget);
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
@@ -439,6 +445,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       })
       .then((response) => {
         if (response.status == 200) {
+          setSignupLoading(false)
           toast({
             title: 'signup sucess',
             variant: 'left-accent',
@@ -449,6 +456,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       })
       .catch((error) => {
+        setSignupLoading(false)
         console.log(error);
         toast({
           title: error.response.data.message,
@@ -793,7 +801,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           chartVisible,
           setChartVisibale,
           chartDataI,
-          chartDataA
+          chartDataA,
+          loginLoading,
+          signupLoading
         }}
       >
         {children}
