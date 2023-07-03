@@ -59,11 +59,11 @@ const page = () => {
                   </Link>
                 </Stack>
                 <Button
-                  bg={'blue.400'}
+                  bg={'blue.600'}
                   color={'white'}
                   type="submit"
                   _hover={{
-                    bg: 'blue.500',
+                    bg: 'blue.700',
                   }}
                   isLoading={loginLoading}
                   loadingText={'performing blockchain transaction...'}

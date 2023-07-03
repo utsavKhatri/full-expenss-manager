@@ -28,6 +28,9 @@ const MainChart = ({
       toolbar: {
         show: false,
       },
+      zoom: {
+        enabled: true,
+      },
     },
     grid: {
       show: false,
@@ -73,10 +76,10 @@ const MainChart = ({
       text: 'All Transactions',
       style: {
         color: colorMode === 'light' ? '#858585' : '#e8e8e8',
-        fontSize: '16px', 
+        fontSize: '16px',
       },
       offsetX: 14,
-    }
+    },
   };
 
   return (
