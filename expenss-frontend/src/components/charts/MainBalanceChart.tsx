@@ -19,7 +19,6 @@ const MainBalanceChart = ({
   const { colorMode } = useColorMode();
 
   const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
-  const [isLargerThan500] = useMediaQuery('(min-width: 500px)');
 
   const options: ApexCharts.ApexOptions = {
     chart: {

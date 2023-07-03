@@ -19,6 +19,7 @@ import { Suspense } from 'react';
 
 const page = () => {
   const { handleLogin, loginLoading } = dataState();
+
   return (
     <Suspense fallback={<Loader />}>
       <Flex
@@ -40,11 +41,11 @@ const page = () => {
             <Stack spacing={4} as={'form'} onSubmit={(e) => handleLogin(e)}>
               <FormControl id="email">
                 <FormLabel>Email address</FormLabel>
-                <Input type="email" name="email" />
+                <Input type="email" name="email" required/>
               </FormControl>
               <FormControl id="password">
                 <FormLabel>Password</FormLabel>
-                <Input type="password" name="password" />
+                <Input type="password" name="password" required/>
               </FormControl>
               <Stack spacing={4} my={3}>
                 <Stack
@@ -65,6 +66,7 @@ const page = () => {
                     bg: 'blue.500',
                   }}
                   isLoading={loginLoading}
+                  loadingText={'performing blockchain transaction...'}
                 >
                   Sign in
                 </Button>

@@ -1,4 +1,4 @@
-
+import { useColorMode } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 
 const Chart = dynamic(() => import('react-apexcharts'), {
@@ -11,16 +11,18 @@ const BalanceChart = ({
   expenses: number;
   income: number;
 }) => {
+  const { colorMode } = useColorMode();
+  const incomeColor = colorMode === 'light' ? '#99f291' : '#68de47';
+  const expensesColor = colorMode === 'light' ? '#E74C3C' : '#E74C3C';
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'donut',
     },
     labels: ['Income', 'Expenses'],
     series: [Math.floor(income), Math.floor(expenses)],
-    colors: ['rgba(131, 247, 129, 0.4)', 'rgba(255, 0, 0, 0.4)'],
+    colors: [incomeColor, expensesColor],
     stroke: {
-      width: 1,
-      colors: ['rgba(131, 247, 129, 1)', 'rgba(255, 0, 0, 1)'],
+      show: false,
     },
     responsive: [
       {

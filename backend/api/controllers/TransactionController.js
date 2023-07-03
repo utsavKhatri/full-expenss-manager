@@ -9,13 +9,11 @@ const { generateData, generateRandomNames } = require("../utils");
 
 module.exports = {
   /**
-   * GET /viewTransaction/:id
+   * Retrieves a transaction along with its related data.
    *
-   *
-   * @description function getting the transactions of a specific account.
-   * @param {Number} req - find transaction by id
-   * @return {view} res - render "pages/homepage"
-   * @rejects {Error} - If failed log error
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The transaction data and related information.
    */
   getTrsansaction: async (req, res) => {
     try {
@@ -52,6 +50,14 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
+  /**
+   * Retrieves the transaction by duration.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Promise} The transactions data.
+   */
   getTransactionByDura: async (req, res) => {
     try {
       const accountId = req.params.id;
@@ -125,11 +131,11 @@ module.exports = {
   },
 
   /**
-   * GET /viewTransaction/:id
-   * @description function getting the transactions of a specific account.
-   * @param {Number} req - find transaction by id
-   * @return {view} res - render "pages/homepage"
-   * @rejects {Error} - If failed log error
+   * Adds a transaction to the database.
+   *
+   * @param {object} req - the request object
+   * @param {object} res - the response object
+   * @return {object} the response object with the new transaction data
    */
   addTrsansaction: async (req, res) => {
     try {
@@ -235,6 +241,14 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
+  /**
+   * Adds a large generated transaction.
+   *
+   * @param {Object} req - the request object
+   * @param {Object} res - the response object
+   * @return {Object} the response object with a success message
+   */
   addLargeGeneratedTransaction: async (req, res) => {
     try {
       const dataLength = req.body.qnty;
@@ -327,6 +341,13 @@ module.exports = {
     }
   },
 
+  /**
+   * Generate data for the Trans.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Promise} The generated data.
+   */
   generateDataForTrans: async (req, res) => {
     try {
       const dataLength = req.body.qnty;
@@ -340,6 +361,13 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
+  /**
+   * Generate names based on the given quantity.
+   *
+   * @param {number} req.body.qnty - The quantity of names to generate.
+   * @returns {Promise<any>} The generated names.
+   */
   generateNames: async (req, res) => {
     try {
       const dataLength = req.body.qnty;
@@ -353,12 +381,13 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
-   * GET /editTransaction/:id
-   * @description function getting the transactions and render editTransaction page.
-   * @param {Number} req - find transaction by id
-   * @return {view} res - render "pages/editTransaction"
-   * @rejects {Error} - If failed log error
+   * Edit a transaction.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The JSON response containing the edited transaction data.
    */
   editTransaction: async (req, res) => {
     const tId = req.params.id;
@@ -372,12 +401,13 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
-   * POST /editTransaction/:id
-   * @description function update transaction data and redirect to home page
-   * @param {Number} req - find transaction by id
-   * @return {redirect} - redirect to  "/"
-   * @rejects {Error} - If failed log error
+   * Updates a transaction.
+   *
+   * @param {Object} req - the request object
+   * @param {Object} res - the response object
+   * @return {Object} the updated transaction data
    */
   updateTransaction: async (req, res) => {
     const tId = req.params.id;
@@ -465,13 +495,13 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
-   * /rmTransaction/:delId
-   * @description function delete transaction data and redirect to viewTransaction page
-   * @param {Number} req - find transaction by id
-   * @param {Object} req - accId from req.body
-   * @return {redirect} - redirect to  "/viewTransaction/${accID}"
-   * @rejects {Error} - If failed log error
+   * Removes a transaction from the database.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Promise} A promise that resolves to the deleted transaction.
    */
   rmTransaction: async (req, res) => {
     try {

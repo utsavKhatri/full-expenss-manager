@@ -6,6 +6,7 @@
  */
 
 const nodemailer = require("nodemailer");
+const { RevicerAccShareMail, AccountShareMail } = require("../utils");
 
 module.exports = {
   /**
@@ -47,18 +48,15 @@ module.exports = {
   },
 
   /**
-   * POST /addAccount/:userId
-   * @description - This is a function that is used to create an account.
-   * @param {Object} req - name get from req.body to creare account
-   * @return {account} object - The account data.
-   * @redirect "/"
-   * @rejects {Error} - If the account could not be created.
+   * Adds an account to the database.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The response object.
    */
   addAccount: async (req, res) => {
     const { name } = req.body;
-    // console.log("name--->", req.body);
     const id = req.user.id;
-    /* This is a try catch block. It is used to catch errors. */
     try {
       if (!name) {
         return res.status(404).json({ message: "name not found" });
@@ -75,10 +73,10 @@ module.exports = {
         previousIncome: 0,
         previousExpenses: 0,
         previousBalance: 0,
-        user: id
+        user: id,
       }).fetch();
       await Accounts.updateOne({ id: account.id }).set({
-        analytics: analyticsId.id
+        analytics: analyticsId.id,
       });
 
       return res.status(201).json({ data: account });
@@ -89,11 +87,11 @@ module.exports = {
   },
 
   /**
-   * GET /editAccount/:id
-   * @description - This is a function that is used redirect user to editaccountpage.
-   * @param {Number} req - id from params for search data
-   * @return {view} render "pages/editAccount" with accountData
-   * @rejects {Error} - If the account could not be created.
+   * Edit an account.
+   *
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {undefined} This function does not return a value.
    */
   editAccount: async (req, res) => {
     const accId = req.params.id;
@@ -105,6 +103,7 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
    * POST /editAccount/:id
    * @description - This is a function that is used to update accountdata
@@ -130,7 +129,7 @@ module.exports = {
       if (req.body.balance) {
         req.body.balance = accountData.balance + parseFloat(req.body.balance);
         await AccountAnalytics.updateOne({ account: accountId }).set({
-          balance: req.body.balance
+          balance: req.body.balance,
         });
       }
 
@@ -145,11 +144,11 @@ module.exports = {
   },
 
   /**
-   * /delAccount/:accId
-   * @description function that deletes an account with the specified ID, as well as any associated transactions, and then redirects to the home page.
-   * @param {Object} req - The request object.
-   * @param {redirect} res - redirect to "/"
-   * @param {string} req.params.accId - The ID of the account to be deleted.
+   * Deletes an account based on the provided account ID.
+   *
+   * @param {Request} req - The request object.
+   * @param {Response} res - The response object.
+   * @return {Promise} A promise that resolves to the deleted account.
    */
   delAccount: async (req, res) => {
     const id = req.params.accId;
@@ -172,12 +171,11 @@ module.exports = {
   },
 
   /**
-   * /share/:id
+   * Share function that handles sharing of data with other users.
    *
-   * retrieves information about a specified account, as well as a list of all users, and renders a view to share the account with other users.
-   * @param {Object} req - id get from params for share purpose
-   * @param {view} res - render pages/homepge
-   * @rejects {Error} - If the account could not be retrieved.
+   * @param {Object} req - the request object containing parameters and user information
+   * @param {Object} res - the response object used to return data to the client
+   * @return {Object} - the shared account, list of users, and shared list
    */
   share: async (req, res) => {
     try {
@@ -198,12 +196,11 @@ module.exports = {
   },
 
   /**
-   * POST /account/share/:id
+   * Share an account with another user.
    *
-   * This function is used to share account with other user.
-   * @param {Object} req - id get from params and email from body for share purpose
-   * @param {redirect} res - redirect to "/"
-   * @rejects {Error} - If failed to share.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The response object with a message indicating the success or failure of the account sharing.
    */
   shareAccount: async (req, res) => {
     try {
@@ -226,20 +223,15 @@ module.exports = {
         return res.status(404).json({ message: "email not found" });
       }
 
-      // console.log("post share account page", accountId, sharedWithEmail);
-
       // Find the account by ID and ensure that the currently authenticated user is the owner
       const account = await Accounts.findOne({
         id: accountId,
         owner: req.user.id,
       });
 
-      // console.log("exitis account", account);
-
       const sharedWithUser = await User.findOne({ email: sharedWithEmail });
 
       account.sharedWith = [...account.sharedWith, sharedWithUser];
-      // Add the user to the account's sharedWith array
       const latestData = await Accounts.updateOne({ id: accountId }).set({
         sharedWith: account.sharedWith,
       });
@@ -255,62 +247,12 @@ module.exports = {
       const mailOptions = {
         from: "expenssManger1234@gmail.com",
         to: currentUserEmail.email,
-        subject: "New contact created",
-        html: `<!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Account Shared Successfully</title>
-            <style>
-              /* Email styles */
-              body {
-                font-family: Arial, sans-serif;
-                font-size: 16px;
-                color: #333333;
-              }
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-              }
-              .header {
-                background-color: #f0f0f0;
-                padding: 20px;
-                text-align: center;
-              }
-              .header h1 {
-                margin: 0;
-              }
-              .content {
-                padding: 20px;
-                background-color: #ffffff;
-                border: 1px solid #dddddd;
-                border-radius: 5px;
-              }
-              .footer {
-                background-color: #f0f0f0;
-                padding: 20px;
-                text-align: center;
-                font-size: 14px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>Account Shared Successfully</h1>
-              </div>
-              <div class="content">
-                <p><b>Hello ${currentUserEmail.name},</b></p>
-                <p>You have successfully shared your account <b>${latestData.name}</b> with ${req.body.email}.</p>
-              </div>
-              <div class="footer">
-                <p>This email was sent by Expenss Manager.</p>
-              </div>
-            </div>
-          </body>
-        </html>
-        `,
+        subject: "Account share notification",
+        html: AccountShareMail(
+          currentUserEmail.name,
+          latestData.name,
+          req.body.email
+        ),
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
@@ -325,115 +267,12 @@ module.exports = {
           from: "expenssManger1234@gmail.com",
           to: req.body.email,
           subject: "Account shared",
-          html: `<!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Expense Manager - Account Shared</title>
-            <style>
-              /* Fonts */
-              @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
-        
-              /* Typography */
-              body {
-                font-family: 'Open Sans', sans-serif;
-                font-size: 16px;
-                line-height: 1.5;
-                color: #333;
-                margin: 0;
-                padding: 0;
-              }
-              h1, h2, h3, h4, h5, h6 {
-                font-weight: 700;
-                margin-top: 0;
-                margin-bottom: 10px;
-              }
-              p {
-                margin-top: 0;
-                margin-bottom: 10px;
-              }
-              a {
-                color: #0056b3;
-                text-decoration: none;
-              }
-        
-              /* Container */
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 30px;
-                background-color: #fff;
-                border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0,0,0,.1);
-              }
-        
-              /* Header */
-              .header {
-                text-align: center;
-                margin-bottom: 30px;
-              }
-              .header img {
-                width: 100px;
-                height: 100px;
-              }
-              .header h1 {
-                font-size: 24px;
-                margin-top: 10px;
-                margin-bottom: 0;
-              }
-        
-              /* Body */
-              .body {
-                margin-bottom: 30px;
-              }
-              .body p {
-                font-size: 18px;
-                margin-top: 0;
-                margin-bottom: 20px;
-              }
-        
-              /* Button */
-              .btn {
-                display: inline-block;
-                background-color: #0056b3;
-                color: #fff;
-                font-size: 16px;
-                padding: 10px 20px;
-                border-radius: 5px;
-                text-decoration: none;
-              }
-        
-              /* Footer */
-              .footer {
-                text-align: center;
-              }
-              .footer p {
-                font-size: 14px;
-                margin-top: 0;
-                margin-bottom: 5px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <img src="https://example.com/logo.png" alt="Expense Manager Logo">
-                <h1>Expense Manager</h1>
-              </div>
-              <div class="body">
-                <p>Hello ${req.body.email},</p>
-                <p>${currentUserEmail.email} has shared the "${latestData.name}" account with you.</p>
-                <p>Click the button below to view the account's transaction page:</p>
-                <p><a href="http://localhost:1337/viewTransaction/${latestData.id}" class="btn">View Transaction Page</a></p>
-                <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@example.com">support@example.com</a>.</p>
-              </div>
-              <div class="footer">
-                <p>© 2023 Expense Manager. All rights reserved.</p>
-              </div>
-            </div>
-          </body>
-        </html>
-        `,
+          html: RevicerAccShareMail(
+            req.body.email,
+            currentUserEmail.email,
+            latestData.name,
+            latestData.id
+          ),
         },
         (err, info) => {
           if (err) {
@@ -452,6 +291,14 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
+  /**
+   * Search transactions based on the provided search term.
+   *
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {object} The transactions matching the search term.
+   */
   searchTransactions: async (req, res) => {
     const searchTerm = req.body.searchTerm;
     if (!searchTerm) {

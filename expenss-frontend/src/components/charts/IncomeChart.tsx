@@ -44,7 +44,7 @@ const InEXPChart = ({
       width: 2,
     },
     yaxis: {
-      min: 0,
+      show: false,
     },
     colors: [
       isBalance

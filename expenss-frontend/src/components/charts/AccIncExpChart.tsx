@@ -51,7 +51,7 @@ const AccIncExpChart = ({
               ? '#a3ffb980'
               : '#ff8a8a80'
             : icomeType
-            ? '#66ff0080'
+            ? '#33b50e80'
             : '#ff000080',
         ],
         inverseColors: true,

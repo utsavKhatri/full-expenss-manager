@@ -30,7 +30,7 @@ const AccountShare = ({ id }: { id: string }) => {
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalBody
             as={'form'}
             onSubmit={(e) => handleShareAcc(e, id, onClose)}

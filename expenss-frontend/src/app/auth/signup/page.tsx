@@ -49,11 +49,11 @@ const page = () => {
           <Stack spacing={4} as={'form'} onSubmit={(e) => handleSignup(e)}>
             <FormControl id="firstName" isRequired>
               <FormLabel>Name</FormLabel>
-              <Input type="text" name="name" />
+              <Input type="text" name="name" required/>
             </FormControl>
             <FormControl id="email" isRequired>
               <FormLabel>Email address</FormLabel>
-              <Input type="email" name="email" />
+              <Input type="email" name="email" required/>
             </FormControl>
             <FormControl id="password" isRequired>
               <FormLabel>Password</FormLabel>

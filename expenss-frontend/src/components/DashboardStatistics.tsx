@@ -39,7 +39,7 @@ const DashboardStatistics = () => {
     >
       <VStack
         alignItems="stretch"
-        w={{ base: 'full', xl: '35%' }}
+        w={{ base: 'full', xl: '50%' }}
         spacing={4}
         justifyContent="space-between"
       >
@@ -62,9 +62,10 @@ const DashboardStatistics = () => {
       </VStack>
       <VStack
         alignItems="stretch"
-        w={{ base: 'full', xl: '25%' }}
+        w={{ base: 'full', xl: '35%' }}
         spacing={4}
         justifyContent="space-between"
+        textAlign={'center'}
       >
         <Box
           p={8}
@@ -127,7 +128,10 @@ const DashboardStatistics = () => {
                 padding={0}
                 color={useColorModeValue('green.600', '#62f065')}
               >
-                {income?.toFixed(2)}
+                {new Intl.NumberFormat('en-IN', {
+                  style: 'currency',
+                  currency: 'INR',
+                }).format(income?.toFixed(2))}
               </Text>
               <Suspense fallback={<Skeleton />}>
                 <StatHelpText>
@@ -151,7 +155,10 @@ const DashboardStatistics = () => {
             </Text>
             <Stat>
               <Text fontSize="4xl" color="red.500">
-                {expenses?.toFixed(2)}
+                {new Intl.NumberFormat('en-IN', {
+                  style: 'currency',
+                  currency: 'INR',
+                }).format(expenses?.toFixed(2))}
               </Text>
               <Suspense fallback={<Skeleton />}>
                 <StatHelpText>
@@ -172,7 +179,15 @@ const DashboardStatistics = () => {
             <Text fontWeight="bold" fontSize="xl">
               Total Balance
             </Text>
-            <Text fontSize="4xl">{balance?.toFixed(2)}</Text>
+            <Text
+              fontSize="4xl"
+              color={useColorModeValue('blue.800', 'blue.100')}
+            >
+              {new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+              }).format(balance?.toFixed(2))}
+            </Text>
           </Box>
           <IncomeExpChart isBalance={true} key={'balance'} />
         </Flex>

@@ -1,5 +1,5 @@
 'use client';
-import { lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SidebarWithHeader from '@/components/Navbar';
 import { dataState } from '@/context';
@@ -8,32 +8,26 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
-  GridItem,
   Spinner,
   Stack,
-  Stat,
-  StatArrow,
-  StatHelpText,
-  StatLabel,
-  StatNumber,
   VStack,
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react';
-import ApexTransactionChart from '@/components/charts/ApexTransactionChart';
-import BalanceChart from '@/components/charts/BalanceChart';
 import AddBalance from '@/components/AddBalance';
 import AccountShare from '@/components/AccountShare';
-const AccIncExpChart = lazy(() => import('@/components/charts/AccIncExpChart'));
+import AccountPageStat from '@/components/AccountPageStat';
+import AccountPageStatMobile from '@/components/AccountPageStatMobile';
+const ApexTransactionChart = lazy(
+  () => import('@/components/charts/ApexTransactionChart')
+);
+const BalanceChart = lazy(() => import('@/components/charts/BalanceChart'));
 
 const page = ({ params }: { params: { id: string } }) => {
   const {
     fetchSignleAcc,
     accPageLoading,
     transData,
-    chartLable,
-    chartData,
     getCatData,
     currentuserData,
     chartVisible,
@@ -47,7 +41,7 @@ const page = ({ params }: { params: { id: string } }) => {
     }, 1000);
   }, []);
 
-  return accPageLoading && transData == undefined ? (
+  return (accPageLoading && transData == undefined) ? (
     <Loader />
   ) : (
     <SidebarWithHeader>
@@ -60,12 +54,8 @@ const page = ({ params }: { params: { id: string } }) => {
             justifyContent={{ base: 'space-evenly', md: 'space-between' }}
             gap={{ base: 3, md: 0 }}
           >
-            {currentuserData ? (
-              transData.owner == currentuserData.user.id && (
-                <AccountShare id={transData.accountId} />
-              )
-            ) : (
-              <Spinner />
+            {transData.owner == currentuserData.user.id && (
+              <AccountShare id={transData.accountId} />
             )}
             <AddBalance accID={transData.accountId} />
           </Stack>
@@ -87,9 +77,11 @@ const page = ({ params }: { params: { id: string } }) => {
                   boxShadow: 'lg',
                 }}
                 boxShadow="md"
-                p="6"
+                p={{ base: 3, md: 6 }}
                 mb={5}
+                mt={3}
                 rounded="md"
+                size={{ base: 'sm', md: 'md' }}
                 onClick={() => setChartVisibale(!chartVisible)}
               >
                 view chart representation
@@ -103,16 +95,17 @@ const page = ({ params }: { params: { id: string } }) => {
                   gap={3}
                 >
                   <Box w={{ base: '100%', md: '45%' }} justifySelf={'center'}>
-                    <BalanceChart
-                      income={transData.income}
-                      expenses={transData.expenses}
-                    />
+                    <Suspense fallback={<Spinner />}>
+                      <BalanceChart
+                        income={transData.income}
+                        expenses={transData.expenses}
+                      />
+                    </Suspense>
                   </Box>
                   <Box w={{ base: '100%', md: '55%' }}>
-                    <ApexTransactionChart
-                      chartLable={chartLable}
-                      chartData={chartData}
-                    />
+                    <Suspense fallback={<Spinner />}>
+                      <ApexTransactionChart />
+                    </Suspense>
                   </Box>
                 </Flex>
               )}
@@ -126,215 +119,3 @@ const page = ({ params }: { params: { id: string } }) => {
 };
 
 export default page;
-
-const AccountPageStat = ({ transData }: { transData: any }) => {
-  return (
-    <Stack
-      direction={{ base: 'column', md: 'row' }}
-      spacing={5}
-      my={3}
-      justifyContent="space-evenly"
-      alignItems="center"
-      height={'fit-content'}
-    >
-      <Stat
-        boxShadow="md"
-        height="auto"
-        width={{ base: '100%', md: 'auto' }}
-        bg={useColorModeValue('white', '#1a1c1a')}
-        flex={1}
-        py={2}
-        textAlign="center"
-        borderRadius={{ base: 'md' }}
-      >
-        <div className="main-one">
-          <Box className="chart-stat-1" zIndex={4}>
-            <StatLabel>Income</StatLabel>
-            <StatNumber color={useColorModeValue('green', 'green.400')}>
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.income)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="increase" />
-              {transData.incomePercentageChange}%
-            </StatHelpText>
-          </Box>
-          <AccIncExpChart
-            className={'chart-1'}
-            height={50}
-            icomeType={true}
-            key={'incomeAcc1'}
-          />
-        </div>
-      </Stat>
-      <Stat
-        width={{ base: '100%', md: 'auto' }}
-        boxShadow="md"
-        height="-moz-max-content"
-        p={2}
-        bg={useColorModeValue('white', '#141417')}
-        borderRadius={{ base: 'md' }}
-        py={'22.5px'}
-        justifySelf={'stretch'}
-        textAlign="center"
-      >
-        <StatLabel>Total balance</StatLabel>
-        <StatNumber color={useColorModeValue('blue.600', 'blue.400')}>
-          {new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-          }).format(transData.balance)}
-        </StatNumber>
-      </Stat>
-      <Stat
-        width={{ base: '100%', md: 'auto' }}
-        boxShadow="md"
-        height="auto"
-        bg={useColorModeValue('white', '#171313')}
-        borderRadius={{ base: 'md' }}
-        py={2}
-        flex={1}
-        textAlign="center"
-      >
-        <div className="main-one">
-          <Box className="chart-stat-1" zIndex={4}>
-            <StatLabel>Expense</StatLabel>
-            <StatNumber color="red">
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.expenses)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="decrease" />
-              {transData.expensePercentageChange}%
-            </StatHelpText>
-          </Box>
-
-          <AccIncExpChart
-            className={'chart-1'}
-            height={50}
-            icomeType={false}
-            key={'expenssAcc2'}
-          />
-        </div>
-      </Stat>
-    </Stack>
-  );
-};
-
-const AccountPageStatMobile = ({ transData }: { transData: any }) => {
-  return (
-    <Grid
-      templateAreas={`"income expense"
-        "balance balance"
-        `}
-      gridTemplateRows={'auto auto'}
-      gridTemplateColumns={'1fr 1fr'}
-      mt={4}
-      mb={2}
-      gap={4}
-    >
-      <GridItem
-        area={'income'}
-        sx={{
-          position: 'relative',
-          display: 'grid',
-          placeItems: 'left',
-          borderRadius: 'md',
-          boxShadow: 'md',
-        }}
-        bg={useColorModeValue('white', '#1a1c1a')}
-      >
-        <GridItem textAlign={'left'}>
-          <Stat
-            height="auto"
-            width={'100%'}
-            p={4}
-            zIndex={3}
-            bgGradient={'linear(to-t, #000000, trasnsparent)'}
-          >
-            <StatLabel fontSize="lg">Income</StatLabel>
-            <StatNumber
-              fontSize="2xl"
-              color={useColorModeValue('green.500', 'green.200')}
-            >
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.income)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="increase" />
-              {transData.incomePercentageChange}%
-            </StatHelpText>
-          </Stat>
-        </GridItem>
-        <GridItem>
-          <AccIncExpChart icomeType={true} key={'incomeAcc'} />
-        </GridItem>
-      </GridItem>
-      <GridItem
-        area={'expense'}
-        sx={{
-          position: 'relative',
-          display: 'grid',
-          placeItems: 'left',
-          borderRadius: 'md',
-          boxShadow: 'md',
-        }}
-        bg={useColorModeValue('white', '#171313')}
-      >
-        <GridItem textAlign={'left'}>
-          <Stat
-            height="auto"
-            width={'100%'}
-            p={4}
-            zIndex={3}
-            bgGradient={'linear(to-t, #000000, trasnsparent)'}
-          >
-            <StatLabel fontSize="lg">Expense</StatLabel>
-            <StatNumber fontSize="2xl" color="red">
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.expenses)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="decrease" />
-              {transData.expensePercentageChange}%
-            </StatHelpText>
-          </Stat>
-        </GridItem>
-        <GridItem>
-          <AccIncExpChart icomeType={false} key={'expenssAcc'} />
-        </GridItem>
-      </GridItem>
-      <GridItem area={'balance'}>
-        <Box
-          bg={useColorModeValue('white', '#141417')}
-          boxShadow="md"
-          borderRadius="md"
-          p={4}
-          textAlign="center"
-          height={'fit-content'}
-        >
-          <Stat>
-            <StatLabel fontSize="lg">Total balance</StatLabel>
-            <StatNumber
-              fontSize="2xl"
-              color={useColorModeValue('blue.600', 'blue.400')}
-            >
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.balance)}
-            </StatNumber>
-          </Stat>
-        </Box>
-      </GridItem>
-    </Grid>
-  );
-};

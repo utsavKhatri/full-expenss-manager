@@ -99,7 +99,12 @@ const SidebarContent = ({ onClose, ...rest }: any) => {
       h="full"
       {...rest}
     >
-      <Flex h="20" alignItems="center" mx="8" justifyContent={{ base: 'space-between', md: 'center' }}>
+      <Flex
+        h="20"
+        alignItems="center"
+        mx="8"
+        justifyContent={{ base: 'space-between', md: 'center' }}
+      >
         <Image
           alt="logo"
           width={70}
@@ -150,11 +155,9 @@ const NavItem = ({ icon, children, href, ...rest }: any) => {
 };
 
 const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
-  const { user, setUser, setSearchResult, handleLogout, handleSearch } =
+  const { user, handleLogout, handleSearch } =
     dataState();
   const { colorMode, toggleColorMode } = useColorMode();
-  const toast = useToast();
-
   return (
     <Flex
       ml={{ base: 0, md: 60 }}

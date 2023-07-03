@@ -44,7 +44,7 @@ const TableComp = () => {
     return <Loader />;
   }
 
- const theme = createTheme({
+  const theme = createTheme({
     palette: {
       mode: colorMode,
     },
@@ -175,7 +175,7 @@ const TableComp = () => {
       headerName: 'Text',
       editable: true,
       flex: 2,
-      minWidth: 250,
+      minWidth: 220,
     },
     {
       field: 'transfer',

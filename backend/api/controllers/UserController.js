@@ -5,12 +5,11 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
-const { createToken } = require("../utils");
+const { createToken, WelcomeEmailTemp } = require("../utils");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
 module.exports = {
-
   /**
    * Logs in a user.
    *
@@ -68,9 +67,8 @@ module.exports = {
     }
   },
 
-
   /**
-   * Handle user signup.
+   * Handles user signup.
    *
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
@@ -80,24 +78,19 @@ module.exports = {
     try {
       const { name, email, password } = req.body;
 
-      // console.log(name, email, password);
-
       if (!name || !email || !password) {
         return res
           .status(404)
           .json({ message: "name, email and password missing" });
       }
 
-      // Check if user already exists in the database
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(409).json({ message: "User already exists" });
       }
 
-      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create a new user in the database
       const newUser = await User.create({
         name,
         email,
@@ -116,12 +109,11 @@ module.exports = {
         previousIncome: 0,
         previousExpenses: 0,
         previousBalance: 0,
-        user:newUser.id
+        user: newUser.id,
       }).fetch();
       await Accounts.updateOne({ id: accountDefault.id }).set({
-        analytics: analyticsId.id
+        analytics: analyticsId.id,
       });
-      // console.log(defaultAccount);
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -132,81 +124,14 @@ module.exports = {
       });
 
       const mailOptions = {
-        from: "expenssManger1234@gmail.com", // sender address
-        to: newUser.email, // list of receivers
-        subject: "Welcome email", // Subject line
-        html: `<!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Welcome to Expense Manager</title>
-          <style>
-            body {
-              font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-              background-color: #F2F2F2;
-            }
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 30px;
-              background-color: #FFFFFF;
-              border-radius: 5px;
-              box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.15);
-            }
-            .header {
-              text-align: center;
-              margin-bottom: 20px;
-            }
-            .header h1 {
-              font-size: 30px;
-              margin: 0;
-              color: #2672FF;
-            }
-            .content {
-              font-size: 18px;
-              line-height: 1.5;
-              margin-bottom: 30px;
-            }
-            .button {
-              display: inline-block;
-              background-color: #2672FF;
-              color: #FFFFFF;
-              text-align: center;
-              font-size: 18px;
-              font-weight: bold;
-              padding: 10px 20px;
-              border-radius: 5px;
-              text-decoration: none;
-            }
-            .button:hover {
-              background-color: #214B8F;
-            }
-            .footer {
-              font-size: 14px;
-              color: #999999;
-              text-align: center;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>Welcome to Expense Manager!</h1>
-            </div>
-            <div class="content">
-              <p>Hi ${newUser.name},</p>
-              <p>Thank you for signing up for Expense Manager. We're excited to have you as a user!</p>
-              <p>With Expense Manager, you can easily track your expenses and stay on top of your budget. To get started, simply log in to your account and start adding your expenses.</p>
-              <p>Log in to your account by clicking the button below:</p>
-              <a href="${process.env.LOGINPAGE}" class="button">Log In</a>
-            </div>
-            <div class="footer">
-              <p>This email was sent to ${newUser.email}. If you did not sign up for Expense Manager, please ignore this email.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-        `, // html body
+        from: "expenssManger1234@gmail.com",
+        to: newUser.email,
+        subject: "Welcome email",
+        html: WelcomeEmailTemp(
+          newUser.name,
+          process.env.LOGINPAGE,
+          newUser.email
+        ),
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
@@ -227,13 +152,12 @@ module.exports = {
     }
   },
 
-
   /**
    * Logs out the user.
    *
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   * @return {Object} The response object containing status and message.
+   * @param {Object} req - the request object
+   * @param {Object} res - the response object
+   * @return {Object} the response object
    */
   userLogout: async (req, res) => {
     const userId = req.user.id;
@@ -257,9 +181,9 @@ module.exports = {
   /**
    * Edit the user profile.
    *
-   * @param {object} req - The request object.
-   * @param {object} res - The response object.
-   * @return {object} The updated user profile.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Promise} The updated user profile.
    */
   editProfile: async (req, res) => {
     const userId = req.user.id;
@@ -279,9 +203,8 @@ module.exports = {
     }
   },
 
-
   /**
-   * Update the profile of a user.
+   * Update the user profile.
    *
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
@@ -309,7 +232,7 @@ module.exports = {
    *
    * @param {object} req - The request object.
    * @param {object} res - The response object.
-   * @return {object} The response object with a JSON message.
+   * @return {Promise<object>} The response object.
    */
   delUser: async (req, res) => {
     const id = req.params.id;
@@ -330,24 +253,29 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+
   /**
    * Retrieves the dashboard data for a user.
    *
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
-   * @return {Object} The JSON response containing the list of accounts, 
-   *         list of all transactions, and analytics data.
+   * @return {Object} The JSON response containing the list of accounts,
+   *                  list of all transactions, and analytics data.
    */
   dashBoard: async (req, res) => {
     try {
       const userId = req.user.id;
       const listAccounts = await Accounts.find({ owner: userId }).populateAll();
-      const listAllTransaction = await Transaction.find({ by: userId }).populateAll();
-      const analyticsData = await AccountAnalytics.find({ user: userId });
+      const listAllTransaction = await Transaction.find({
+        by: userId,
+      }).populateAll();
+      const analyticsData = await AccountAnalytics.find({
+        user: userId,
+      }).populate("account");
       return res.json({
         listAccounts,
         listAllTransaction,
-        analyticsData
+        analyticsData,
       });
     } catch (error) {
       console.log(error.message);

@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
+import { dataState } from '@/context';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 });
 
 const ApexTransactionChart = ({
-  chartLable,
-  chartData,
   height,
 }: {
-  chartLable: any;
-  chartData: any;
   height?: any;
 }) => {
   const [isWindow, setIsWindow] = useState(false);
   const { colorMode } = useColorMode();
+  const {chartDataB} = dataState();
   const options: ApexCharts.ApexOptions = {
     chart: {
       height: height,
@@ -49,7 +47,6 @@ const ApexTransactionChart = ({
     },
     xaxis: {
       type: 'datetime',
-      categories: chartLable,
       labels: {
         show: true,
         style: {
@@ -71,7 +68,7 @@ const ApexTransactionChart = ({
 
   const series = [
     {
-      data: chartData,
+      data: chartDataB,
     },
   ];
 

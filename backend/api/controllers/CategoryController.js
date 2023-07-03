@@ -6,6 +6,13 @@
  */
 
 module.exports = {
+  /**
+   * Asynchronously finds categories and returns them.
+   *
+   * @param {Object} req - the request object
+   * @param {Object} res - the response object
+   * @return {Object} - the response object with categories
+   */
   async find(req, res) {
     try {
       const categories = await Category.find();
@@ -17,6 +24,13 @@ module.exports = {
       return res.serverError(err);
     }
   },
+  /**
+   * Retrieves the ID of the cat.
+   *
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {Promise} The ID of the cat.
+   */
   async getCatId(req, res) {
     try {
       const categories = await Category.find();
@@ -29,6 +43,13 @@ module.exports = {
     }
   },
 
+  /**
+   * Finds and returns a single category based on the provided ID.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Promise} A promise that resolves to the found category or an error.
+   */
   async findOne(req, res) {
     try {
       const category = await Category.findOne({ id: req.params.id });
@@ -41,6 +62,13 @@ module.exports = {
     }
   },
 
+  /**
+   * Creates a new object and saves it to the database.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Promise} A promise that resolves to the created object or an error.
+   */
   async create(req, res) {
     try {
       if (req.body.data) {
@@ -59,6 +87,13 @@ module.exports = {
     }
   },
 
+  /**
+   * Updates a category in the database.
+   *
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {Promise<object>} The updated category object.
+   */
   async update(req, res) {
     try {
       const updatedCategory = await Category.updateOne({ id: req.params.id })
@@ -73,6 +108,13 @@ module.exports = {
     }
   },
 
+  /**
+   * Deletes a category.
+   *
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   * @return {Promise} A promise that resolves with the deleted category if successful, or rejects with an error.
+   */
   async delete(req, res) {
     try {
       const deletedCategory = await Category.destroyOne({

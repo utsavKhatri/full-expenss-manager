@@ -40,7 +40,7 @@ const MainChart = ({
     },
     colors: [colorMode === 'light' ? '#0072b0' : '#2eb6ff'],
     stroke: {
-      width: 2,
+      width: 1,
     },
     markers: {
       size: 0,

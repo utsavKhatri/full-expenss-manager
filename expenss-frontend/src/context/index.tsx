@@ -29,6 +29,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [shareLoading, setShareLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
   const [chartDataA, setChartDataA] = useState([]);
+  const [chartDataB, setChartDataB] = useState([]);
   const [chartLable, setChartLable] = useState([]);
   const [sampleAccData, setSampleAccData] = useState();
   const [accPageLoading, setAccPageLoading] = useState(true);
@@ -47,8 +48,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [listBalance, setListBalance] = useState([]);
   const [currentuserData, setCurrentuserData] = useState<any>();
   const [chartVisible, setChartVisibale] = useState(false);
-  const [loginLoading, setLoginLoading] = useState(false)
-  const [signupLoading, setSignupLoading] = useState(false)
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [signupLoading, setSignupLoading] = useState(false);
 
   const router = useRouter();
 
@@ -105,11 +106,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIncome(tempIncome);
         setExpenses(tempExpenses);
         setBalance(tempBalance);
-        console.log(res.data.listAllTransaction);
         setChartLableD(
           res.data.listAllTransaction.map(
             (transaction: { createdAt: string | number | Date }) => {
-              return new Date(transaction.createdAt).toDateString();
+              return transaction.createdAt;
             }
           )
         );
@@ -120,12 +120,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         );
         setListIncome(
           res.data.analyticsData.map(
-            (account: { balance: number; income: number; expense: any }) => {
-              return `Balance: ${account.balance.toFixed(
+            (account: {
+              account: any;
+              balance: number;
+              income: number;
+              expense: any;
+            }) => {
+              return `Account: ${
+                account.account.name
+              }, I/E/B: ${account.income.toFixed(2)}, ${account.expense.toFixed(
                 2
-              )}, Income: ${account.income.toFixed(2)}, Expense: ${
-                account.expense
-              }`;
+              )}, ${account.balance.toFixed(2)}`;
             }
           )
         );
@@ -134,12 +139,16 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             return transaction.amount;
           })
         );
-      setChartDataI(res.data.listAllTransaction.map((transaction: { amount: any,isIncome:boolean }) => {
-        return {
-          amount: transaction.amount,
-          isIncome: transaction.isIncome
-        }
-      }))
+        setChartDataI(
+          res.data.listAllTransaction.map(
+            (transaction: { amount: any; isIncome: boolean }) => {
+              return {
+                amount: transaction.amount,
+                isIncome: transaction.isIncome,
+              };
+            }
+          )
+        );
       })
       .catch((err) => {
         console.log(err);
@@ -291,7 +300,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           status: 'success',
           duration: 1000,
         });
-        return router.push('/auth/login');
+        return router.replace('/auth/login');
       })
       .catch((error) => {
         console.log(error);
@@ -303,7 +312,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   };
   const handleSearch = (searchData: string) => {
-    if (searchData === '') {
+    if (searchData.trim() === '') {
       return setSearchResult(null);
     }
     const { token } = JSON.parse(Cookies.get('userInfo') as any);
@@ -314,7 +323,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         Authorization: `Bearer ${token}`,
       },
       data: {
-        searchTerm: searchData,
+        searchTerm: searchData.trim(),
       },
     };
     axios
@@ -333,7 +342,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoginLoading(true)
+    setLoginLoading(true);
     const formData = new FormData(e.currentTarget);
     const config = {
       email: formData.get('email'),
@@ -343,7 +352,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     axios
       .post(`${process.env.NEXT_PUBLIC_API_URL}/login`, config)
       .then((response) => {
-        setLoginLoading(false)
+        setLoginLoading(false);
         Cookies.set('userInfo', JSON.stringify(response.data.data));
         router.push('/');
         toast({
@@ -354,7 +363,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       })
       .catch((error) => {
-        setLoginLoading(false)
+        setLoginLoading(false);
         console.log(error);
         toast({
           title: error.response.data.message,
@@ -405,18 +414,25 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         setTransData(response.data);
         setRows(response.data.data);
         const newArr = response.data.data.map((element: any) => {
+          return {
+            x: element.createdAt,
+            y: parseFloat(element.amount),
+          };
+        });
+        const newArr3 = response.data.data.map((element: any) => {
           return parseFloat(element.amount);
         });
         const newArr2 = response.data.data.map((element: any) => {
           return {
             amount: parseFloat(element.amount),
             isIncome: element.isIncome,
-          }
-        })
+          };
+        });
         const newLablelArr = response.data.data.map((element: any) => {
           return new Date(element.createdAt).toDateString();
         });
-        setChartData(newArr);
+        setChartData(newArr3);
+        setChartDataB(newArr);
         setChartDataA(newArr2);
         setChartLable(newLablelArr);
         setAccPageLoading(false);
@@ -433,38 +449,97 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   };
 
+  // Email format validation
+  const validateEmail = (email: any) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Password strength validation
+  const validatePasswordStrength = (password: any) => {
+    const minLength = 8;
+
+    // Check for at least one lowercase letter
+    const lowercaseRegex = /[a-z]/;
+    if (!lowercaseRegex.test(password)) {
+      return false;
+    }
+
+    // Check for at least one uppercase letter
+    const uppercaseRegex = /[A-Z]/;
+    if (!uppercaseRegex.test(password)) {
+      return false;
+    }
+
+    // Check for at least one digit
+    const digitRegex = /\d/;
+    if (!digitRegex.test(password)) {
+      return false;
+    }
+
+    // Check for at least one special character
+    const specialCharRegex = /[!@#$%^&*]/;
+    if (!specialCharRegex.test(password)) {
+      return false;
+    }
+
+    return password.length >= minLength;
+  };
+
   const handleSignup = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSignupLoading(true)
+
     const formData = new FormData(e.currentTarget);
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
-        email: formData.get('email'),
-        password: formData.get('password'),
-        name: formData.get('name'),
-      })
-      .then((response) => {
-        if (response.status == 200) {
-          setSignupLoading(false)
+    const signupData = {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      name: formData.get('name'),
+    };
+
+    if (!validateEmail(signupData.email)) {
+      toast({
+        title: 'Invalid email format',
+        variant: 'left-accent',
+        status: 'error',
+        duration: 4000,
+      });
+      return;
+    } else if (!validatePasswordStrength(signupData.password)) {
+      toast({
+        title:
+          'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character',
+        variant: 'left-accent',
+        status: 'error',
+        duration: 5000,
+      });
+      return;
+    } else {
+      setSignupLoading(true);
+      axios
+        .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, signupData)
+        .then((response) => {
+          if (response.status == 200) {
+            setSignupLoading(false);
+            toast({
+              title: 'signup sucess',
+              variant: 'left-accent',
+              status: 'success',
+              isClosable: true,
+            });
+            router.push('/auth/login');
+          }
+        })
+        .catch((error) => {
+          setSignupLoading(false);
+          console.log(error);
           toast({
-            title: 'signup sucess',
+            title: error.response.data.message,
             variant: 'left-accent',
-            status: 'success',
+            status: 'error',
             isClosable: true,
           });
-          router.push('/auth/login');
-        }
-      })
-      .catch((error) => {
-        setSignupLoading(false)
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          isClosable: true,
         });
-      });
+    }
   };
 
   const handleTransUpdate = (id: string, values: any) => {
@@ -750,65 +825,65 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   return (
-    <ChakraProvider theme={chkraTheme}>
-      <AuthContext.Provider
-        value={{
-          theme,
-          handleLogout,
-          handleSearch,
-          handleCreateAccount,
-          refresh,
-          setRefresh,
-          data,
-          fetchHomepageData,
-          handleDeleteAcc,
-          handleLogin,
-          fetchSignleAcc,
-          fetchAccData,
-          catData,
-          setCatData,
-          accPageLoading,
-          setAccPageLoading,
-          transData,
-          sampleAccData,
-          rows,
-          setRows,
-          searchResult,
-          handleSignup,
-          handleTransUpdate,
-          handleCreateTrans,
-          deleteTrans,
-          handleShareAcc,
-          chartLable,
-          chartData,
-          updateAccData,
-          shareList,
-          shareLoading,
-          getShareList,
-          getDashboardData,
-          listBalance,
-          listIncome,
-          chartDataD,
-          chartLableD,
-          balance,
-          expenses,
-          income,
-          dashboardLoading,
-          analytics,
-          getCatData,
-          currentuserData,
-          setCurrentuserData,
-          chartVisible,
-          setChartVisibale,
-          chartDataI,
-          chartDataA,
-          loginLoading,
-          signupLoading
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    </ChakraProvider>
+    <AuthContext.Provider
+      value={{
+        theme,
+        handleLogout,
+        handleSearch,
+        handleCreateAccount,
+        refresh,
+        setRefresh,
+        data,
+        fetchHomepageData,
+        handleDeleteAcc,
+        handleLogin,
+        fetchSignleAcc,
+        fetchAccData,
+        catData,
+        setCatData,
+        accPageLoading,
+        setAccPageLoading,
+        transData,
+        sampleAccData,
+        rows,
+        setRows,
+        searchResult,
+        handleSignup,
+        handleTransUpdate,
+        handleCreateTrans,
+        deleteTrans,
+        handleShareAcc,
+        chartLable,
+        chartData,
+        updateAccData,
+        shareList,
+        shareLoading,
+        getShareList,
+        getDashboardData,
+        listBalance,
+        listIncome,
+        chartDataD,
+        chartLableD,
+        balance,
+        expenses,
+        income,
+        dashboardLoading,
+        analytics,
+        getCatData,
+        currentuserData,
+        setCurrentuserData,
+        chartVisible,
+        setChartVisibale,
+        chartDataI,
+        chartDataA,
+        loginLoading,
+        signupLoading,
+        chartDataB,
+        loading,
+      }}
+    >
+      <ChakraProvider theme={chkraTheme}>{children}</ChakraProvider>
+    </AuthContext.Provider>
   );
 };
 

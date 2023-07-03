@@ -34,7 +34,7 @@ const AddBalance = ({ accID }: { accID: any }) => {
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalHeader>Add balance</ModalHeader>
           <ModalCloseButton />
           <ModalBody

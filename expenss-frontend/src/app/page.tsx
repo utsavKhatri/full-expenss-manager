@@ -1,29 +1,20 @@
 'use client';
+import AddAccModal from '@/components/AddAccModal';
 import Loader from '@/components/Loader';
 import SidebarWithHeader from '@/components/Navbar';
 import { dataState } from '@/context';
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
-  Button,
   Container,
   Flex,
   Heading,
   IconButton,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Stack,
   Text,
   Wrap,
   WrapItem,
   useColorModeValue,
-  useDisclosure,
 } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
@@ -31,15 +22,9 @@ import { useRouter } from 'next/navigation';
 import { Key, useEffect } from 'react';
 
 export default function Home() {
-  const {
-    handleCreateAccount,
-    data,
-    fetchHomepageData,
-    handleDeleteAcc,
-    searchResult,
-  } = dataState();
+  const { data, fetchHomepageData, handleDeleteAcc, searchResult, loading } =
+    dataState();
   const router = useRouter();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   useEffect(() => {
     if (Cookies.get('userInfo')) {
       fetchHomepageData();
@@ -48,29 +33,8 @@ export default function Home() {
     }
   }, []);
 
-  return (
+  return !loading ? (
     <SidebarWithHeader isShow={true}>
-      <Modal onClose={onClose} isOpen={isOpen} isCentered>
-        <ModalOverlay />
-        <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
-          <ModalHeader>create new account</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody
-            as={'form'}
-            onSubmit={(e) => handleCreateAccount(e, onClose)}
-            display={'flex'}
-            flexDirection={'column'}
-            gap={3}
-            bg={useColorModeValue('gray.100', 'gray.900')}
-          >
-            <Input placeholder="account name" name="accName" />
-            <Button type="submit">Create</Button>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
       <Box
         bg={useColorModeValue('gray.100', 'gray.900')}
         suppressHydrationWarning
@@ -142,9 +106,7 @@ export default function Home() {
           )}
           <Stack spacing={0} align={'center'}>
             <Heading>Your Accounts</Heading>
-            <Button onClick={onOpen} leftIcon={<AddIcon />}>
-              new account
-            </Button>
+            <AddAccModal />
           </Stack>
 
           <Wrap
@@ -153,7 +115,7 @@ export default function Home() {
             py={{ base: 5, md: 3 }}
             justify="center"
           >
-            {data && data.accData.length ? (
+            {data.accData.length ? (
               data.accData.map((v: any, i: Key | null | undefined) => {
                 return (
                   <AccountCard
@@ -170,6 +132,8 @@ export default function Home() {
         </Container>
       </Box>
     </SidebarWithHeader>
+  ) : (
+    <Loader />
   );
 }
 
