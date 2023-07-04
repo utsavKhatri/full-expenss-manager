@@ -12,7 +12,7 @@ module.exports = {
       model: "User",
       required: true,
     },
-    sharedWith: { type: "json", columnType: "array", defaultsTo: [] },
+    sharedWith: { collection: "User", via: "sharedAccounts" },
     transactions: {
       collection: "transaction",
       via: "account",

@@ -155,8 +155,7 @@ const NavItem = ({ icon, children, href, ...rest }: any) => {
 };
 
 const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
-  const { user, handleLogout, handleSearch } =
-    dataState();
+  const { user, handleLogout, handleSearch } = dataState();
   const { colorMode, toggleColorMode } = useColorMode();
   return (
     <Flex
@@ -200,6 +199,7 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
           rounded={'full'}
           bg={'transparent'}
           fontSize={'2xl'}
+          aria-label="toggle-color-mode"
         >
           {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
         </Button>
@@ -211,7 +211,7 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
               _focus={{ boxShadow: 'none' }}
             >
               <HStack>
-                <Avatar size={'sm'} src="https://bit.ly/broken-link" />
+                <Avatar size={'sm'} />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"
@@ -232,11 +232,26 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
-              <Link href="/profile">
-                <MenuItem>Profile</MenuItem>
-              </Link>
+              <MenuItem
+                as={Link}
+                href={'/profile'}
+                bg={useColorModeValue('white', 'gray.900')}
+                _hover={{
+                  color: '#67aaff',
+                }}
+              >
+                Profile
+              </MenuItem>
               <MenuDivider />
-              <MenuItem onClick={handleLogout}>Sign out</MenuItem>
+              <MenuItem
+                onClick={handleLogout}
+                bg={useColorModeValue('white', 'gray.900')}
+                _hover={{
+                  color: '#67aaff',
+                }}
+              >
+                Sign out
+              </MenuItem>
             </MenuList>
           </Menu>
         </Flex>

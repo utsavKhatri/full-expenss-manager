@@ -25,6 +25,8 @@ module.exports.policies = {
     'viewLogin': true,
     'userSignup': true,
     'viewSignup': true,
+    'googleLogin': true,
+    'googleCallback': true
   },
   AccountsController:{
     '*': 'isLoggedin',

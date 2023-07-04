@@ -1,7 +1,8 @@
 'use client';
 import Loader from '@/components/Loader';
 import SidebarWithHeader from '@/components/Navbar';
-import { Avatar, Box, Flex, Heading, Text } from '@chakra-ui/react';
+import { Avatar, Box, Flex, Heading, Text, useToast } from '@chakra-ui/react';
+import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Suspense, useEffect, useState } from 'react';
 
@@ -10,6 +11,7 @@ const page = () => {
   useEffect(() => {
     setUserData(JSON.parse(Cookies.get('userInfo') as any));
   }, []);
+
 
   return (
     <SidebarWithHeader>
@@ -23,12 +25,7 @@ const page = () => {
           {userData ? (
             <Box p={4}>
               <Flex alignItems="center" mb={8}>
-                <Avatar
-                  size="xl"
-                  name={userData.user.name}
-                  src="/profile-picture.jpg"
-                  mr={4}
-                />
+                <Avatar size="xl" name={userData.user.name} mr={4} />
                 <Box>
                   <Heading as="h1" size="lg" textTransform={'capitalize'}>
                     {userData.user.name}

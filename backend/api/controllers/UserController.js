@@ -8,8 +8,142 @@
 const { createToken, WelcomeEmailTemp } = require("../utils");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
 
 module.exports = {
+  googleLogin: (req, res) => {
+    const authClient = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_CALLBACK_URL
+    );
+
+    const url = authClient.generateAuthUrl({
+      access_type: "offline",
+      scope: ["email", "profile"],
+    });
+    res.json({
+      url: url,
+    });
+  },
+
+  googleCallback: async (req, res) => {
+    const authClient = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_CALLBACK_URL
+    );
+
+    try {
+      const { tokens } = await authClient.getToken(req.query.code);
+      authClient.setCredentials(tokens);
+
+      const oauth2 = google.oauth2({
+        auth: authClient,
+        version: "v2",
+      });
+
+      const { data } = await oauth2.userinfo.get();
+
+      console.log(data);
+
+      const existingUser = await User.findOne({ email: data.email });
+
+      if (existingUser) {
+        const token = await createToken(existingUser.id, existingUser.email);
+        // User already exists, generate token and update it in the database
+        await User.updateOne({ email: data.email }).set({
+          token,
+          isSocial: true,
+          profile: data.picture,
+        });
+        return res.status(200).json({
+          data: {
+            token,
+            user: {
+              id: existingUser.id,
+              name: existingUser.name,
+              email: existingUser.email,
+              profile: data.picture,
+            },
+          },
+        });
+      } else {
+        // User doesn't exist, create a new user
+        const newUser = await User.create({
+          name: data.name,
+          email: data.email,
+          isSocial: true,
+          profile: data.picture,
+          // Set other required fields as needed
+        }).fetch();
+        const token = await createToken(newUser.id, newUser.email);
+        // Generate token and update it in the database
+        await User.updateOne({ email: newUser.email }).set({ token });
+
+        const accountDefault = await Accounts.create({
+          name: `${newUser.name} default account`,
+          owner: newUser.id,
+        }).fetch();
+        const analyticsId = await AccountAnalytics.create({
+          account: accountDefault.id,
+          income: 0,
+          expense: 0,
+          balance: 0,
+          previousIncome: 0,
+          previousExpenses: 0,
+          previousBalance: 0,
+          user: newUser.id,
+        }).fetch();
+        await Accounts.updateOne({ id: accountDefault.id }).set({
+          analytics: analyticsId.id,
+        });
+
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.GMAIL_USERNAME,
+            pass: process.env.GMAIL_PASS,
+          },
+        });
+
+        const mailOptions = {
+          from: "expenssManger1234@gmail.com",
+          to: newUser.email,
+          subject: "Welcome email",
+          html: WelcomeEmailTemp(
+            newUser.name,
+            process.env.LOGINPAGE,
+            newUser.email
+          ),
+        };
+
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(info.response);
+          }
+        });
+        return res.status(200).json({
+          url: process.env.FRONTEND,
+          data: {
+            token,
+            user: {
+              id: newUser.id,
+              name: newUser.name,
+              email: newUser.email,
+              profile: data.picture,
+            },
+          },
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      return res.serverError(error);
+    }
+  },
+
   /**
    * Logs in a user.
    *
@@ -35,6 +169,12 @@ module.exports = {
           .status(404)
           .json({ message: "Invalid credentials", error: true });
       }
+      if (user.isSocial) {
+        return res.status(401).json({
+          message: "try to login with social account",
+          error: true,
+        });
+      }
 
       // Check if the password is correct
       const passwordMatches = await bcrypt.compare(password, user.password);
@@ -58,6 +198,7 @@ module.exports = {
             id: user.id,
             name: user.name,
             email: user.email,
+            profile: user.profile,
           },
         },
       });
@@ -76,7 +217,7 @@ module.exports = {
    */
   userSignup: async (req, res) => {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, profile } = req.body;
 
       if (!name || !email || !password) {
         return res
@@ -95,6 +236,7 @@ module.exports = {
         name,
         email,
         password: hashedPassword,
+        profile: profile != "" && profile,
       }).fetch();
 
       const accountDefault = await Accounts.create({
@@ -138,7 +280,7 @@ module.exports = {
         if (err) {
           console.log(err);
         } else {
-          console.log(info);
+          console.log(info.response);
         }
       });
 
@@ -218,7 +360,6 @@ module.exports = {
       const values = {
         name: req.body.name,
       };
-      // console.log(criteria, values);
       const updatedUser = await User.updateOne(criteria).set(values);
       return res.json({ status: 200, userDatam: updatedUser });
     } catch (error) {
@@ -277,6 +418,16 @@ module.exports = {
         listAllTransaction,
         analyticsData,
       });
+    } catch (error) {
+      console.log(error.message);
+      return res.serverError(error.message);
+    }
+  },
+  getUserData: async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const userData = await User.findOne({ id: userId });
+      return res.json(userData);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);

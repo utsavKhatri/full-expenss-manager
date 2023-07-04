@@ -1,15 +1,9 @@
-import {
-  Box,
-  Stack,
-  Stat,
-  StatArrow,
-  StatHelpText,
-  StatLabel,
-  StatNumber,
-  useColorModeValue,
-} from '@chakra-ui/react';
-import { lazy } from 'react';
-const AccIncExpChart = lazy(() => import('@/components/charts/AccIncExpChart'));
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { Box, Icon, Stack, Text, useColorModeValue } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
+const AccIncExpChart = dynamic(
+  () => import('@/components/charts/AccIncExpChart')
+);
 
 const AccountPageStat = ({ transData }: { transData: any }) => {
   return (
@@ -20,8 +14,9 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
       justifyContent="space-evenly"
       alignItems="center"
       height={'fit-content'}
+      w={'full'}
     >
-      <Stat
+      <Box
         boxShadow="md"
         height="auto"
         width={{ base: '100%', md: 'auto' }}
@@ -30,20 +25,38 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
         py={2}
         textAlign="center"
         borderRadius={{ base: 'md' }}
+        h={'100'}
       >
         <div className="main-one">
-          <Box className="chart-stat-1" zIndex={4}>
-            <StatLabel>Income</StatLabel>
-            <StatNumber color={useColorModeValue('green', 'green.400')}>
+          <Box
+            className="chart-stat-1"
+            display={'flex'}
+            flexDirection={'column'}
+            alignItems={'center'}
+            justifyContent={'center'}
+            zIndex={4}
+          >
+            <Text>Income</Text>
+            <Text
+              as={'b'}
+              fontSize={'2xl'}
+              color={useColorModeValue('green', '#5dff95')}
+            >
               {new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
               }).format(transData.income)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="increase" />
+            </Text>
+            <Box
+              display={'flex'}
+              alignItems={'center'}
+              gap={1}
+              color={useColorModeValue('green.800', '#47d16f')}
+              fontSize={'sm'}
+            >
+              <Icon as={TriangleUpIcon} color={'#00a630'} />
               {transData.incomePercentageChange}%
-            </StatHelpText>
+            </Box>
           </Box>
           <AccIncExpChart
             className={'chart-1'}
@@ -52,27 +65,35 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
             key={'incomeAcc1'}
           />
         </div>
-      </Stat>
-      <Stat
-        width={{ base: '100%', md: 'auto' }}
+      </Box>
+      <Box
+        width={{ base: '100%', md: '33%' }}
         boxShadow="md"
         height="-moz-max-content"
         p={2}
         bg={useColorModeValue('white', '#141417')}
         borderRadius={{ base: 'md' }}
-        py={'22.5px'}
         justifySelf={'stretch'}
+        h={'100'}
         textAlign="center"
+        display={'flex'}
+        flexDirection={'column'}
+        alignItems={'center'}
+        justifyContent={'center'}
       >
-        <StatLabel>Total balance</StatLabel>
-        <StatNumber color={useColorModeValue('blue.600', 'blue.400')}>
+        <Text>Total balance</Text>
+        <Text
+          as={'b'}
+          fontSize={'2xl'}
+          color={useColorModeValue('blue.600', 'blue.400')}
+        >
           {new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: 'INR',
           }).format(transData.balance)}
-        </StatNumber>
-      </Stat>
-      <Stat
+        </Text>
+      </Box>
+      <Box
         width={{ base: '100%', md: 'auto' }}
         boxShadow="md"
         height="auto"
@@ -81,20 +102,34 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
         py={2}
         flex={1}
         textAlign="center"
+        h={'100'}
       >
         <div className="main-one">
-          <Box className="chart-stat-1" zIndex={4}>
-            <StatLabel>Expense</StatLabel>
-            <StatNumber color="red">
+          <Box
+            className="chart-stat-1"
+            display={'flex'}
+            flexDirection={'column'}
+            alignItems={'center'}
+            justifyContent={'center'}
+            zIndex={4}
+          >
+            <Text>Expense</Text>
+            <Text as={'b'} fontSize={'2xl'} color="red">
               {new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
               }).format(transData.expenses)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="decrease" />
+            </Text>
+            <Box
+              display={'flex'}
+              fontSize={'sm'}
+              color={useColorModeValue('red.800', '#c23838')}
+              alignItems={'center'}
+              gap={1}
+            >
+              <Icon as={TriangleDownIcon} color={'red'} />
               {transData.expensePercentageChange}%
-            </StatHelpText>
+            </Box>
           </Box>
 
           <AccIncExpChart
@@ -104,7 +139,7 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
             key={'expenssAcc2'}
           />
         </div>
-      </Stat>
+      </Box>
     </Stack>
   );
 };

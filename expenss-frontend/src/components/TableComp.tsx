@@ -13,9 +13,6 @@ import {
   GridToolbarContainer,
   GridRowEditStopReasons,
   GridEventListener,
-  GridToolbarExport,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
 } from '@mui/x-data-grid';
 import Cookies from 'js-cookie';
 import EditIcon from '@mui/icons-material/Edit';
@@ -24,18 +21,14 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import { useMemo, useState } from 'react';
 import { dataState } from '@/context';
-import AddTransModel from './AddTransModal';
-import {
-  Box,
-  useColorMode,
-  useColorModeValue,
-  useMediaQuery,
-} from '@chakra-ui/react';
+import { Box, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import Loader from './Loader';
+import dynamic from 'next/dynamic';
+import AddTransModel from './modals/AddTransModal';
+const CustomMenuComp = dynamic(() => import('@/components/CustomMenuComp'));
 
 const TableComp = () => {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
 
   const { transData, rows, setRows, handleTransUpdate, deleteTrans } =
     dataState();
@@ -169,6 +162,7 @@ const TableComp = () => {
         ];
       },
       minWidth: 75,
+      disableExport: true,
     },
     {
       field: 'text',
@@ -191,6 +185,7 @@ const TableComp = () => {
       editable: false,
       flex: 1,
       minWidth: 100,
+      valueFormatter: ({ value }) => value,
     },
     {
       field: 'amount',
@@ -213,8 +208,10 @@ const TableComp = () => {
       renderCell: (params) => {
         return params.row.updatedBy.name;
       },
+      valueGetter: (params) => params.row.updatedBy.name,
       flex: 1,
       minWidth: 100,
+      valueFormatter: ({ value }) => value,
     },
     {
       field: 'createdAt',
@@ -225,6 +222,7 @@ const TableComp = () => {
         return new Date(params.row.createdAt).toDateString();
       },
       minWidth: 150,
+      valueFormatter: ({ value }) => new Date(value).toDateString(),
     },
     {
       field: 'updatedAt',
@@ -235,6 +233,7 @@ const TableComp = () => {
       renderCell: (params) => {
         return new Date(params.row.updatedAt).toDateString();
       },
+      valueFormatter: ({ value }) => new Date(value).toDateString(),
     },
   ];
 
@@ -262,11 +261,27 @@ const TableComp = () => {
               toolbar: () => (
                 <GridToolbarContainer>
                   <AddTransModel accId={transData.accountId} />
-                  <GridToolbarColumnsButton />
-                  <GridToolbarFilterButton />
-                  <GridToolbarExport />
+                  <CustomMenuComp theme={theme} />
                 </GridToolbarContainer>
               ),
+            }}
+            sx={{
+              '@media print': {
+                '.MuiDataGrid-main': {
+                  color: 'rgba(0, 0, 0, 0.87)',
+                  width: '100%',
+                  margin: 0,
+                  padding: 0,
+                },
+              },
+            }}
+            slotProps={{
+              toolbar: {
+                printOptions: {
+                  pageStyle:
+                    '.MuiDataGrid-root .MuiDataGrid-main { color: black; }',
+                },
+              },
             }}
           />
         </Box>

@@ -22,14 +22,15 @@ const AccountShare = ({ id }: { id: string }) => {
     <>
       <Button
         onClick={() => getShareList(id, onOpen)}
-        colorScheme={useColorModeValue('blackAlpha', 'blue')}
         width={{ base: 'full', md: 'auto' }}
         boxShadow={'lg'}
+        bg={useColorModeValue('#393939', '#0065b9')}
+        color={'white'}
       >
         Share Account
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(10px)" />
         <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalBody
             as={'form'}
@@ -44,20 +45,35 @@ const AccountShare = ({ id }: { id: string }) => {
             <Text fontSize="md">
               Previously shared with:{' '}
               {shareList &&
-                shareList?.sharedList.map((v: { name: string }) => {
-                  return v.name + ', ';
-                })}
+                shareList.sharedList.length > 0 &&
+                shareList.sharedList.map(
+                  (v: { name: string }, index: number) => {
+                    if (index === shareList.sharedList.length - 1) {
+                      return v.name;
+                    }
+                    return `${v.name}, `;
+                  }
+                )}
             </Text>
             <FormControl>
               {!shareLoading && (
-                <Select name="email" placeholder="Select email" size={'md'}>
-                  {shareList.users.map((user: any) =>
-                    user.id !== transData.owner ? (
-                      <option key={user.id} value={user.email}>
-                        {user.name}
-                      </option>
-                    ) : null
-                  )}
+                <Select name="email" placeholder="Select email" size="md">
+                  {shareList.users.map((user: any) => {
+                    if (
+                      user.id !== transData.owner &&
+                      !shareList.sharedList.some(
+                        (sharedUser: { id: string }) =>
+                          sharedUser.id === user.id
+                      )
+                    ) {
+                      return (
+                        <option key={user.id} value={user.email}>
+                          {user.name}
+                        </option>
+                      );
+                    }
+                    return null;
+                  })}
                 </Select>
               )}
             </FormControl>

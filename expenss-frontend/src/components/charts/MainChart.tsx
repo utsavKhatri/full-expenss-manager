@@ -1,9 +1,7 @@
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
 
-const Chart = dynamic(() => import('react-apexcharts'), {
-  ssr: false,
-});
+const Chart = dynamic(() => import('react-apexcharts'));
 
 const MainChart = ({
   chartLable,

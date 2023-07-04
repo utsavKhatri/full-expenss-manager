@@ -36,6 +36,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [transData, setTransData] = useState();
   const [catData, setCatData] = useState();
   const [shareList, setShareList] = useState<any>();
+  const [shareAccList, setShareAccList] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any>();
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [income, setIncome] = useState<number>();
@@ -47,9 +48,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [listIncome, setListIncome] = useState([]);
   const [listBalance, setListBalance] = useState([]);
   const [currentuserData, setCurrentuserData] = useState<any>();
+  const [signleUser, setSignleUser] = useState<any>();
   const [chartVisible, setChartVisibale] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [signupLoading, setSignupLoading] = useState(false);
+  const [profileUrl, setProfileUrl] = useState('');
 
   const router = useRouter();
 
@@ -69,6 +72,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     fetchIMPData();
   }, []);
+
+  const handleFileChange = async (event: any) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'cxciup5w');
+      const respose = await axios.post(
+        'https://api.cloudinary.com/v1_1/dyb6dkjju/image/upload',
+        formData
+      );
+      Cookies.set('profileUrl', respose.data.secure_url);
+      setProfileUrl(respose.data.secure_url);
+    } else {
+      setProfileUrl('');
+    }
+  };
 
   const getCatData = () => {
     axios
@@ -161,6 +181,59 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
   };
 
+  const getRecievedAcc = () => {
+    const user: any = Cookies.get('userInfo');
+    const { token } = JSON.parse(user);
+    const options = {
+      method: 'GET',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/sharedAcc`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        console.log(response.data);
+        setShareAccList(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: 'left-accent',
+          status: 'error',
+          duration: 2000,
+        });
+      });
+  };
+
+  const getUserName = (userId: string) => {
+    const user: any = Cookies.get('userInfo');
+    const { token } = JSON.parse(user);
+    const options = {
+      method: 'GET',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    axios
+      .request(options)
+      .then((response) => {
+        setSignleUser(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: 'left-accent',
+          status: 'error',
+          duration: 2000,
+        });
+      });
+  };
+
   const fetchHomepageData = () => {
     const user: any = Cookies.get('userInfo');
     const { token } = JSON.parse(user);
@@ -176,11 +249,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       .request(options)
       .then((response) => {
         setData(response.data);
-        setLoading(false);
+        return setLoading(false);
       })
       .catch((error) => {
         console.log(error);
-        toast({
+        return toast({
           title: error.response.data.message,
           variant: 'left-accent',
           status: 'error',
@@ -295,6 +368,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       .request(options)
       .then((response) => {
         Cookies.set('userInfo', '');
+        setShareAccList(null);
+        setData(null);
         toast({
           title: 'Logged out successfully',
           status: 'success',
@@ -494,6 +569,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       email: formData.get('email'),
       password: formData.get('password'),
       name: formData.get('name'),
+      profile:profileUrl
     };
 
     if (!validateEmail(signupData.email)) {
@@ -880,6 +956,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         signupLoading,
         chartDataB,
         loading,
+        shareAccList,
+        getRecievedAcc,
+        signleUser,
+        getUserName,
+        setSignleUser,profileUrl, handleFileChange
       }}
     >
       <ChakraProvider theme={chkraTheme}>{children}</ChakraProvider>

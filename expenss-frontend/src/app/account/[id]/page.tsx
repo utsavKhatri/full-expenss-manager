@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import SidebarWithHeader from '@/components/Navbar';
 import { dataState } from '@/context';
@@ -14,14 +14,19 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react';
-import AddBalance from '@/components/AddBalance';
-import AccountShare from '@/components/AccountShare';
+import AddBalance from '@/components/modals/AddBalance';
 import AccountPageStat from '@/components/AccountPageStat';
-import AccountPageStatMobile from '@/components/AccountPageStatMobile';
-const ApexTransactionChart = lazy(
+import dynamic from 'next/dynamic';
+const AccountShare = dynamic(() => import('@/components/modals/AccountShare'), {
+  ssr: false,
+});
+const AccountPageStatMobile = dynamic(
+  () => import('@/components/AccountPageStatMobile')
+);
+const ApexTransactionChart = dynamic(
   () => import('@/components/charts/ApexTransactionChart')
 );
-const BalanceChart = lazy(() => import('@/components/charts/BalanceChart'));
+const BalanceChart = dynamic(() => import('@/components/charts/BalanceChart'));
 
 const page = ({ params }: { params: { id: string } }) => {
   const {
@@ -41,7 +46,7 @@ const page = ({ params }: { params: { id: string } }) => {
     }, 1000);
   }, []);
 
-  return (accPageLoading && transData == undefined) ? (
+  return accPageLoading && transData == undefined ? (
     <Loader />
   ) : (
     <SidebarWithHeader>

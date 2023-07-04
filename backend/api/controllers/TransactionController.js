@@ -61,69 +61,17 @@ module.exports = {
   getTransactionByDura: async (req, res) => {
     try {
       const accountId = req.params.id;
-      // console.log(accountId);
-
-      if (!req.query.filter) {
-        return res.json({
-          message: "Filter is required",
-        });
-      }
-      // console.log(req.query);
-
-      const now = new Date();
-      let startDate;
-      let endDate;
-
-      if (req.query.filter == "Weeks") {
-        let today = new Date();
-
-        // Get the day of the week (0 is Sunday, 1 is Monday, etc.)
-        let dayOfWeek = today.getDay();
-
-        // Calculate the date of the start of the current week
-        let startDate2 = new Date(today);
-        startDate2.setDate(today.getDate() - dayOfWeek);
-
-        // Calculate the date of the end of the current week
-        let endDate2 = new Date(today);
-        endDate2.setDate(today.getDate() - dayOfWeek + 6);
-
-        // Format the dates as strings
-        startDate = startDate2.toDateString();
-        endDate = endDate2.toDateString();
-      }
-      if (req.query.filter == "Months") {
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      }
-      if (req.query.filter == "Years") {
-        startDate = new Date(now.getFullYear(), 0, 1);
-        endDate = new Date(now.getFullYear(), 11, 31);
-      }
-      if (req.query.filter == "All") {
-        startDate = new Date(0);
-        endDate = now;
-      }
-
-      const searchQuery = {
+      const transactionsData = await Transaction.find({
         account: accountId,
-        createdAt: {
-          ">": Date.parse(startDate),
-          "<": Date.parse(endDate),
-        },
-      };
-
-      // console.log(searchQuery);
-      const transactionsData = await Transaction.find(searchQuery)
+      })
         .populate("updatedBy")
         .populate("category")
         .sort([
           {
-            createdAt: "DESC",
+            createdAt: "ASC",
           },
         ]);
-      // console.log(transactionsData);
-      return res.json(transactionsData);
+      return res.status(200).json(transactionsData);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -131,42 +79,21 @@ module.exports = {
   },
 
   /**
-   * Adds a transaction to the database.
+   * Adds a transaction.
    *
-   * @param {object} req - the request object
-   * @param {object} res - the response object
-   * @return {object} the response object with the new transaction data
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The newly created transaction.
    */
-  addTrsansaction: async (req, res) => {
+  addTransaction: async (req, res) => {
     try {
       const tID = req.params.tId;
-      let { text, amount, transfer, category, isIncome } = req.body;
-      if (req.body.data) {
-        req.body.data.forEach(async (element) => {
-          await Transaction.create({
-            text: element.text,
-            amount: parseFloat(element.amount),
-            transfer: element.transfer,
-            category: element.category,
-            by: req.user.id,
-            updatedBy: req.user.id,
-            account: tID,
-          });
-        });
-        return res.status(201).json({ message: "success" });
-      }
-      amount = parseFloat(amount);
-      const prevoiusAccData = await Accounts.findOne({ id: tID });
-
-      if (isIncome == "false") {
-        if (prevoiusAccData.balance < amount) {
-          return res.status(404).json({ message: "Insufficient Balance" });
-        }
-      }
+      const { text, amount, transfer, category, isIncome } = req.body;
 
       if (!req.user.id) {
         return res.status(404).json({ message: "User not Loggedin" });
       }
+
       if (!tID) {
         return res.status(404).json({ message: "transaction id required" });
       }
@@ -175,60 +102,65 @@ module.exports = {
         return res.status(404).json({ message: "All fields are required" });
       }
 
-      // console.log(text, amount);
+      const prevoiusAccData = await Accounts.findOne({ id: tID });
+
+      const parsedAmount = parseFloat(amount);
+
+      if (isIncome == "false" && prevoiusAccData.balance < parsedAmount) {
+        return res.status(404).json({ message: "Insufficient Balance" });
+      }
+
       const newTransactions = await Transaction.create({
         text,
-        amount,
+        amount: parsedAmount,
         transfer,
         category,
         by: req.user.id,
         updatedBy: req.user.id,
         account: tID,
         isIncome,
-      });
+      }).fetch();
 
-      await Accounts.updateOne({ id: tID }).set({
-        balance:
-          isIncome == "true"
-            ? prevoiusAccData.balance + amount
-            : prevoiusAccData.balance - amount,
-      });
+      const updatedBalance =
+        isIncome == "true"
+          ? prevoiusAccData.balance + parsedAmount
+          : prevoiusAccData.balance - parsedAmount;
+
+      await Accounts.updateOne({ id: tID }).set({ balance: updatedBalance });
 
       const accountAnalytics = await AccountAnalytics.findOne({ account: tID });
 
       if (accountAnalytics) {
+        const previousIncome = accountAnalytics.previousIncome;
+        const previousExpense = accountAnalytics.previousExpense;
+
         if (isIncome == "true") {
           accountAnalytics.incomePercentageChange =
-            accountAnalytics.previousIncome == 0
+            previousIncome == 0
               ? 100
-              : ((amount - accountAnalytics.previousIncome) /
-                  accountAnalytics.previousIncome) *
-                100;
+              : ((parsedAmount - previousIncome) / previousIncome) * 100;
         } else {
           accountAnalytics.expensePercentageChange =
-            accountAnalytics.previousExpense == 0
+            previousExpense == 0
               ? 100
-              : ((amount - accountAnalytics.previousExpense) /
-                  accountAnalytics.previousExpense) *
-                100;
+              : ((parsedAmount - previousExpense) / previousExpense) * 100;
         }
+
         await AccountAnalytics.updateOne({ account: tID }).set({
           income:
             isIncome == "true"
-              ? accountAnalytics.income + amount
+              ? accountAnalytics.income + parsedAmount
               : accountAnalytics.income,
           expense:
             isIncome == "false"
-              ? accountAnalytics.expense + amount
+              ? accountAnalytics.expense + parsedAmount
               : accountAnalytics.expense,
           balance:
             isIncome == "true"
-              ? accountAnalytics.balance + amount
-              : accountAnalytics.balance - amount,
-          previousIncome:
-            isIncome == "true" ? amount : accountAnalytics.previousIncome,
-          previousExpenses:
-            isIncome == "false" ? amount : accountAnalytics.previousExpenses,
+              ? accountAnalytics.balance + parsedAmount
+              : accountAnalytics.balance - parsedAmount,
+          previousIncome: isIncome == "true" ? parsedAmount : previousIncome,
+          previousExpense: isIncome == "false" ? parsedAmount : previousExpense,
           previousBalance: accountAnalytics.previousBalance,
           incomePercentageChange: accountAnalytics.incomePercentageChange,
           expensePercentageChange: accountAnalytics.expensePercentageChange,
@@ -254,11 +186,12 @@ module.exports = {
       const dataLength = req.body.qnty;
       const tID = req.params.tId;
       const currentUser = req.user.id;
+
       if (!tID) {
         return res.status(404).json({ message: "account id required" });
       }
-      const isValid = await Accounts.findOne({ id: tID });
 
+      const isValid = await Accounts.findOne({ id: tID });
       if (!isValid) {
         return res.status(404).json({ message: "account not found" });
       }
@@ -266,74 +199,81 @@ module.exports = {
       if (!dataLength) {
         return res.status(404).json({ message: "qnty field required" });
       }
+
       const { data } = await generateData(dataLength, tID, currentUser);
       await Transaction.createEach(data);
-      let tempBalance = 0;
 
-      data.map(async (element) => {
-        tempBalance += element.amount;
-      });
-      if (isValid.balance < tempBalance) {
-        await Accounts.updateOne({ id: tID }).set({
-          balance: tempBalance + 2398,
-        });
-        await AccountAnalytics.updateOne({ account: tID }).set({
-          balance: tempBalance + 2398,
-        });
+      let tempBalance = data.reduce((acc, element) => acc + element.amount, 0);
+      if (isValid.balance < tempBalance + 2398) {
+        await Promise.all([
+          Accounts.updateOne({ id: tID }).set({ balance: tempBalance + 2398 }),
+          AccountAnalytics.updateOne({ account: tID }).set({
+            balance: tempBalance + 2398,
+          }),
+        ]);
       }
+
       const accountAnalytics2 = await AccountAnalytics.findOne({
         account: tID,
       });
       if (accountAnalytics2) {
-        data.forEach(async (element) => {
-          const accountAnalytics = await AccountAnalytics.findOne({
-            account: tID,
-          });
-          if (element.isIncome) {
-            accountAnalytics.incomePercentageChange =
-              accountAnalytics.previousIncome == 0
-                ? 100
-                : ((element.amount - accountAnalytics.previousIncome) /
-                    accountAnalytics.previousIncome) *
-                  100;
-          } else {
-            if (accountAnalytics.balance < element.amount) {
-              console.log("Insufficient Balance");
+        await Promise.all(
+          data.map(async (element) => {
+            const accountAnalytics = await AccountAnalytics.findOne({
+              account: tID,
+            });
+
+            if (element.isIncome) {
+              accountAnalytics.incomePercentageChange =
+                accountAnalytics.previousIncome == 0
+                  ? 100
+                  : ((element.amount - accountAnalytics.previousIncome) /
+                      accountAnalytics.previousIncome) *
+                    100;
+            } else {
+              if (accountAnalytics.balance < element.amount) {
+                console.log("Insufficient Balance");
+              }
+              accountAnalytics.expensePercentageChange =
+                accountAnalytics.previousExpense == 0
+                  ? 100
+                  : ((element.amount - accountAnalytics.previousExpense) /
+                      accountAnalytics.previousExpense) *
+                    100;
             }
-            accountAnalytics.expensePercentageChange =
-              accountAnalytics.previousExpense == 0
-                ? 100
-                : ((element.amount - accountAnalytics.previousExpense) /
-                    accountAnalytics.previousExpense) *
-                  100;
-          }
-          await AccountAnalytics.updateOne({ account: tID }).set({
-            income: element.isIncome
-              ? accountAnalytics.income + parseFloat(element.amount)
-              : accountAnalytics.income,
-            expense: !element.isIncome
-              ? accountAnalytics.expense + parseFloat(element.amount)
-              : accountAnalytics.expense,
-            balance: element.isIncome
-              ? accountAnalytics.balance + parseFloat(element.amount)
-              : accountAnalytics.balance - parseFloat(element.amount),
-            previousIncome: element.isIncome
-              ? parseFloat(element.amount)
-              : accountAnalytics.previousIncome,
-            previousExpense: !element.isIncome
-              ? parseFloat(element.amount)
-              : accountAnalytics.previousExpenses,
-            previousBalance: accountAnalytics.previousBalance,
-            incomePercentageChange: accountAnalytics.incomePercentageChange,
-            expensePercentageChange: accountAnalytics.expensePercentageChange,
-          });
-          await Accounts.updateOne({ id: tID }).set({
-            balance: element.isIncome
-              ? accountAnalytics.balance + parseFloat(element.amount)
-              : accountAnalytics.balance - parseFloat(element.amount),
-          });
-        });
+
+            await Promise.all([
+              AccountAnalytics.updateOne({ account: tID }).set({
+                income: element.isIncome
+                  ? accountAnalytics.income + parseFloat(element.amount)
+                  : accountAnalytics.income,
+                expense: !element.isIncome
+                  ? accountAnalytics.expense + parseFloat(element.amount)
+                  : accountAnalytics.expense,
+                balance: element.isIncome
+                  ? accountAnalytics.balance + parseFloat(element.amount)
+                  : accountAnalytics.balance - parseFloat(element.amount),
+                previousIncome: element.isIncome
+                  ? parseFloat(element.amount)
+                  : accountAnalytics.previousIncome,
+                previousExpense: !element.isIncome
+                  ? parseFloat(element.amount)
+                  : accountAnalytics.previousExpenses,
+                previousBalance: accountAnalytics.previousBalance,
+                incomePercentageChange: accountAnalytics.incomePercentageChange,
+                expensePercentageChange:
+                  accountAnalytics.expensePercentageChange,
+              }),
+              Accounts.updateOne({ id: tID }).set({
+                balance: element.isIncome
+                  ? accountAnalytics.balance + parseFloat(element.amount)
+                  : accountAnalytics.balance - parseFloat(element.amount),
+              }),
+            ]);
+          })
+        );
       }
+
       return res.status(201).json({ message: "success" });
     } catch (error) {
       console.log(error.message);
@@ -429,14 +369,12 @@ module.exports = {
           message: "Atleast one field required",
         });
       }
-      console.log(values);
       if (values.isIncome == "false") {
         const validBalance = await Accounts.findOne({ id: validId.account });
         if (validBalance.balance < values.amount) {
           return res.status(404).json({ message: "Insufficient Balance" });
         }
       }
-      // console.log(criteria, values);
       const updatedTransaction = await Transaction.updateOne(criteria).set({
         ...values,
         updatedBy: req.user.id,

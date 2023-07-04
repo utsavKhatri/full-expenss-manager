@@ -1,21 +1,22 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import {
   Box,
   Flex,
   Stack,
   Text,
-  Stat,
-  StatHelpText,
-  StatArrow,
   Skeleton,
   useColorModeValue,
   VStack,
+  Icon,
+  Center,
 } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { getExpensePercentageChange, getIncomePercentageChange } from '@/utils';
 import { dataState } from '@/context';
-const MainChart = lazy(() => import('./charts/MainChart'));
-const MainBalanceChart = lazy(() => import('./charts/MainBalanceChart'));
-const IncomeExpChart = lazy(() => import('./charts/IncomeChart'));
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+const MainChart = dynamic(() => import('./charts/MainChart'));
+const MainBalanceChart = dynamic(() => import('./charts/MainBalanceChart'));
+const IncomeExpChart = dynamic(() => import('./charts/IncomeChart'));
 
 const DashboardStatistics = () => {
   const {
@@ -28,7 +29,8 @@ const DashboardStatistics = () => {
     income,
     analytics,
   } = dataState();
-  return (
+  
+  return analytics ? (
     <Stack
       spacing={4}
       w={'full'}
@@ -122,7 +124,7 @@ const DashboardStatistics = () => {
             <Text fontWeight="bold" fontSize="xl">
               Total Income
             </Text>
-            <Stat>
+            <Box>
               <Text
                 fontSize="4xl"
                 padding={0}
@@ -134,12 +136,12 @@ const DashboardStatistics = () => {
                 }).format(income?.toFixed(2))}
               </Text>
               <Suspense fallback={<Skeleton />}>
-                <StatHelpText>
-                  <StatArrow type="increase" />
+                <Box display={'flex'} alignItems={'center'} gap={1}>
+                  <Icon as={TriangleUpIcon} color={'green.500'} />
                   {getIncomePercentageChange(analytics)}%
-                </StatHelpText>
+                </Box>
               </Suspense>
-            </Stat>{' '}
+            </Box>{' '}
           </Box>
           <IncomeExpChart icomeType={true} key={'income'} />
         </Flex>
@@ -153,7 +155,7 @@ const DashboardStatistics = () => {
             <Text fontWeight="bold" fontSize="xl">
               Total Expense
             </Text>
-            <Stat>
+            <Box>
               <Text fontSize="4xl" color="red.500">
                 {new Intl.NumberFormat('en-IN', {
                   style: 'currency',
@@ -161,12 +163,12 @@ const DashboardStatistics = () => {
                 }).format(expenses?.toFixed(2))}
               </Text>
               <Suspense fallback={<Skeleton />}>
-                <StatHelpText>
-                  <StatArrow type="increase" color="red.500" />
+                <Box display={'flex'} alignItems={'center'} gap={1}>
+                  <Icon as={TriangleDownIcon} color={'red.500'} />
                   {getExpensePercentageChange(analytics)}%
-                </StatHelpText>
+                </Box>
               </Suspense>
-            </Stat>
+            </Box>
           </Box>
           <IncomeExpChart icomeType={false} key={'expense'} />
         </Flex>
@@ -193,6 +195,10 @@ const DashboardStatistics = () => {
         </Flex>
       </VStack>
     </Stack>
+  ) : (
+    <Center>
+      <Text>Nothing to show</Text>
+    </Center>
   );
 };
 

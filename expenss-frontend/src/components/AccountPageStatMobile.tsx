@@ -1,7 +1,7 @@
-import { Box, Grid, GridItem, Stat, StatArrow, StatHelpText, StatLabel, StatNumber, useColorModeValue } from "@chakra-ui/react";
-import { lazy } from "react";
-// import AccIncExpChart from "./charts/AccIncExpChart";
-const AccIncExpChart = lazy(() => import('@/components/charts/AccIncExpChart'));
+import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { Box, Grid, GridItem, Icon, Text, useColorModeValue } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
+const AccIncExpChart = dynamic(() => import('@/components/charts/AccIncExpChart'));
 
 const AccountPageStatMobile = ({ transData }: { transData: any }) => {
   return (
@@ -24,31 +24,33 @@ const AccountPageStatMobile = ({ transData }: { transData: any }) => {
           borderRadius: 'md',
           boxShadow: 'md',
         }}
+        w={'full'}
         bg={useColorModeValue('white', '#0d120d')}
       >
-        <GridItem textAlign={'left'}>
-          <Stat
+        <GridItem textAlign={'left'} w={'full'}>
+          <Box
             height="auto"
             width={'100%'}
             p={4}
             zIndex={3}
             bgGradient={'linear(to-t, #000000, trasnsparent)'}
           >
-            <StatLabel fontSize="lg">Income</StatLabel>
-            <StatNumber
+            <Text fontSize="lg">Income</Text>
+            <Text
               fontSize="2xl"
+              as={'b'}
               color={useColorModeValue('green.500', 'green.200')}
             >
               {new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
               }).format(transData.income)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="increase" />
+            </Text>
+            <Box display={'flex'} alignItems={'center'} gap={1}>
+              <Icon as={TriangleUpIcon} color={'green.500'}/>
               {transData.incomePercentageChange}%
-            </StatHelpText>
-          </Stat>
+            </Box>
+          </Box>
         </GridItem>
         <GridItem>
           <AccIncExpChart icomeType={true} key={'incomeAcc'} />
@@ -63,28 +65,29 @@ const AccountPageStatMobile = ({ transData }: { transData: any }) => {
           borderRadius: 'md',
           boxShadow: 'md',
         }}
+        w={'full'}
         bg={useColorModeValue('white', '#171313')}
       >
-        <GridItem textAlign={'left'}>
-          <Stat
+        <GridItem textAlign={'left'} w={'full'}>
+          <Box
             height="auto"
             width={'100%'}
             p={4}
             zIndex={3}
             bgGradient={'linear(to-t, #000000, trasnsparent)'}
           >
-            <StatLabel fontSize="lg">Expense</StatLabel>
-            <StatNumber fontSize="2xl" color="red">
+            <Text fontSize="lg">Expense</Text>
+            <Text fontSize="2xl" color="red" as={'b'}>
               {new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
               }).format(transData.expenses)}
-            </StatNumber>
-            <StatHelpText>
-              <StatArrow type="decrease" />
+            </Text>
+            <Box display={'flex'} alignItems={'center'} gap={1}>
+              <Icon as={TriangleDownIcon} color={'red.500'}/>
               {transData.expensePercentageChange}%
-            </StatHelpText>
-          </Stat>
+            </Box>
+          </Box>
         </GridItem>
         <GridItem>
           <AccIncExpChart icomeType={false} key={'expenssAcc'} />
@@ -99,18 +102,19 @@ const AccountPageStatMobile = ({ transData }: { transData: any }) => {
           textAlign="center"
           height={'fit-content'}
         >
-          <Stat>
-            <StatLabel fontSize="lg">Total balance</StatLabel>
-            <StatNumber
+          <Box>
+            <Text fontSize="lg">Total balance</Text>
+            <Text
               fontSize="2xl"
+              as={'b'}
               color={useColorModeValue('blue.600', 'blue.400')}
             >
               {new Intl.NumberFormat('en-IN', {
                 style: 'currency',
                 currency: 'INR',
               }).format(transData.balance)}
-            </StatNumber>
-          </Stat>
+            </Text>
+          </Box>
         </Box>
       </GridItem>
     </Grid>

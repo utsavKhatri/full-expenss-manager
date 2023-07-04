@@ -16,12 +16,15 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
+import Cookies from 'js-cookie';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 const page = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { handleSignup, signupLoading } = dataState();
+  const { handleSignup, signupLoading, profileUrl, handleFileChange } =
+    dataState();
 
   return (
     <Flex
@@ -49,11 +52,11 @@ const page = () => {
           <Stack spacing={4} as={'form'} onSubmit={(e) => handleSignup(e)}>
             <FormControl id="firstName" isRequired>
               <FormLabel>Name</FormLabel>
-              <Input type="text" name="name" required/>
+              <Input type="text" name="name" required />
             </FormControl>
             <FormControl id="email" isRequired>
               <FormLabel>Email address</FormLabel>
-              <Input type="email" name="email" required/>
+              <Input type="email" name="email" required />
             </FormControl>
             <FormControl id="password" isRequired>
               <FormLabel>Password</FormLabel>
@@ -73,6 +76,48 @@ const page = () => {
                   </Button>
                 </InputRightElement>
               </InputGroup>
+            </FormControl>
+            <FormControl>
+              <Flex gap={2} alignItems={'center'}>
+                <FormLabel
+                  htmlFor="file"
+                  sx={{
+                    cursor: 'pointer',
+                    borderRadius: '5',
+                    border: '1px solid',
+                    display: 'inline-block',
+                    width: 'full',
+                    textAlign: 'start',
+                    px: 3,
+                    py: 2,
+                    borderColor: 'gray.500',
+                    my: 'auto',
+                  }}
+                >
+                  {Cookies.get('profileUrl')! || profileUrl
+                    ? `${Cookies.get('profileUrl')?.slice(0, 20)}...`
+                    : 'select an image'}
+                </FormLabel>
+                {Cookies.get('profileUrl') && (
+                  <Image
+                    src={Cookies.get('profileUrl') || profileUrl}
+                    alt={'profileImage'}
+                    width={50}
+                    height={30}
+                    style={{
+                      objectFit: 'cover',
+                    }}
+                  />
+                )}
+              </Flex>
+              <Input
+                type="file"
+                id="file"
+                onChange={handleFileChange}
+                sx={{
+                  display: 'none',
+                }}
+              />
             </FormControl>
             <Button
               loadingText="Submitting"

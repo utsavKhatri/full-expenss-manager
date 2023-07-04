@@ -1,8 +1,8 @@
 import AuthProvider from '@/context';
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { Roboto } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Roboto({ subsets: ['latin'], weight: '400' });
 
 // add all imp seo metatags to following metdata object
 export const metadata = {

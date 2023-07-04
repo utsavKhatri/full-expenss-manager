@@ -16,34 +16,38 @@ module.exports = {
    * @return {Object} accData, sharedAccounts - The account data.
    * @rejects {Error} - If the account could not be created.
    */
-  viewAccount: async (req, res) => {
+  findAccount: async (req, res) => {
     try {
       const userId = req.user.id;
-
       if (!userId) {
         return res.status(404).json({ message: "id not found" });
       }
-
-      const user = await User.findOne({ id: req.user.id });
       const accData = await Accounts.find({ owner: userId }).populate("owner");
-      const amcData = await Accounts.find().populate("owner");
-
-      // This is a filter function that is used to filter the shared account with the user.
-      const sharedAccounts = amcData.filter((account) => {
-        return account.sharedWith.some(
-          (sharedUser) => sharedUser.id === user.id
-        );
-      });
-
-      // console.log(sharedAccounts, accData);
-
-      res.json({
-        accData: accData,
-        sharedAccounts: sharedAccounts,
-      });
+      if (!accData) {
+        return res.status(404).json({ message: "account not found" });
+      }
+      return res.json(accData);
     } catch (error) {
       console.log(error.message);
-      res.status(500);
+      return res.serverError(error.message);
+    }
+  },
+  findSharedAcc: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      if (!userId) {
+        return res.status(404).json({ message: "id not found" });
+      }
+      const sharedAccounts = await User.findOne({ id: userId }).populate(
+        "sharedAccounts"
+      );
+      if (!sharedAccounts || sharedAccounts.sharedAccounts.length === 0) {
+        return res.status(404).json({ message: "shared accounts not found" });
+      }
+      res.json(sharedAccounts.sharedAccounts);
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).send(error.message);
     }
   },
 
@@ -55,18 +59,21 @@ module.exports = {
    * @return {Object} The response object.
    */
   addAccount: async (req, res) => {
-    const { name } = req.body;
-    const id = req.user.id;
     try {
+      const { name } = req.body;
+      const id = req.user.id;
       if (!name) {
         return res.status(404).json({ message: "name not found" });
       }
       if (!id) {
         return res.status(404).json({ message: "id not found" });
       }
-      const account = await Accounts.create({ name: name, owner: id }).fetch();
+      const accountData = await Accounts.create({
+        name: name,
+        owner: id,
+      }).fetch();
       const analyticsId = await AccountAnalytics.create({
-        account: account.id,
+        account: accountData.id,
         income: 0,
         expense: 0,
         balance: 0,
@@ -75,11 +82,10 @@ module.exports = {
         previousBalance: 0,
         user: id,
       }).fetch();
-      await Accounts.updateOne({ id: account.id }).set({
+      await Accounts.updateOne({ id: accountData.id }).set({
         analytics: analyticsId.id,
       });
-
-      return res.status(201).json({ data: account });
+      return res.status(201).json({ data: accountData });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -97,7 +103,7 @@ module.exports = {
     const accId = req.params.id;
     try {
       const accountData = await Accounts.findOne({ id: accId });
-      res.json({ data: accountData });
+      res.status(200).json({ data: accountData });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -113,7 +119,6 @@ module.exports = {
    */
   updateAccount: async (req, res) => {
     const accountId = req.params.id;
-    console.log(accountId);
     try {
       if (!accountId) {
         return res.status(404).json({ message: "id not found" });
@@ -179,16 +184,20 @@ module.exports = {
    */
   share: async (req, res) => {
     try {
-      if (!req.params.id) {
+      const accountId = req.params.id;
+      if (!accountId) {
         return res.status(404).json({ message: "id not found" });
       }
-      const account = await Accounts.findOne({
-        id: req.params.id,
+      const accountData = await Accounts.findOne({
+        id: accountId,
         owner: req.user.id,
+      }).populate("sharedWith");
+      const usersData = await User.find();
+      return res.json({
+        account: accountData,
+        users: usersData,
+        sharedList: accountData.sharedWith,
       });
-      const sharedList = account.sharedWith;
-      const users = await User.find();
-      return res.json({ account, users, sharedList });
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -205,36 +214,39 @@ module.exports = {
   shareAccount: async (req, res) => {
     try {
       const accountId = req.params.id;
-
-      if (!accountId) {
-        return res.status(404).json({ message: "id not found" });
-      }
-
-      const currentUserData = await User.findOne({ id: req.user.id });
-
       const sharedWithEmail = req.body.email;
-
-      if (!req.body.email) {
-        return res.status(404).json({ message: "email not found" });
-      }
-      const currentUserEmail = currentUserData.email;
-
-      if (!sharedWithEmail || !currentUserEmail) {
-        return res.status(404).json({ message: "email not found" });
+      if (!accountId || !sharedWithEmail) {
+        return res.status(400).json({ message: "Invalid request data" });
       }
 
       // Find the account by ID and ensure that the currently authenticated user is the owner
-      const account = await Accounts.findOne({
+      const accountData = await Accounts.findOne({
         id: accountId,
         owner: req.user.id,
       });
 
+      if (!accountData) {
+        return res.status(404).json({ message: "Account not found" });
+      }
+      const currentUserData = await User.findOne({ id: req.user.id });
+
+      const currentUserEmail = currentUserData.email;
+
+      if (currentUserEmail === sharedWithEmail) {
+        return res.status(400).json({ message: "Cannot share with yourself" });
+      }
+
       const sharedWithUser = await User.findOne({ email: sharedWithEmail });
 
-      account.sharedWith = [...account.sharedWith, sharedWithUser];
-      const latestData = await Accounts.updateOne({ id: accountId }).set({
-        sharedWith: account.sharedWith,
-      });
+      if (!sharedWithUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await Accounts.addToCollection(
+        accountId,
+        "sharedWith",
+        sharedWithUser.id
+      );
 
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -246,12 +258,12 @@ module.exports = {
 
       const mailOptions = {
         from: "expenssManger1234@gmail.com",
-        to: currentUserEmail.email,
+        to: currentUserData.email,
         subject: "Account share notification",
         html: AccountShareMail(
-          currentUserEmail.name,
-          latestData.name,
-          req.body.email
+          currentUserData.name,
+          accountData.name,
+          sharedWithEmail
         ),
       };
 
@@ -259,26 +271,26 @@ module.exports = {
         if (err) {
           console.log(err);
         } else {
-          console.log(info);
+          console.log(info.response);
         }
       });
       transporter.sendMail(
         {
           from: "expenssManger1234@gmail.com",
-          to: req.body.email,
+          to: sharedWithEmail,
           subject: "Account shared",
           html: RevicerAccShareMail(
-            req.body.email,
-            currentUserEmail.email,
-            latestData.name,
-            latestData.id
+            sharedWithEmail,
+            currentUserData.email,
+            accountData.name,
+            accountData.id
           ),
         },
         (err, info) => {
           if (err) {
             console.log(err);
           } else {
-            console.log(info);
+            console.log(info.response);
           }
         }
       );

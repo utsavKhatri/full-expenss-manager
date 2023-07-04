@@ -24,7 +24,8 @@ const AddBalance = ({ accID }: { accID: any }) => {
     <>
       <Button
         onClick={onOpen}
-        colorScheme={useColorModeValue('whatsapp', 'green')}
+        bg={useColorModeValue('#08d100', '#19e695')}
+        color={'black'}
         leftIcon={<PlusSquareIcon />}
         width={{ base: 'full', md: 'auto' }}
         boxShadow={'lg'}
@@ -33,7 +34,7 @@ const AddBalance = ({ accID }: { accID: any }) => {
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(10px)" />
         <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalHeader>Add balance</ModalHeader>
           <ModalCloseButton />

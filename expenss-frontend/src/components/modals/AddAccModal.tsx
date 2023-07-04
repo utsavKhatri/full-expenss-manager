@@ -25,7 +25,7 @@ const AddAccModal = () => {
         new account
       </Button>
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
-        <ModalOverlay />
+        <ModalOverlay backdropFilter="blur(10px)" />
         <ModalContent bg={useColorModeValue('gray.100', 'gray.900')}>
           <ModalHeader>create new account</ModalHeader>
           <ModalCloseButton />

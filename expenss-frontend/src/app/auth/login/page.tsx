@@ -13,13 +13,32 @@ import {
   Input,
   Stack,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 const page = () => {
   const { handleLogin, loginLoading } = dataState();
-
+  const toast = useToast();
+  const googleLogin = () => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`)
+      .then((response) => {
+        console.log(response);
+        window.location.href = response.data.url;
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: error.response.data.message,
+          variant: 'left-accent',
+          status: 'error',
+          duration: 2000,
+        });
+      });
+  };
   return (
     <Suspense fallback={<Loader />}>
       <Flex
@@ -41,11 +60,11 @@ const page = () => {
             <Stack spacing={4} as={'form'} onSubmit={(e) => handleLogin(e)}>
               <FormControl id="email">
                 <FormLabel>Email address</FormLabel>
-                <Input type="email" name="email" required/>
+                <Input type="email" name="email" required />
               </FormControl>
               <FormControl id="password">
                 <FormLabel>Password</FormLabel>
-                <Input type="password" name="password" required/>
+                <Input type="password" name="password" required />
               </FormControl>
               <Stack spacing={4} my={3}>
                 <Stack
@@ -70,6 +89,7 @@ const page = () => {
                 >
                   Sign in
                 </Button>
+                <Button onClick={googleLogin}>Sign in with Google</Button>
               </Stack>
             </Stack>
           </Box>

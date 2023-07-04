@@ -16,10 +16,19 @@ module.exports = {
       required: true,
       unique: true,
     },
-    password: { type: 'string', required: true },
+    password: { type: 'string' },
     accounts: { collection: 'Accounts', via: 'owner' },
     token:{
       type: 'string'
     },
+    isSocial: {
+      type: 'boolean',
+      defaultsTo: false
+    },
+    profile: {
+      type: 'string',
+      defaultsTo:'https://i.stack.imgur.com/l60Hf.png'
+    },
+    sharedAccounts: { collection: "Accounts", via: "sharedWith" },
   },
 };
