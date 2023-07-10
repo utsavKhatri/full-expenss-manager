@@ -500,4 +500,56 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+  getByCategorys: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      if (!userId) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const transactionsData = await Transaction.find({ by: userId })
+        .populate("category");
+
+      if (!transactionsData || transactionsData.length === 0) {
+        return res.status(404).json({ message: "No transactions found" });
+      }
+
+      const groupedData = transactionsData.reduce((acc, curr) => {
+        if (!acc[curr.category.id]) {
+          acc[curr.category.id] = {
+            id: curr.category.id,
+            name: curr.category.name,
+            income: 0,
+            expense: 0,
+          };
+        }
+        if (curr.isIncome) {
+          acc[curr.category.id].income += curr.amount;
+        } else {
+          acc[curr.category.id].expense += curr.amount;
+        }
+        return acc;
+      }, {});
+
+      const finalArr = {
+        series: [
+          { name: "Income", data: [] },
+          { name: "Expense", data: [] },
+        ],
+        category: [],
+      };
+
+      for (const categoryId in groupedData) {
+        const { name, income, expense } = groupedData[categoryId];
+        finalArr.category.push(name);
+        finalArr.series[0].data.push(income.toFixed(2));
+        finalArr.series[1].data.push(expense.toFixed(2));
+      }
+
+      return res.json(finalArr);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
 };

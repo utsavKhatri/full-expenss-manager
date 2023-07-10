@@ -25,6 +25,10 @@ const AccountShare = ({ id }: { id: string }) => {
         width={{ base: 'full', md: 'auto' }}
         boxShadow={'lg'}
         bg={useColorModeValue('#393939', '#0065b9')}
+        _hover={{
+          bg: useColorModeValue('#111111', '#028cff'),
+          color: useColorModeValue('white', 'black'),
+        }}
         color={'white'}
       >
         Share Account

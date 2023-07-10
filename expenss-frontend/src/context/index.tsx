@@ -53,6 +53,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [signupLoading, setSignupLoading] = useState(false);
   const [profileUrl, setProfileUrl] = useState('');
+  const [catIncExp, setCatIncExp] = useState<any>();
 
   const router = useRouter();
 
@@ -88,6 +89,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setProfileUrl('');
     }
+  };
+  const getTransByCategorys = async () => {
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as string);
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/transaction/category`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        // console.log(res.data);
+        setCatIncExp(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getCatData = () => {
@@ -194,7 +212,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setShareAccList(response.data);
       })
       .catch((error) => {
@@ -569,7 +587,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       email: formData.get('email'),
       password: formData.get('password'),
       name: formData.get('name'),
-      profile:profileUrl
+      profile: profileUrl,
     };
 
     if (!validateEmail(signupData.email)) {
@@ -960,7 +978,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         getRecievedAcc,
         signleUser,
         getUserName,
-        setSignleUser,profileUrl, handleFileChange
+        setSignleUser,
+        profileUrl,
+        handleFileChange,
+        getTransByCategorys,
+        catIncExp,
       }}
     >
       <ChakraProvider theme={chkraTheme}>{children}</ChakraProvider>

@@ -54,6 +54,7 @@ module.exports.routes = {
   "DELETE /category/:id": "CategoryController.delete",
   "POST /largeDataInsert/:tId":
     "TransactionController.addLargeGeneratedTransaction",
+  "GET /transaction/category": "TransactionController.getByCategorys",
   /***************************************************************************
    *                                                                          *
    * More custom routes here...                                               *

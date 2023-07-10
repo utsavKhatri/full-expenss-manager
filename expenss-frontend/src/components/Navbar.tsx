@@ -155,7 +155,7 @@ const NavItem = ({ icon, children, href, ...rest }: any) => {
 };
 
 const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
-  const { user, handleLogout, handleSearch } = dataState();
+  const { currentuserData, handleLogout, handleSearch } = dataState();
   const { colorMode, toggleColorMode } = useColorMode();
   return (
     <Flex
@@ -211,16 +211,16 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
               _focus={{ boxShadow: 'none' }}
             >
               <HStack>
-                <Avatar size={'sm'} />
+                <Avatar size={'sm'} src={currentuserData?.user.profile} />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">{user && user.user.name}</Text>
+                  <Text fontSize="sm">{currentuserData && currentuserData.user.name}</Text>
                   <Text fontSize="xs" color="gray.600">
-                    {user && user.user.email}
+                    {currentuserData && currentuserData.user.email}
                   </Text>
                 </VStack>
                 <Box display={{ base: 'none', md: 'flex' }}>

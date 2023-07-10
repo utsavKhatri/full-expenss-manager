@@ -1,6 +1,8 @@
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
 import { dataState } from '@/context';
+import { ApexOptions } from 'apexcharts';
+import { currencyFormat } from '@/utils';
 
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
@@ -19,14 +21,14 @@ const AccIncExpChart = ({
 
   const series = [
     {
-      name: 'Income',
+      name: icomeType ? 'Income' : 'Expense',
       data: chartDataA
         .filter((x: { isIncome: boolean }) => x.isIncome === icomeType)
         .map((x: { amount: any }) => x.amount),
     },
   ];
 
-  const options: ApexCharts.ApexOptions = {
+  const options: ApexOptions = {
     chart: {
       type: 'area',
       width: '100%',
@@ -74,6 +76,17 @@ const AccIncExpChart = ({
     ],
     tooltip: {
       theme: colorMode,
+      x: {
+        show: false,
+      },
+      y: {
+        formatter: function (val: any) {
+          return currencyFormat(val);
+        },
+      },
+      marker: {
+        show: false,
+      }
     },
   };
   return (

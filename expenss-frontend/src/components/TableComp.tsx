@@ -64,7 +64,7 @@ const TableComp = () => {
     setRows((oldRows: GridRowsProp) =>
       oldRows.map((row) => (row.id === newRow.id ? updatedRow : row))
     );
-    console.log('Updated Row:', updatedRow);
+    // console.log('Updated Row:', updatedRow);
     const currentUserId = JSON.parse(Cookies.get('userInfo') as any).user.id;
 
     const customValues = {
@@ -254,6 +254,9 @@ const TableComp = () => {
             columns={columns}
             editMode="row"
             rowModesModel={rowModesModel}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 15 } },
+            }}
             onRowModesModelChange={handleRowModesModelChange}
             onRowEditStop={handleRowEditStop}
             processRowUpdate={processRowUpdate}

@@ -2,20 +2,18 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
 import { dataState } from '@/context';
+import { ApexOptions } from 'apexcharts';
+import { currencyFormat } from '@/utils';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 });
 
-const ApexTransactionChart = ({
-  height,
-}: {
-  height?: any;
-}) => {
+const ApexTransactionChart = ({ height }: { height?: any }) => {
   const [isWindow, setIsWindow] = useState(false);
   const { colorMode } = useColorMode();
-  const {chartDataB} = dataState();
-  const options: ApexCharts.ApexOptions = {
+  const { chartDataB } = dataState();
+  const options: ApexOptions = {
     chart: {
       height: height,
       type: 'area',
@@ -62,12 +60,16 @@ const ApexTransactionChart = ({
           colors: colorMode === 'light' ? '#1a1a1a' : '#fff',
           cssClass: 'apexcharts-yaxis-label',
         },
+        formatter: (value: any) => {
+          return currencyFormat(value);
+        },
       },
     },
   };
 
   const series = [
     {
+      name: 'Amount',
       data: chartDataB,
     },
   ];

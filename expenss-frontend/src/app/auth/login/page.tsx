@@ -1,35 +1,65 @@
 'use client';
 
-import Loader from '@/components/Loader';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { dataState } from '@/context';
-import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Input,
-  Stack,
-  useColorModeValue,
-  useToast,
-} from '@chakra-ui/react';
+import { Suspense, useState } from 'react';
+import { useColorMode, useToast } from '@chakra-ui/react';
 import axios from 'axios';
+import Loader from '@/components/Loader';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { FcGoogle } from 'react-icons/fc';
+
+function Copyright(props: any) {
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
 
 const page = () => {
   const { handleLogin, loginLoading } = dataState();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { colorMode } = useColorMode();
+
+  const defaultTheme = createTheme({
+    palette: {
+      mode: colorMode,
+    },
+  });
   const toast = useToast();
   const googleLogin = () => {
+    setGoogleLoading(true);
     axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
+        setGoogleLoading(false);
         window.location.href = response.data.url;
       })
       .catch((error) => {
+        setGoogleLoading(false);
         console.log(error);
         toast({
           title: error.response.data.message,
@@ -41,60 +71,99 @@ const page = () => {
   };
   return (
     <Suspense fallback={<Loader />}>
-      <Flex
-        minH={'100vh'}
-        align={'center'}
-        justify={'center'}
-        bg={useColorModeValue('gray.50', 'gray.900')}
-      >
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-          <Stack align={'center'}>
-            <Heading fontSize={'4xl'}>Sign in to your account</Heading>
-          </Stack>
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
           <Box
-            rounded={'lg'}
-            bg={useColorModeValue('white', 'gray.800')}
-            boxShadow={'lg'}
-            p={8}
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
           >
-            <Stack spacing={4} as={'form'} onSubmit={(e) => handleLogin(e)}>
-              <FormControl id="email">
-                <FormLabel>Email address</FormLabel>
-                <Input type="email" name="email" required />
-              </FormControl>
-              <FormControl id="password">
-                <FormLabel>Password</FormLabel>
-                <Input type="password" name="password" required />
-              </FormControl>
-              <Stack spacing={4} my={3}>
-                <Stack
-                  direction={'row'}
-                  align={{ base: 'start', md: 'center' }}
-                  justify={'space-between'}
-                >
-                  <Checkbox>Remember me</Checkbox>
-                  <Link color={'blue.400'} href="/auth/signup">
-                    Signup
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign in
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={(e) => handleLogin(e)}
+              noValidate
+              sx={{ mt: 1 }}
+            >
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+              />
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
+                label="Remember me"
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  backgroundColor: 'blueviolet',
+                  color: 'white',
+                }}
+                onLoad={loginLoading}
+                disabled={loginLoading}
+              >
+                {loginLoading ? 'perform sign in...' : 'Sign In'}
+              </Button>
+              <Button
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  backgroundColor: colorMode === 'light' ? '#4c9fff' : 'white',
+                  color: colorMode === 'light' ? 'white' : '#4c9fff',
+                  '&:hover': { backgroundColor: 'black', color: 'white' },
+                }}
+                onClick={googleLogin}
+                disabled={googleLoading}
+                startIcon={<FcGoogle />}
+              >
+                {googleLoading ? 'perform sign in...' : 'Sign In with Google'}
+              </Button>
+              <Grid container>
+                <Grid item xs>
+                  <Link href="/auth/login">Forgot password?</Link>
+                </Grid>
+                <Grid item>
+                  <Link href="/auth/signup">
+                    {"Don't have an account? Sign Up"}
                   </Link>
-                </Stack>
-                <Button
-                  bg={'blue.600'}
-                  color={'white'}
-                  type="submit"
-                  _hover={{
-                    bg: 'blue.700',
-                  }}
-                  isLoading={loginLoading}
-                  loadingText={'performing blockchain transaction...'}
-                >
-                  Sign in
-                </Button>
-                <Button onClick={googleLogin}>Sign in with Google</Button>
-              </Stack>
-            </Stack>
+                </Grid>
+              </Grid>
+            </Box>
           </Box>
-        </Stack>
-      </Flex>
+          <Copyright sx={{ mt: 8, mb: 4 }} />
+        </Container>
+      </ThemeProvider>
     </Suspense>
   );
 };

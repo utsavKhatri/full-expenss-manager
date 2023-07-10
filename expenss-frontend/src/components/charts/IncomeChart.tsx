@@ -1,6 +1,8 @@
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
 import { dataState } from '@/context';
+import { ApexOptions } from 'apexcharts';
+import { currencyFormat } from '@/utils';
 
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
@@ -31,7 +33,7 @@ const InEXPChart = ({
         },
       ];
 
-  const options: ApexCharts.ApexOptions = {
+  const options: ApexOptions = {
     chart: {
       type: 'area',
       width: '100%',
@@ -87,6 +89,14 @@ const InEXPChart = ({
     },
     tooltip: {
       theme: colorMode,
+      x:{
+        show: false
+      },
+      y: {
+        formatter: (val) => {
+          return currencyFormat(val);
+        },
+      },
     },
   };
   return (

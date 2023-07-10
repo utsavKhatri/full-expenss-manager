@@ -45,7 +45,7 @@ module.exports = {
 
       const { data } = await oauth2.userinfo.get();
 
-      console.log(data);
+      // console.log(data);
 
       const existingUser = await User.findOne({ email: data.email });
 

@@ -16,7 +16,7 @@ const page = ({ searchParams }: { searchParams: any }) => {
         `${process.env.NEXT_PUBLIC_API_URL}/auth/google/callback?code=${code}`
       )
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         Cookies.set('userInfo', JSON.stringify(res.data.data));
         router.push('/');
         return toast({

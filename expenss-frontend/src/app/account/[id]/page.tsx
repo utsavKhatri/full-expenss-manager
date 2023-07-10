@@ -8,6 +8,7 @@ import {
   Box,
   Button,
   Flex,
+  Skeleton,
   Spinner,
   Stack,
   VStack,
@@ -17,9 +18,7 @@ import {
 import AddBalance from '@/components/modals/AddBalance';
 import AccountPageStat from '@/components/AccountPageStat';
 import dynamic from 'next/dynamic';
-const AccountShare = dynamic(() => import('@/components/modals/AccountShare'), {
-  ssr: false,
-});
+const AccountShare = dynamic(() => import('@/components/modals/AccountShare'));
 const AccountPageStatMobile = dynamic(
   () => import('@/components/AccountPageStatMobile')
 );
@@ -59,8 +58,10 @@ const page = ({ params }: { params: { id: string } }) => {
             justifyContent={{ base: 'space-evenly', md: 'space-between' }}
             gap={{ base: 3, md: 0 }}
           >
-            {transData.owner == currentuserData.user.id && (
-              <AccountShare id={transData.accountId} />
+            {transData.owner == currentuserData?.user.id && (
+              <Suspense fallback={<Skeleton />}>
+                <AccountShare id={transData.accountId} />
+              </Suspense>
             )}
             <AddBalance accID={transData.accountId} />
           </Stack>
@@ -100,7 +101,7 @@ const page = ({ params }: { params: { id: string } }) => {
                   gap={3}
                 >
                   <Box w={{ base: '100%', md: '45%' }} justifySelf={'center'}>
-                    <Suspense fallback={<Spinner />}>
+                    <Suspense fallback={<Skeleton />}>
                       <BalanceChart
                         income={transData.income}
                         expenses={transData.expenses}
@@ -108,7 +109,7 @@ const page = ({ params }: { params: { id: string } }) => {
                     </Suspense>
                   </Box>
                   <Box w={{ base: '100%', md: '55%' }}>
-                    <Suspense fallback={<Spinner />}>
+                    <Suspense fallback={<Skeleton />}>
                       <ApexTransactionChart />
                     </Suspense>
                   </Box>

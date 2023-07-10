@@ -28,6 +28,10 @@ const AddBalance = ({ accID }: { accID: any }) => {
         color={'black'}
         leftIcon={<PlusSquareIcon />}
         width={{ base: 'full', md: 'auto' }}
+        _hover={{
+          bg: useColorModeValue('#27ad21', '#00ff63'),
+          color: useColorModeValue('white', 'black'),
+        }}
         boxShadow={'lg'}
       >
         Add Balance

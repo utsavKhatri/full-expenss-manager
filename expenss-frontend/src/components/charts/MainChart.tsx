@@ -1,5 +1,7 @@
 import dynamic from 'next/dynamic';
 import { useColorMode } from '@chakra-ui/react';
+import { ApexOptions } from 'apexcharts';
+import { currencyFormat } from '@/utils';
 
 const Chart = dynamic(() => import('react-apexcharts'));
 
@@ -19,16 +21,20 @@ const MainChart = ({
     },
   ];
 
-  const options: ApexCharts.ApexOptions = {
+  const options: ApexOptions = {
     chart: {
       type: 'line',
       stacked: false,
-      toolbar: {
-        show: false,
-      },
       zoom: {
         enabled: true,
       },
+      selection:{
+        enabled: true
+      },
+      background: 'transparent',
+    },
+    theme: {
+      mode: colorMode,
     },
     grid: {
       show: false,
@@ -38,6 +44,11 @@ const MainChart = ({
     },
     tooltip: {
       theme: colorMode,
+      y: {
+        formatter: (val) => {
+          return currencyFormat(val);
+        },
+      }
     },
     colors: [colorMode === 'light' ? '#0072b0' : '#2eb6ff'],
     stroke: {
@@ -64,6 +75,9 @@ const MainChart = ({
     yaxis: {
       labels: {
         minWidth: 40,
+        formatter: (val) => {
+          return currencyFormat(val);
+        },
         style: {
           colors: colorMode === 'light' ? '#858585' : '#e8e8e8',
           cssClass: 'apexcharts-xaxis-label',

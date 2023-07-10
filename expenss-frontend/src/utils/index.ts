@@ -19,3 +19,10 @@ export const getIncomePercentageChange = (
   });
   return (incomePercentageChange / length!).toFixed(2);
 };
+
+export const currencyFormat = (value: number) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(value);
+}

@@ -1,6 +1,7 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { Box, Grid, GridItem, Icon, Text, useColorModeValue } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
+
 const AccIncExpChart = dynamic(() => import('@/components/charts/AccIncExpChart'));
 
 const AccountPageStatMobile = ({ transData }: { transData: any }) => {

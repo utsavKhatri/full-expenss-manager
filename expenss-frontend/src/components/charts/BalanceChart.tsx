@@ -1,4 +1,5 @@
 import { useColorMode } from '@chakra-ui/react';
+import { ApexOptions } from 'apexcharts';
 import dynamic from 'next/dynamic';
 
 const Chart = dynamic(() => import('react-apexcharts'), {
@@ -14,7 +15,7 @@ const BalanceChart = ({
   const { colorMode } = useColorMode();
   const incomeColor = colorMode === 'light' ? '#99f291' : '#68de47';
   const expensesColor = colorMode === 'light' ? '#E74C3C' : '#E74C3C';
-  const chartOptions: ApexCharts.ApexOptions = {
+  const chartOptions: ApexOptions = {
     chart: {
       type: 'donut',
     },

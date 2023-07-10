@@ -12,7 +12,6 @@ const page = () => {
     setUserData(JSON.parse(Cookies.get('userInfo') as any));
   }, []);
 
-
   return (
     <SidebarWithHeader>
       <Suspense fallback={<Loader />}>
@@ -25,7 +24,12 @@ const page = () => {
           {userData ? (
             <Box p={4}>
               <Flex alignItems="center" mb={8}>
-                <Avatar size="xl" name={userData.user.name} mr={4} />
+                <Avatar
+                  size="xl"
+                  src={userData.user?.profile}
+                  name={userData.user.name}
+                  mr={4}
+                />
                 <Box>
                   <Heading as="h1" size="lg" textTransform={'capitalize'}>
                     {userData.user.name}
