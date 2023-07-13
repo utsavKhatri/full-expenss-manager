@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -11,7 +11,11 @@ import {
   Center,
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
-import { getExpensePercentageChange, getIncomePercentageChange } from '@/utils';
+import {
+  currencyFormat,
+  getExpensePercentageChange,
+  getIncomePercentageChange,
+} from '@/utils';
 import { dataState } from '@/context';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 const CategoryChart = dynamic(() => import('./charts/CategoryChart'));
@@ -31,7 +35,7 @@ const DashboardStatistics = () => {
     analytics,
   } = dataState();
 
-  return analytics ? (
+  return (
     <Flex
       justifyContent="center"
       gap={4}
@@ -47,7 +51,7 @@ const DashboardStatistics = () => {
         justifyContent={'stretch'}
       >
         <VStack
-          bg={useColorModeValue('#f5faff', '#1f1f1f')}
+          bg={useColorModeValue('#f5faff', '#191919')}
           rounded="lg"
           shadow="lg"
           py={3}
@@ -126,10 +130,7 @@ const DashboardStatistics = () => {
                   padding={0}
                   color={useColorModeValue('green.600', '#62f065')}
                 >
-                  {new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                  }).format(income?.toFixed(2))}
+                  {currencyFormat(income?.toFixed(2))}
                 </Text>
                 <Suspense fallback={<Skeleton />}>
                   <Box display={'flex'} alignItems={'center'} gap={1}>
@@ -153,10 +154,7 @@ const DashboardStatistics = () => {
               </Text>
               <Box>
                 <Text fontSize="4xl" color="red.500">
-                  {new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                  }).format(expenses?.toFixed(2))}
+                  {currencyFormat(expenses?.toFixed(2))}
                 </Text>
                 <Suspense fallback={<Skeleton />}>
                   <Box display={'flex'} alignItems={'center'} gap={1}>
@@ -181,10 +179,7 @@ const DashboardStatistics = () => {
                 fontSize="4xl"
                 color={useColorModeValue('blue.800', 'blue.100')}
               >
-                {new Intl.NumberFormat('en-IN', {
-                  style: 'currency',
-                  currency: 'INR',
-                }).format(balance?.toFixed(2))}
+                {currencyFormat(balance?.toFixed(2))}
               </Text>
             </Box>
             <IncomeExpChart isBalance={true} key={'balance'} />
@@ -221,10 +216,6 @@ const DashboardStatistics = () => {
         </Box>
       </Stack>
     </Flex>
-  ) : (
-    <Center>
-      <Text>Nothing to show</Text>
-    </Center>
   );
 };
 

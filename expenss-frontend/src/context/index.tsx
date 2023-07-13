@@ -15,8 +15,14 @@ import {
 } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { createTheme } from '@mui/material';
+import {
+  customThemeData,
+  fetchAPI,
+  validateEmail,
+  validatePasswordStrength,
+} from '@/utils';
 
 const AuthContext = createContext<any>(null);
 const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -27,10 +33,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const toast = useToast();
   const [rows, setRows] = useState();
   const [shareLoading, setShareLoading] = useState(true);
-  const [chartData, setChartData] = useState([]);
-  const [chartDataA, setChartDataA] = useState([]);
-  const [chartDataB, setChartDataB] = useState([]);
-  const [chartLable, setChartLable] = useState([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartDataA, setChartDataA] = useState<any[]>([]);
+  const [chartDataB, setChartDataB] = useState<any[]>([]);
+  const [chartLable, setChartLable] = useState<any[]>([]);
   const [sampleAccData, setSampleAccData] = useState();
   const [accPageLoading, setAccPageLoading] = useState(true);
   const [transData, setTransData] = useState();
@@ -63,6 +69,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const theme = createTheme({
     palette: { mode: colorMode },
   });
+
   const fetchIMPData = async () => {
     if (Cookies.get('userInfo') == '' || Cookies.get('userInfo') == undefined) {
       return router.replace('/auth/login');
@@ -76,10 +83,28 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchIMPData();
   }, []);
 
+  const myToast = ({
+    message,
+    isSuccess = true,
+    isInfo = false,
+  }: {
+    message: any;
+    isSuccess?: boolean;
+    isInfo?: boolean;
+  }) => {
+    return toast({
+      title: message,
+      status: isInfo ? 'info' : isSuccess ? 'success' : 'error',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
   const handleImportFileChange = async (event: any) => {
     const file = event.target.files[0];
     setImportfile(file);
   };
+
   const handleImportFile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setImportingLoading(true);
@@ -92,7 +117,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       url: `${process.env.NEXT_PUBLIC_API_URL}/import/transaction/${accountId}`,
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data', // Add the Content-Type header
+        'Content-Type': 'multipart/form-data',
       },
       method: 'POST',
       data: formData,
@@ -102,27 +127,20 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       .then((res) => {
         console.log(res);
         setImportingLoading(false);
-        toast({
-          title: res.data.message,
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
+        myToast({
+          message: res.data.message,
         });
-        toast({
-          title: res.data.rejectedRowCount,
-          status: 'info',
-          duration: 3000,
-          isClosable: true,
+        myToast({
+          isInfo: true,
+          message: res.data.rejectedRowCount,
         });
       })
       .catch((err) => {
         console.log(err);
         setImportingLoading(false);
-        return toast({
-          title: err.response.data.message,
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
+        return myToast({
+          isSuccess: false,
+          message: err.response.data.message,
         });
       });
   };
@@ -144,235 +162,164 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   const getTransByCategorys = async () => {
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as string);
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/transaction/category`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        console.log(res.data);
-        setCatIncExp(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/transaction/category`,
       });
+      setCatIncExp(data);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const getCatData = () => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/category`)
-      .then((res) => {
-        setCatData(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
+  const getCatData = async () => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/category`,
       });
+      setCatData(data);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const getDashboardData = () => {
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as string);
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/dahsboard`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setAnalytics(res.data);
-        setDashboardLoading(false);
-        let tempIncome = 0;
-        let tempExpenses = 0;
-        let tempBalance = 0;
-        res.data.analyticsData.map(
-          (account: { income: number; expense: number; balance: number }) => {
-            tempIncome += account.income;
-            tempExpenses += account.expense;
-            tempBalance += account.balance;
-          }
-        );
-        setIncome(tempIncome);
-        setExpenses(tempExpenses);
-        setBalance(tempBalance);
-        setChartLableD(
-          res.data.listAllTransaction.map(
-            (transaction: { createdAt: string | number | Date }) => {
-              return transaction.createdAt;
-            }
-          )
-        );
-        setListBalance(
-          res.data.analyticsData.map((account: { balance: any }) => {
-            return account.balance;
+  const getDashboardData = async () => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/dahsboard`,
+      });
+
+      setAnalytics(data);
+
+      const { analyticsData, listAllTransaction } = data;
+
+      const totalIncome = analyticsData.reduce(
+        (sum: any, account: { income: any }) => sum + account.income,
+        0
+      );
+      const totalExpenses = analyticsData.reduce(
+        (sum: any, account: { expense: any }) => sum + account.expense,
+        0
+      );
+      const totalBalance = analyticsData.reduce(
+        (sum: any, account: { balance: any }) => sum + account.balance,
+        0
+      );
+
+      setIncome(totalIncome);
+      setExpenses(totalExpenses);
+      setBalance(totalBalance);
+
+      setChartLableD(
+        listAllTransaction.map(
+          (transaction: { createdAt: any }) => transaction.createdAt
+        )
+      );
+      setListBalance(
+        analyticsData.map((account: { balance: any }) => account.balance)
+      );
+      setListIncome(
+        analyticsData.map(
+          (account: { account: { name: any } }) => account.account.name
+        )
+      );
+      setChartDataD(
+        listAllTransaction.map(
+          (transaction: { amount: any }) => transaction.amount
+        )
+      );
+      setChartDataI(
+        listAllTransaction.map(
+          (transaction: { amount: any; isIncome: any }) => ({
+            amount: transaction.amount,
+            isIncome: transaction.isIncome,
           })
-        );
-        setListIncome(
-          res.data.analyticsData.map(
-            (account: {
-              account: any;
-              balance: number;
-              income: number;
-              expense: any;
-            }) => {
-              return `Account: ${
-                account.account.name
-              }, I/E/B: ${account.income.toFixed(2)}, ${account.expense.toFixed(
-                2
-              )}, ${account.balance.toFixed(2)}`;
-            }
-          )
-        );
-        setChartDataD(
-          res.data.listAllTransaction.map((transaction: { amount: any }) => {
-            return transaction.amount;
-          })
-        );
-        setChartDataI(
-          res.data.listAllTransaction.map(
-            (transaction: { amount: any; isIncome: boolean }) => {
-              return {
-                amount: transaction.amount,
-                isIncome: transaction.isIncome,
-              };
-            }
-          )
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-        toast({
-          title: 'Something went wrong',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
+        )
+      );
+
+      setDashboardLoading(false);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
       });
+    }
   };
 
-  const getRecievedAcc = () => {
-    const user: any = Cookies.get('userInfo');
-    const { token } = JSON.parse(user);
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/sharedAcc`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        // console.log(response.data);
-        setShareAccList(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          duration: 2000,
-        });
+  const getRecievedAcc = async () => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/sharedAcc`,
       });
+      setShareAccList(data);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const getUserName = (userId: string) => {
-    const user: any = Cookies.get('userInfo');
-    const { token } = JSON.parse(user);
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        setSignleUser(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          duration: 2000,
-        });
+  const getUserName = async (userId: string) => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
       });
+      setSignleUser(data);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const fetchHomepageData = () => {
-    const user: any = Cookies.get('userInfo');
-    const { token } = JSON.parse(user);
-
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        setData(response.data);
-        return setLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        return toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          duration: 2000,
-        });
+  const fetchHomepageData = async () => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/`,
       });
+      setData(data);
+      return setLoading(false);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
   const handleDeleteAcc = async (accID: any) => {
-    const user: any = Cookies.get('userInfo');
-    const { token } = JSON.parse(user);
-    const options = {
-      method: 'DELETE',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/delAccount/${accID}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    await axios
-      .request(options)
-      .then((response) => {
-        if (response.status == 200) {
-          setRefresh(!refresh);
-          fetchHomepageData();
-          toast({
-            title: 'Account deleted successfully',
-            variant: 'left-accent',
-            status: 'success',
-            duration: 3000,
-          });
-        } else {
-          toast({
-            title: 'Something went wrong',
-            variant: 'left-accent',
-            status: 'error',
-            duration: 2000,
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          duration: 2000,
-        });
+    try {
+      await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/delAccount/${accID}`,
+        method: 'DELETE',
       });
+
+      setRefresh(!refresh);
+      fetchHomepageData();
+      myToast({
+        message: 'Account deleted successfully',
+      });
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
   const handleCreateAccount = async (
@@ -380,259 +327,160 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     closeBTN: any
   ) => {
     e.preventDefault();
-    const { token } = JSON.parse(Cookies.get('userInfo') as any);
-    const formData = new FormData(e.currentTarget);
+    try {
+      const formData = new FormData(e.currentTarget);
 
-    const options = {
-      method: 'POST',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/addAccount`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
-        name: formData.get('accName'),
-      },
-    };
-    await axios
-      .request(options)
-      .then((response) => {
-        if (response.status == 201) {
-          setRefresh(!refresh);
-          fetchHomepageData();
-          toast({
-            title: 'Account created successfully',
-            variant: 'left-accent',
-            status: 'success',
-            duration: 2000,
-          });
-          closeBTN();
-        } else {
-          toast({
-            title: 'Account creation failed',
-            variant: 'left-accent',
-            status: 'error',
-            duration: 2000,
-          });
-        }
-      })
-      .catch((error) => {
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          duration: 2000,
-        });
+      await fetchAPI({
+        method: 'POST',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/addAccount`,
+        body: {
+          name: formData.get('accName'),
+        },
       });
-  };
-
-  const handleLogout = () => {
-    const { token } = JSON.parse(Cookies.get('userInfo') as any);
-
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/logout`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        Cookies.set('userInfo', '');
-        setShareAccList(null);
-        setData(null);
-        toast({
-          title: 'Logged out successfully',
-          status: 'success',
-          duration: 1000,
-        });
-        return router.replace('/auth/login');
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: `Something went wrong ${error.response.data.message}`,
-          status: 'error',
-          duration: 1000,
-        });
+      setRefresh(!refresh);
+      fetchHomepageData();
+      myToast({
+        message: 'Account created successfully',
       });
-  };
-  const handleSearch = (searchData: string) => {
-    if (searchData.trim() === '') {
-      return setSearchResult(null);
+      closeBTN();
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
     }
-    const { token } = JSON.parse(Cookies.get('userInfo') as any);
-    const options = {
-      method: 'POST',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/searchTransaction`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
-        searchTerm: searchData.trim(),
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        setSearchResult(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: `Something went wrong ${error.response.data.message}`,
-          status: 'error',
-          duration: 1000,
-        });
-      });
   };
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+
+  const handleLogout = async () => {
+    try {
+      await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/logout`,
+      });
+      Cookies.set('userInfo', '');
+      setShareAccList(null);
+      setData(null);
+      myToast({
+        message: 'Logged out successfully',
+      });
+      return router.replace('/auth/login');
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
+  };
+  const handleSearch = async (searchData: string) => {
+    try {
+      if (searchData.trim() === '') {
+        return setSearchResult(null);
+      }
+
+      const response = await fetchAPI({
+        method: 'POST',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/searchTransaction`,
+        body: {
+          searchTerm: searchData.trim(),
+        },
+      });
+
+      setSearchResult(response);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
+  };
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoginLoading(true);
-    const formData = new FormData(e.currentTarget);
-    const config = {
-      email: formData.get('email'),
-      password: formData.get('password'),
-    };
+    try {
+      setLoginLoading(true);
+      const formData = new FormData(e.currentTarget);
 
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/login`, config)
-      .then((response) => {
-        setLoginLoading(false);
-        Cookies.set('userInfo', JSON.stringify(response.data.data));
-        router.push('/');
-        toast({
-          title: 'login sucess',
-          variant: 'left-accent',
-          status: 'success',
-          isClosable: true,
-        });
-      })
-      .catch((error) => {
-        setLoginLoading(false);
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          isClosable: true,
-        });
+      const data = await fetchAPI({
+        method: 'POST',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/login`,
+        body: {
+          email: formData.get('email'),
+          password: formData.get('password'),
+        },
+        isOpen: true,
       });
-  };
-
-  const fetchAccData = (id: string) => {
-    const { token } = JSON.parse(Cookies.get('userInfo') as any);
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/editAccount/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        setSampleAccData(response.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: 'visit to homepage, something went wrong',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-        window.location.href = '/';
+      setLoginLoading(false);
+      Cookies.set('userInfo', JSON.stringify(data.data));
+      router.push('/');
+      myToast({
+        message: 'Logged in successfully',
       });
-  };
-  const fetchSignleAcc = (id: string) => {
-    const { token } = JSON.parse(Cookies.get('userInfo') as any);
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/viewTransaction/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        setTransData(response.data);
-        setRows(response.data.data);
-        const newArr = response.data.data.map((element: any) => {
-          return {
-            x: element.createdAt,
-            y: parseFloat(element.amount),
-          };
-        });
-        const newArr3 = response.data.data.map((element: any) => {
-          return parseFloat(element.amount);
-        });
-        const newArr2 = response.data.data.map((element: any) => {
-          return {
-            amount: parseFloat(element.amount),
-            isIncome: element.isIncome,
-          };
-        });
-        const newLablelArr = response.data.data.map((element: any) => {
-          return new Date(element.createdAt).toDateString();
-        });
-        setChartData(newArr3);
-        setChartDataB(newArr);
-        setChartDataA(newArr2);
-        setChartLable(newLablelArr);
-        setAccPageLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: 'visit to homepage, something went wrong',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-        window.location.href = '/';
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
       });
+    }
   };
 
-  // Email format validation
-  const validateEmail = (email: any) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const fetchAccData = async (id: string) => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/editAccount/${id}`,
+      });
+      setSampleAccData(data.data);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+      redirect('/');
+    }
   };
 
-  // Password strength validation
-  const validatePasswordStrength = (password: any) => {
-    const minLength = 8;
+  const fetchSignleAcc = async (id: string) => {
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/viewTransaction/${id}`,
+      });
 
-    // Check for at least one lowercase letter
-    const lowercaseRegex = /[a-z]/;
-    if (!lowercaseRegex.test(password)) {
-      return false;
+      setTransData(data);
+      setRows(data.data);
+
+      const newArr = data.data.map((element: any) => ({
+        x: element.createdAt,
+        y: parseFloat(element.amount),
+      }));
+
+      const newArr2 = data.data.map((element: any) => ({
+        amount: parseFloat(element.amount),
+        isIncome: element.isIncome,
+      }));
+
+      const newLabelArr = data.data.map((element: any) =>
+        new Date(element.createdAt).toDateString()
+      );
+
+      setChartData(data.data.map((element: any) => parseFloat(element.amount)));
+      setChartDataB(newArr);
+      setChartDataA(newArr2);
+      setChartLable(newLabelArr);
+
+      setAccPageLoading(false);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+      redirect('/');
     }
-
-    // Check for at least one uppercase letter
-    const uppercaseRegex = /[A-Z]/;
-    if (!uppercaseRegex.test(password)) {
-      return false;
-    }
-
-    // Check for at least one digit
-    const digitRegex = /\d/;
-    if (!digitRegex.test(password)) {
-      return false;
-    }
-
-    // Check for at least one special character
-    const specialCharRegex = /[!@#$%^&*]/;
-    if (!specialCharRegex.test(password)) {
-      return false;
-    }
-
-    return password.length >= minLength;
   };
 
-  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
@@ -661,352 +509,205 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       return;
     } else {
-      setSignupLoading(true);
-      axios
-        .post(`${process.env.NEXT_PUBLIC_API_URL}/signup`, signupData)
-        .then((response) => {
-          if (response.status == 200) {
-            setSignupLoading(false);
-            toast({
-              title: 'signup sucess',
-              variant: 'left-accent',
-              status: 'success',
-              isClosable: true,
-            });
-            router.push('/auth/login');
-          }
-        })
-        .catch((error) => {
-          setSignupLoading(false);
-          console.log(error);
-          toast({
-            title: error.response.data.message,
-            variant: 'left-accent',
-            status: 'error',
-            isClosable: true,
-          });
+      try {
+        setSignupLoading(true);
+        await fetchAPI({
+          method: 'POST',
+          url: `${process.env.NEXT_PUBLIC_API_URL}/signup`,
+          body: signupData,
+          isOpen: true,
         });
+        setSignupLoading(false);
+        myToast({
+          message: 'User registered successfully',
+        });
+        router.push('/auth/login');
+      } catch (error: any) {
+        setSignupLoading(false);
+        console.log(error);
+        myToast({
+          isSuccess: false,
+          message: error.response.data.message,
+        });
+      }
     }
   };
 
-  const handleTransUpdate = (id: string, values: any) => {
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-    const options = {
-      method: 'PUT',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/editTransaction/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
-        ...values,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        if (response.status == 200) {
-          fetchSignleAcc(values.account);
-          toast({
-            title: 'Transaction Updated',
-            status: 'success',
-            duration: 2000,
-            isClosable: true,
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: `Transaction Not Updated, ${error.response.data.message}`,
-          status: 'error',
-          duration: 2000,
-          isClosable: true,
-        });
+  const handleTransUpdate = async (id: string, values: any) => {
+    try {
+      await fetchAPI({
+        method: 'PUT',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/editTransaction/${id}`,
+        body: values,
       });
+      fetchSignleAcc(values.account);
+      myToast({
+        message: 'Transaction Updated Successfully',
+      });
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: "Transaction couldn't be updated",
+      });
+    }
   };
 
-  const deleteTrans = (tId: string, accId: string) => {
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-
-    axios
-      .delete(`${process.env.NEXT_PUBLIC_API_URL}/rmTransaction/${tId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        toast({
-          title: 'Transaction Deleted Successfully',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-        fetchSignleAcc(accId);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
+  const deleteTrans = async (tId: string, accId: string) => {
+    try {
+      await fetchAPI({
+        method: 'DELETE',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/rmTransaction/${tId}`,
       });
+      myToast({
+        message: 'Transaction deleted successfully',
+      });
+      fetchSignleAcc(accId);
+    } catch (error: any) {
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const handleCreateTrans = (
+  const handleCreateTrans = async (
     e: FormEvent<HTMLFormElement>,
     accId: string,
     setOpen: any
   ) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      text: formData.get('text'),
-      amount: formData.get('amount'),
-      transfer: formData.get('transfer'),
-      category: formData.get('category'),
-      isIncome: formData.get('isIncome'),
-    };
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data = {
+        text: formData.get('text'),
+        amount: formData.get('amount'),
+        transfer: formData.get('transfer'),
+        category: formData.get('category'),
+        isIncome: formData.get('isIncome'),
+      };
 
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-    const options = {
-      method: 'POST',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/addTransaction/${accId}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: data,
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        fetchSignleAcc(accId);
-        if (response.status == 201) {
-          fetchSignleAcc(accId);
-          toast({
-            title: 'Transaction created successfully',
-            status: 'success',
-            duration: 1000,
-            isClosable: true,
-          });
-          setOpen(false);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: `${error.response.data.message}`,
-          status: 'error',
-          duration: 1000,
-        });
+      await fetchAPI({
+        method: 'POST',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/addTransaction/${accId}`,
+        body: data,
       });
+      fetchSignleAcc(accId);
+      myToast({
+        message: 'Transaction created successfully',
+      });
+      setOpen(false);
+    } catch (error: any) {
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const updateAccData = (
+  const updateAccData = async (
     e: FormEvent<HTMLFormElement>,
     accId: string,
     onCloseD: any
   ) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const balance = formData.get('balance');
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-    const options = {
-      method: 'PUT',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/editAccount/${accId}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
-        balance: balance,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        fetchHomepageData();
-        toast({
-          title: 'Account updated successfully',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        });
-        fetchSignleAcc(accId);
-        return onCloseD();
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          variant: 'left-accent',
-          status: 'error',
-          duration: 2000,
-        });
+    try {
+      const formData = new FormData(e.currentTarget);
+      const balance = formData.get('balance');
+
+      await fetchAPI({
+        method: 'PUT',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/editAccount/${accId}`,
+        body: {
+          balance: balance,
+        },
       });
+      fetchHomepageData();
+      myToast({
+        message: 'Account updated successfully',
+      });
+      fetchSignleAcc(accId);
+      return onCloseD();
+    } catch (error: any) {
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
   };
 
-  const handleShareAcc = (
+  const handleShareAcc = async (
     e: FormEvent<HTMLFormElement>,
     id: string,
     onCloseD: any
   ) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email');
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-    const options = {
-      method: 'POST',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/account/share/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
-        email: email,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        if (response.status == 200) {
-          onCloseD();
-          toast({
-            title: 'Share Successfully',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          });
-          fetchSignleAcc(id);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-      });
-  };
+    try {
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get('email');
 
-  const getShareList = (id: string, onOpenD: any) => {
-    onOpenD();
-    const user = Cookies.get('userInfo');
-    const { token } = JSON.parse(user as any);
-    const options = {
-      method: 'GET',
-      url: `${process.env.NEXT_PUBLIC_API_URL}/share/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        setShareLoading(false);
-        setShareList(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        toast({
-          title: error.response.data.message,
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-      });
-  };
-
-  const chkraTheme = extendTheme({
-    colors: {
-      dark: {
-        50: '#f5f5f5',
-        100: '#e0e0e0',
-        200: '#bdbdbd',
-        300: '#9e9e9e',
-        400: '#757575',
-        500: '#616161',
-        600: '#424242',
-        700: '#303030',
-        800: '#212121',
-        900: '#000000', // Pitch black color
-      },
-      gray: {
-        50: '#fafafa',
-        100: '#f2f2f2',
-        200: '#cccccc',
-        300: '#b3b3b3',
-        400: '#999999',
-        500: '#808080',
-        600: '#666666',
-        700: '#4d4d4d',
-        800: '#333333',
-        900: '#0f0f0f', // Darkest shade of black
-      },
-      amazingLight: {
-        50: '#F8FAFC',
-        100: '#F1F5F9',
-        200: '#E2E8F0',
-        300: '#D3DCE3',
-        400: '#A5B4C4',
-        500: '#7784A6',
-        600: '#657198',
-        700: '#4D5A7B',
-        800: '#3B4664',
-        900: '#29324D',
-      },
-    },
-    styles: {
-      global: {
+      await fetchAPI({
+        method: 'POST',
+        url: `${process.env.NEXT_PUBLIC_API_URL}/account/share/${id}`,
         body: {
-          bg: 'dark.900', // Set the background color to the custom pitch black color
+          email: email,
         },
-      },
-    },
-  });
+      });
+      onCloseD();
+      myToast({
+        message: 'Account shared successfully',
+      });
+      fetchSignleAcc(id);
+    } catch (error: any) {
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
+  };
+
+  const getShareList = async (id: string, onOpenD: any) => {
+    onOpenD();
+    try {
+      const data = await fetchAPI({
+        url: `${process.env.NEXT_PUBLIC_API_URL}/share/${id}`,
+      });
+      setShareLoading(false);
+      setShareList(data);
+    } catch (error: any) {
+      console.log(error);
+      myToast({
+        isSuccess: false,
+        message: error.response.data.message,
+      });
+    }
+  };
+
+  const chkraTheme = extendTheme(customThemeData);
 
   return (
     <AuthContext.Provider
       value={{
         theme,
-        handleLogout,
-        handleSearch,
-        handleCreateAccount,
-        refresh,
-        setRefresh,
+        chartDataI,
+        chartDataA,
+        loginLoading,
+        signupLoading,
+        chartDataB,
+        loading,
         data,
-        fetchHomepageData,
-        handleDeleteAcc,
-        handleLogin,
-        fetchSignleAcc,
-        fetchAccData,
+        shareAccList,
+        refresh,
         catData,
-        setCatData,
         accPageLoading,
-        setAccPageLoading,
         transData,
         sampleAccData,
         rows,
-        setRows,
         searchResult,
-        handleSignup,
-        handleTransUpdate,
-        handleCreateTrans,
-        deleteTrans,
-        handleShareAcc,
         chartLable,
         chartData,
-        updateAccData,
         shareList,
         shareLoading,
-        getShareList,
-        getDashboardData,
         listBalance,
         listIncome,
         chartDataD,
@@ -1016,30 +717,43 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         income,
         dashboardLoading,
         analytics,
-        getCatData,
         currentuserData,
-        setCurrentuserData,
         chartVisible,
-        setChartVisibale,
-        chartDataI,
-        chartDataA,
-        loginLoading,
-        signupLoading,
-        chartDataB,
-        loading,
-        shareAccList,
-        getRecievedAcc,
         signleUser,
-        getUserName,
-        setSignleUser,
         profileUrl,
-        handleFileChange,
-        getTransByCategorys,
         catIncExp,
-        handleImportFile,
-        handleImportFileChange,
         importfile,
         importingLoading,
+        handleLogout,
+        handleSearch,
+        handleCreateAccount,
+        setRefresh,
+        fetchHomepageData,
+        handleDeleteAcc,
+        handleLogin,
+        fetchSignleAcc,
+        fetchAccData,
+        setCatData,
+        setAccPageLoading,
+        setRows,
+        handleSignup,
+        handleTransUpdate,
+        handleCreateTrans,
+        deleteTrans,
+        handleShareAcc,
+        updateAccData,
+        getShareList,
+        getDashboardData,
+        getCatData,
+        setCurrentuserData,
+        setChartVisibale,
+        getRecievedAcc,
+        getUserName,
+        setSignleUser,
+        handleFileChange,
+        getTransByCategorys,
+        handleImportFile,
+        handleImportFileChange,
       }}
     >
       <ChakraProvider theme={chkraTheme}>{children}</ChakraProvider>

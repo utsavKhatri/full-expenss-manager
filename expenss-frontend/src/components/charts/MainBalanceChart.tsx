@@ -2,6 +2,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { useColorMode, useMediaQuery } from '@chakra-ui/react';
 import { ApexOptions } from 'apexcharts';
+import { currencyFormat } from '@/utils';
 const ReactApexChart = dynamic(() => import('react-apexcharts'));
 
 const MainBalanceChart = ({
@@ -22,25 +23,39 @@ const MainBalanceChart = ({
   const options: ApexOptions = {
     chart: {
       type: 'pie',
+      background: 'transparent',
     },
     stroke: {
       width: 0.5,
       colors: ['transparent'],
     },
-    colors: [
-      '#90CAF9', // Light Blue 200
-      '#1E88E5', // Blue 600
-      '#1565C0', // Blue 800
-      '#64B5F6', // Light Blue 300
-      '#1976D2', // Blue 900
-      '#0D47A1', // Blue 900
-    ],
+    theme: {
+      monochrome: {
+        enabled: true,
+        color: colorMode == 'light' ? '#6198e0' : '#38241e',
+      },
+      mode: colorMode,
+    },
     labels: data.labels,
+    tooltip: {
+      y: {
+        formatter: (val) => {
+          return currencyFormat(val, 'standard');
+        },
+      },
+    },
     legend: {
       position: 'bottom',
       horizontalAlign: isLargerThan800 ? 'left' : 'center',
       labels: {
         colors: [colorMode == 'dark' ? '#d4d4d4' : '#000'],
+      },
+      formatter: (legendName: string, opts?: any) => {
+        return (
+          legendName +
+          ' : ' +
+          currencyFormat(opts.w.globals.series[opts.seriesIndex])
+        );
       },
     },
     title: {

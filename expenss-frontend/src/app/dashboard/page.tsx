@@ -2,12 +2,15 @@
 import { useEffect } from 'react';
 import SidebarWithHeader from '@/components/Navbar';
 import Loader from '@/components/Loader';
-import DashboardStatistics from '@/components/DashboardStatistics';
+import dynamic from 'next/dynamic';
 import { dataState } from '@/context';
+import { Center, Text } from '@chakra-ui/react';
+const DashboardStatistics = dynamic(
+  () => import('@/components/DashboardStatistics')
+);
 const page = () => {
-  const { getDashboardData, dashboardLoading, getTransByCategorys } =
+  const { dashboardLoading, analytics, getDashboardData, getTransByCategorys } =
     dataState();
-
   useEffect(() => {
     getDashboardData();
     getTransByCategorys();
@@ -17,7 +20,13 @@ const page = () => {
     <Loader />
   ) : (
     <SidebarWithHeader>
+      {analytics.listAllTransaction.length > 2 ? (
         <DashboardStatistics />
+      ) : (
+        <Center>
+          <Text>Not enough transactions</Text>
+        </Center>
+      )}
     </SidebarWithHeader>
   );
 };

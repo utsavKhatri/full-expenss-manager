@@ -1,3 +1,4 @@
+import { currencyFormat } from "@/utils";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { Box, Grid, GridItem, Icon, Text, useColorModeValue } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
@@ -42,10 +43,7 @@ const AccountPageStatMobile = ({ transData }: { transData: any }) => {
               as={'b'}
               color={useColorModeValue('green.500', 'green.200')}
             >
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.income)}
+              {currencyFormat(transData.income)}
             </Text>
             <Box display={'flex'} alignItems={'center'} gap={1}>
               <Icon as={TriangleUpIcon} color={'green.500'}/>
@@ -79,10 +77,7 @@ const AccountPageStatMobile = ({ transData }: { transData: any }) => {
           >
             <Text fontSize="lg">Expense</Text>
             <Text fontSize="2xl" color="red" as={'b'}>
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.expenses)}
+              {currencyFormat(transData.expenses)}
             </Text>
             <Box display={'flex'} alignItems={'center'} gap={1}>
               <Icon as={TriangleDownIcon} color={'red.500'}/>
@@ -110,10 +105,7 @@ const AccountPageStatMobile = ({ transData }: { transData: any }) => {
               as={'b'}
               color={useColorModeValue('blue.600', 'blue.400')}
             >
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.balance)}
+              {currencyFormat(transData.balance)}
             </Text>
           </Box>
         </Box>

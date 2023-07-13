@@ -1,3 +1,4 @@
+import { currencyFormat } from '@/utils';
 import { DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -99,10 +100,7 @@ const AccountCard: React.FC<AccountCardProps> = ({
               textTransform="uppercase"
               color={textColor}
             >
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(account.balance.toFixed(2))}
+              {currencyFormat(account.balance.toFixed(2))}
             </Text>
           </Box>
         </Link>

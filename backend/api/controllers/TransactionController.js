@@ -6,7 +6,7 @@
  */
 
 const { faker } = require("@faker-js/faker");
-const { generateData, generateRandomNames } = require("../utils");
+const { generateData } = require("../utils");
 const Papa = require("papaparse");
 
 module.exports = {
@@ -498,7 +498,6 @@ module.exports = {
   },
   downloadFakeDataCSV: async (req, res) => {
     try {
-      console.log(1);
       const { dataLength, tID } = req.query;
 
       if (!tID) {

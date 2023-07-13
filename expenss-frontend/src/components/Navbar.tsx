@@ -92,7 +92,7 @@ export default function SidebarWithHeader({
 const SidebarContent = ({ onClose, ...rest }: any) => {
   return (
     <Box
-      transition="3s ease"
+      transition="2s ease"
       bg={useColorModeValue('white', 'gray.900')}
       borderRight="1px"
       borderRightColor={useColorModeValue('gray.200', 'gray.700')}
@@ -213,7 +213,7 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
               _focus={{ boxShadow: 'none' }}
             >
               <HStack>
-                <Avatar size={'sm'} src={currentuserData?.user.profile} />
+                <Avatar size={'sm'} src={currentuserData?.user.profile} aria-label='User profile' />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"

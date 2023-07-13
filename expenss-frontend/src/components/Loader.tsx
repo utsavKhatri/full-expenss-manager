@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, useColorMode } from '@chakra-ui/react';
+import { Flex, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const Loader = () => {
@@ -11,6 +11,7 @@ const Loader = () => {
       justifyContent={'center'}
       alignItems={'center'}
       h={'100dvh'}
+      backgroundColor={useColorModeValue('white', 'black')}
     >
       <ScaleLoader color={colorMode === 'light' ? '#000000' : '#ffffff'} />
     </Flex>

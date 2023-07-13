@@ -25,6 +25,8 @@ import { Box, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import Loader from './Loader';
 import dynamic from 'next/dynamic';
 import AddTransModel from './modals/AddTransModal';
+import { currencyFormat, dateFormater } from '@/utils';
+import { Tooltip, Zoom } from '@mui/material';
 const CustomMenuComp = dynamic(() => import('@/components/CustomMenuComp'));
 
 const TableComp = () => {
@@ -120,7 +122,7 @@ const TableComp = () => {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      flex: 0.8,
+      flex: 0.6,
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -168,15 +170,29 @@ const TableComp = () => {
       field: 'text',
       headerName: 'Text',
       editable: true,
-      flex: 2,
-      minWidth: 220,
+      flex: 2.5,
+      minWidth: 240,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.row.text} TransitionComponent={Zoom} arrow>
+            {params.row.text}
+          </Tooltip>
+        );
+      },
     },
     {
       field: 'transfer',
       headerName: 'Transfer',
       editable: true,
       flex: 1,
-      minWidth: 100,
+      minWidth: 120,
+      renderCell: (params) => {
+        return (
+          <Tooltip title={params.row.transfer} TransitionComponent={Zoom} arrow>
+            {params.row.transfer}
+          </Tooltip>
+        );
+      },
     },
     {
       field: 'category',
@@ -184,7 +200,7 @@ const TableComp = () => {
       valueGetter: (params) => params.row.category.name,
       editable: false,
       flex: 1,
-      minWidth: 100,
+      minWidth: 110,
       valueFormatter: ({ value }) => value,
     },
     {
@@ -192,12 +208,9 @@ const TableComp = () => {
       headerName: 'Amount',
       editable: true,
       renderCell: (params) => {
-        return new Intl.NumberFormat('en-IN', {
-          style: 'currency',
-          currency: 'INR',
-        }).format(params.row.amount);
+        return currencyFormat(params.row.amount);
       },
-      flex: 1.5,
+      flex: 1,
       minWidth: 100,
       cellClassName: (params) => `amount-${params.row.isIncome}-${colorMode}`,
     },
@@ -210,30 +223,24 @@ const TableComp = () => {
       },
       valueGetter: (params) => params.row.updatedBy.name,
       flex: 1,
-      minWidth: 100,
+      minWidth: 110,
       valueFormatter: ({ value }) => value,
     },
     {
       field: 'createdAt',
       headerName: 'Date',
       editable: false,
-      flex: 1.5,
-      renderCell: (params) => {
-        return new Date(params.row.createdAt).toDateString();
-      },
-      minWidth: 150,
-      valueFormatter: ({ value }) => new Date(value).toDateString(),
+      flex: 1,
+      minWidth: 155,
+      valueFormatter: ({ value }) => dateFormater(value),
     },
     {
       field: 'updatedAt',
       headerName: 'Updated At',
       editable: false,
-      flex: 1.5,
-      minWidth: 150,
-      renderCell: (params) => {
-        return new Date(params.row.updatedAt).toDateString();
-      },
-      valueFormatter: ({ value }) => new Date(value).toDateString(),
+      flex: 1,
+      minWidth: 155,
+      valueFormatter: ({ value }) => dateFormater(value),
     },
   ];
 
@@ -256,6 +263,7 @@ const TableComp = () => {
             rowModesModel={rowModesModel}
             initialState={{
               pagination: { paginationModel: { pageSize: 15 } },
+              sorting: { sortModel: [{ field: 'updatedAt', sort: 'desc' }] },
             }}
             onRowModesModelChange={handleRowModesModelChange}
             onRowEditStop={handleRowEditStop}

@@ -13,19 +13,19 @@ const CategoryChart = () => {
   if (catIncExp.isShow === false) return null;
 
   const option: ApexOptions = {
-    theme: {
-      mode: colorMode,
-    },
     chart: {
       background: 'transparent',
     },
     grid: {
       show: false,
     },
-    colors: [
-      colorMode === 'light' ? '#0293e0' : '#32a7e6',
-      colorMode === 'light' ? '#E55441' : '#E64534',
-    ],
+    theme: {
+      mode: colorMode,
+      monochrome: {
+        enabled: true,
+        color: colorMode === 'light' ? '#479c38' : '#7fd470',
+      },
+    },
     dataLabels: {
       enabled: false,
     },
@@ -57,7 +57,7 @@ const CategoryChart = () => {
       theme: colorMode,
       y: {
         formatter: (val) => {
-          return currencyFormat(val);
+          return currencyFormat(val, 'standard');
         },
       },
     },

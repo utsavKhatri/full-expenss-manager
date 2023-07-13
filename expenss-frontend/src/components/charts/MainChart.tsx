@@ -25,12 +25,6 @@ const MainChart = ({
     chart: {
       type: 'line',
       stacked: false,
-      zoom: {
-        enabled: true,
-      },
-      selection:{
-        enabled: true
-      },
       background: 'transparent',
     },
     theme: {
@@ -46,9 +40,9 @@ const MainChart = ({
       theme: colorMode,
       y: {
         formatter: (val) => {
-          return currencyFormat(val);
+          return currencyFormat(val, 'standard');
         },
-      }
+      },
     },
     colors: [colorMode === 'light' ? '#0072b0' : '#2eb6ff'],
     stroke: {

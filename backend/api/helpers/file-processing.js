@@ -1,6 +1,5 @@
 const csv = require("csvtojson");
 const xlsx = require("xlsx");
-const { default: validator } = require("validator");
 
 module.exports = {
   friendlyName: "File processing",

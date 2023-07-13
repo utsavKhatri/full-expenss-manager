@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import { useColorMode } from '@chakra-ui/react';
+import { useColorMode, useMediaQuery } from '@chakra-ui/react';
 import { dataState } from '@/context';
 import { ApexOptions } from 'apexcharts';
 import { currencyFormat } from '@/utils';
@@ -16,6 +16,7 @@ const InEXPChart = ({
 }) => {
   const { chartDataI } = dataState();
   const { colorMode } = useColorMode();
+  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
 
   const series = isBalance
     ? [
@@ -40,10 +41,20 @@ const InEXPChart = ({
       sparkline: {
         enabled: true,
       },
+      background: 'transparent',
+      toolbar: {
+        autoSelected: 'zoom',
+      },
+      zoom: {
+        type: 'x',
+        enabled: true,
+        autoScaleYaxis: true,
+      },
+      stacked: false,
     },
     stroke: {
       curve: 'straight',
-      width: 2,
+      width: isLargerThan800 ? 1.1 : 0,
     },
     yaxis: {
       show: false,
@@ -51,15 +62,27 @@ const InEXPChart = ({
     colors: [
       isBalance
         ? colorMode === 'light'
-          ? '#78b9ff'
-          : '#4da4ff'
+          ? isLargerThan800
+            ? '#78b9ff'
+            : '#ffffff'
+          : isLargerThan800
+          ? '#2991ff'
+          : '#252830'
         : colorMode === 'light'
         ? icomeType
-          ? '#a3ffb9'
-          : '#ff4d4d'
+          ? isLargerThan800
+            ? '#46bd62'
+            : '#ffffff'
+          : isLargerThan800
+          ? '#e64343'
+          : '#ffffff'
         : icomeType
-        ? '#98f599'
-        : '#ff9e9e',
+        ? isLargerThan800
+          ? '#98f599'
+          : '#252830'
+        : isLargerThan800
+        ? '#e53e3e'
+        : '#252830',
     ],
     fill: {
       opacity: 0.5,
@@ -67,35 +90,50 @@ const InEXPChart = ({
       gradient: {
         shade: colorMode,
         type: 'vertical',
-        shadeIntensity: 0.5,
+        shadeIntensity: isLargerThan800 ? 0.5 : 1,
         gradientToColors: [
-          isBalance
+          isLargerThan800
+            ? isBalance
+              ? colorMode === 'light'
+                ? '#78b9ff80'
+                : '#3b9aff80'
+              : colorMode === 'light'
+              ? icomeType
+                ? '#a3ffb980'
+                : '#ff4d4d80'
+              : icomeType
+              ? '#19ff1d3D'
+              : '#ff454580'
+            : isBalance
             ? colorMode === 'light'
-              ? '#78b9ff80'
-              : '#3b9aff80'
+              ? '#439dff'
+              : '#6da6ff'
             : colorMode === 'light'
             ? icomeType
-              ? '#a3ffb980'
-              : '#ff4d4d66'
+              ? '#39bc7b'
+              : '#ff1717'
             : icomeType
-            ? '#19ff1d3D'
-            : '#ff454580',
+            ? '#62f065'
+            : '#e53e3e',
         ],
-        inverseColors: true,
+        inverseColors: isLargerThan800 ? false : true,
         opacityFrom: 1,
-        opacityTo: 0,
-        stops: [0, 100],
+        opacityTo: isLargerThan800 ? 0 : 1,
+        stops: [0, 90, 100],
       },
     },
     tooltip: {
       theme: colorMode,
-      x:{
-        show: false
+      x: {
+        show: false,
       },
       y: {
         formatter: (val) => {
           return currencyFormat(val);
         },
+      },
+      marker: {
+        show: isLargerThan800 ? true : false,
       },
     },
   };

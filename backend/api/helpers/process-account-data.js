@@ -27,7 +27,6 @@ module.exports = {
   fn: async function (inputs) {
     const { data, tID, isValid } = inputs;
     let tempBalance = data.reduce((acc, element) => acc + element.amount, 0);
-    console.log("3/1");
     if (isValid.balance < tempBalance + 2398) {
       await Promise.all([
         Accounts.updateOne({ id: tID }).set({ balance: tempBalance + 2398 }),
@@ -36,17 +35,14 @@ module.exports = {
         }),
       ]);
     }
-    console.log("3/2");
 
     const accountAnalytics2 = await AccountAnalytics.findOne({ account: tID });
-    console.log("3/3");
     if (accountAnalytics2) {
       await Promise.all(
         data.map(async (element) => {
           const accountAnalytics = await AccountAnalytics.findOne({
             account: tID,
           });
-          console.log("3/4");
           if (element.isIncome) {
             accountAnalytics.incomePercentageChange =
               accountAnalytics.previousIncome == 0

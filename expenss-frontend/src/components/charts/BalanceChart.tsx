@@ -1,4 +1,4 @@
-import { useColorMode } from '@chakra-ui/react';
+import { useColorMode, useMediaQuery } from '@chakra-ui/react';
 import { ApexOptions } from 'apexcharts';
 import dynamic from 'next/dynamic';
 
@@ -15,6 +15,7 @@ const BalanceChart = ({
   const { colorMode } = useColorMode();
   const incomeColor = colorMode === 'light' ? '#99f291' : '#68de47';
   const expensesColor = colorMode === 'light' ? '#E74C3C' : '#E74C3C';
+  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
   const chartOptions: ApexOptions = {
     chart: {
       type: 'donut',
@@ -24,6 +25,12 @@ const BalanceChart = ({
     colors: [incomeColor, expensesColor],
     stroke: {
       show: false,
+    },
+    theme: {
+      monochrome: {
+        enabled: true,
+        shadeTo: colorMode,
+      },
     },
     responsive: [
       {
@@ -43,7 +50,7 @@ const BalanceChart = ({
         options={chartOptions}
         series={chartOptions.series}
         type="donut"
-        height={500}
+        height={!isLargerThan800 ? 350 : 500}
       />
     </div>
   );

@@ -81,7 +81,7 @@ const AccIncExpChart = ({
       },
       y: {
         formatter: function (val: any) {
-          return currencyFormat(val);
+          return currencyFormat(val,"standard");
         },
       },
       marker: {

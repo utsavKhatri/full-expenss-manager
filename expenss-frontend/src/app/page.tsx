@@ -19,15 +19,23 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { Key, useEffect } from 'react';
 
-
 const Home: NextPage = () => {
-  const { data, fetchHomepageData, handleDeleteAcc, searchResult, loading } =
-    dataState();
+  const {
+    data,
+    fetchHomepageData,
+    handleDeleteAcc,
+    searchResult,
+    loading,
+    getDashboardData,
+    getTransByCategorys,
+  } = dataState();
   const router = useRouter();
 
   useEffect(() => {
     if (Cookies.get('userInfo')) {
       fetchHomepageData();
+      getDashboardData();
+      getTransByCategorys();
     } else {
       router.push('/auth/login');
     }

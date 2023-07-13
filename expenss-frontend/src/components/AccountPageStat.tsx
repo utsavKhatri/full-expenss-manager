@@ -1,3 +1,4 @@
+import { currencyFormat } from '@/utils';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { Box, Icon, Stack, Text, useColorModeValue } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
@@ -42,10 +43,7 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
               fontSize={'2xl'}
               color={useColorModeValue('green', '#5dff95')}
             >
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.income)}
+              {currencyFormat(transData.income)}
             </Text>
             <Box
               display={'flex'}
@@ -87,10 +85,7 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
           fontSize={'2xl'}
           color={useColorModeValue('blue.600', 'blue.400')}
         >
-          {new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-          }).format(transData.balance)}
+          {currencyFormat(transData.balance)}
         </Text>
       </Box>
       <Box
@@ -115,10 +110,7 @@ const AccountPageStat = ({ transData }: { transData: any }) => {
           >
             <Text>Expense</Text>
             <Text as={'b'} fontSize={'2xl'} color="red">
-              {new Intl.NumberFormat('en-IN', {
-                style: 'currency',
-                currency: 'INR',
-              }).format(transData.expenses)}
+              {currencyFormat(transData.expenses)}
             </Text>
             <Box
               display={'flex'}
