@@ -9,6 +9,9 @@ const Chart = dynamic(() => import('react-apexcharts'));
 const CategoryChart = () => {
   const { catIncExp } = dataState();
   const { colorMode } = useColorMode();
+
+  if (catIncExp.isShow === false) return null;
+
   const option: ApexOptions = {
     theme: {
       mode: colorMode,

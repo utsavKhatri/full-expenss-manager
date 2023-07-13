@@ -44,8 +44,6 @@ module.exports.routes = {
   "POST /addAccount": "AccountsController.addAccount",
   "POST /account/share/:id": "AccountsController.shareAccount",
   "DELETE /rmTransaction/:delId": "TransactionController.rmTransaction",
-  "POST /generate": "TransactionController.generateDataForTrans",
-  "POST /generate/name": "TransactionController.generateNames",
   "GET /category": "CategoryController.find",
   "GET /categoryId": "CategoryController.getCatId",
   "GET /category/:id": "CategoryController.findOne",
@@ -55,6 +53,8 @@ module.exports.routes = {
   "POST /largeDataInsert/:tId":
     "TransactionController.addLargeGeneratedTransaction",
   "GET /transaction/category": "TransactionController.getByCategorys",
+  "POST /import/transaction/:tId": "TransactionController.importFromCSVXLSX",
+  "GET /transaction/export": "TransactionController.downloadFakeDataCSV",
   /***************************************************************************
    *                                                                          *
    * More custom routes here...                                               *

@@ -5,7 +5,9 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
+const { faker } = require("@faker-js/faker");
 const { generateData, generateRandomNames } = require("../utils");
+const Papa = require("papaparse");
 
 module.exports = {
   /**
@@ -203,119 +205,9 @@ module.exports = {
       const { data } = await generateData(dataLength, tID, currentUser);
       await Transaction.createEach(data);
 
-      let tempBalance = data.reduce((acc, element) => acc + element.amount, 0);
-      if (isValid.balance < tempBalance + 2398) {
-        await Promise.all([
-          Accounts.updateOne({ id: tID }).set({ balance: tempBalance + 2398 }),
-          AccountAnalytics.updateOne({ account: tID }).set({
-            balance: tempBalance + 2398,
-          }),
-        ]);
-      }
-
-      const accountAnalytics2 = await AccountAnalytics.findOne({
-        account: tID,
-      });
-      if (accountAnalytics2) {
-        await Promise.all(
-          data.map(async (element) => {
-            const accountAnalytics = await AccountAnalytics.findOne({
-              account: tID,
-            });
-
-            if (element.isIncome) {
-              accountAnalytics.incomePercentageChange =
-                accountAnalytics.previousIncome == 0
-                  ? 100
-                  : ((element.amount - accountAnalytics.previousIncome) /
-                      accountAnalytics.previousIncome) *
-                    100;
-            } else {
-              if (accountAnalytics.balance < element.amount) {
-                console.log("Insufficient Balance");
-              }
-              accountAnalytics.expensePercentageChange =
-                accountAnalytics.previousExpense == 0
-                  ? 100
-                  : ((element.amount - accountAnalytics.previousExpense) /
-                      accountAnalytics.previousExpense) *
-                    100;
-            }
-
-            await Promise.all([
-              AccountAnalytics.updateOne({ account: tID }).set({
-                income: element.isIncome
-                  ? accountAnalytics.income + parseFloat(element.amount)
-                  : accountAnalytics.income,
-                expense: !element.isIncome
-                  ? accountAnalytics.expense + parseFloat(element.amount)
-                  : accountAnalytics.expense,
-                balance: element.isIncome
-                  ? accountAnalytics.balance + parseFloat(element.amount)
-                  : accountAnalytics.balance - parseFloat(element.amount),
-                previousIncome: element.isIncome
-                  ? parseFloat(element.amount)
-                  : accountAnalytics.previousIncome,
-                previousExpense: !element.isIncome
-                  ? parseFloat(element.amount)
-                  : accountAnalytics.previousExpenses,
-                previousBalance: accountAnalytics.previousBalance,
-                incomePercentageChange: accountAnalytics.incomePercentageChange,
-                expensePercentageChange:
-                  accountAnalytics.expensePercentageChange,
-              }),
-              Accounts.updateOne({ id: tID }).set({
-                balance: element.isIncome
-                  ? accountAnalytics.balance + parseFloat(element.amount)
-                  : accountAnalytics.balance - parseFloat(element.amount),
-              }),
-            ]);
-          })
-        );
-      }
+      await sails.helpers.processAccountData(dataArr, tID, isValid);
 
       return res.status(201).json({ message: "success" });
-    } catch (error) {
-      console.log(error.message);
-      return res.serverError(error.message);
-    }
-  },
-
-  /**
-   * Generate data for the Trans.
-   *
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   * @return {Promise} The generated data.
-   */
-  generateDataForTrans: async (req, res) => {
-    try {
-      const dataLength = req.body.qnty;
-      if (!dataLength) {
-        return res.status(404).json({ message: "qnty field required" });
-      }
-      const data = await generateData(parseInt(dataLength));
-      return res.json(data);
-    } catch (error) {
-      console.log(error.message);
-      return res.serverError(error.message);
-    }
-  },
-
-  /**
-   * Generate names based on the given quantity.
-   *
-   * @param {number} req.body.qnty - The quantity of names to generate.
-   * @returns {Promise<any>} The generated names.
-   */
-  generateNames: async (req, res) => {
-    try {
-      const dataLength = req.body.qnty;
-      if (!dataLength) {
-        return res.status(404).json({ message: "qnty field required" });
-      }
-      const data = await generateRandomNames(dataLength);
-      return res.json(data);
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -507,11 +399,12 @@ module.exports = {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const transactionsData = await Transaction.find({ by: userId })
-        .populate("category");
+      const transactionsData = await Transaction.find({ by: userId }).populate(
+        "category"
+      );
 
-      if (!transactionsData || transactionsData.length === 0) {
-        return res.status(404).json({ message: "No transactions found" });
+      if (!transactionsData || transactionsData.length < 2) {
+        return res.json({ isShow: false });
       }
 
       const groupedData = transactionsData.reduce((acc, curr) => {
@@ -532,6 +425,7 @@ module.exports = {
       }, {});
 
       const finalArr = {
+        isShow: true,
         series: [
           { name: "Income", data: [] },
           { name: "Expense", data: [] },
@@ -549,7 +443,107 @@ module.exports = {
       return res.json(finalArr);
     } catch (error) {
       console.log(error.message);
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  importFromCSVXLSX: async (req, res) => {
+    try {
+      const fileData = req.files[0];
+      const userId = req.user.id;
+      const tID = req.params.tId;
+      console.log("first stage dispatched");
+
+      if (!tID) {
+        return res.status(404).json({ message: "account id required" });
+      }
+      if (!fileData) {
+        return res.status(404).json({ message: "file required" });
+      }
+      if (!userId) {
+        return res.status(404).json({ message: "user id required" });
+      }
+
+      const isValidAcc = await Accounts.findOne({ id: tID });
+      if (!isValidAcc) {
+        return res.status(404).json({ message: "account not found" });
+      }
+
+      console.log("second stage dispatched");
+
+      const { successRows, rejectedRowCount } =
+        await sails.helpers.fileProcessing(fileData, userId, tID);
+
+      console.log("third stage dispatched");
+      if (successRows.length) {
+        await Transaction.createEach(successRows);
+
+        await sails.helpers.processAccountData(successRows, tID, isValidAcc);
+        console.log("fourth stage dispatched, success");
+        return res.status(201).json({
+          message: "successfully imported",
+          data: successRows,
+          rejectedRowCount,
+        });
+      }
+      console.log("fourth stage dispatched, rejected");
+      return res.status(404).json({
+        message: "failed to import",
+        rejectedRowCount,
+      });
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ message: error.message });
+    }
+  },
+  downloadFakeDataCSV: async (req, res) => {
+    try {
+      console.log(1);
+      const { dataLength, tID } = req.query;
+
+      if (!tID) {
+        return res.status(404).json({ message: "account id required" });
+      }
+
+      if (!dataLength) {
+        return res.status(404).json({ message: "qnty field required" });
+      }
+
+      const damta = await Category.find();
+      const categories = damta.map((element) => {
+        return element.id;
+      });
+
+      let data = [];
+
+      for (let i = 0; i < dataLength; i++) {
+        let category = await categories[
+          Math.floor(Math.random() * categories.length)
+        ];
+        let entry = {
+          text: faker.finance.transactionDescription(),
+          amount: faker.finance.amount(),
+          transfer: faker.name.fullName(),
+          category: category,
+          isIncome: faker.datatype.boolean(),
+          createdAt: faker.date.between(
+            "2022-01-01T00:00:00.000Z",
+            "2023-06-01T00:00:00.000Z"
+          ),
+        };
+        data.push(entry);
+      }
+      const csvData = Papa.unparse(data);
+
+      res.set("Content-Type", "text/csv");
+      res.set(
+        "Content-Disposition",
+        `attachment; filename=transactionData.csv`
+      );
+      return res.send(csvData);
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ message: error.message });
     }
   },
 };

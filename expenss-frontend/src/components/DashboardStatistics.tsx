@@ -14,7 +14,6 @@ import dynamic from 'next/dynamic';
 import { getExpensePercentageChange, getIncomePercentageChange } from '@/utils';
 import { dataState } from '@/context';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-// import CategoryChart from './charts/CategoryChart';
 const CategoryChart = dynamic(() => import('./charts/CategoryChart'));
 const MainChart = dynamic(() => import('./charts/MainChart'));
 const MainBalanceChart = dynamic(() => import('./charts/MainBalanceChart'));

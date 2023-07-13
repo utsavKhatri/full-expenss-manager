@@ -21,30 +21,32 @@ import {
   MenuList,
   Button,
   useColorMode,
-  useToast,
   FormControl,
   InputGroup,
   InputLeftElement,
   Input,
 } from '@chakra-ui/react';
 import {
-  FiHome,
-  FiCompass,
-  FiBox,
   FiMenu,
   FiChevronDown,
   FiSearch,
 } from 'react-icons/fi';
 import Link from 'next/link';
-import { InfoOutlineIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { dataState } from '@/context';
 import Image from 'next/image';
+import { BiSolidFileImport } from 'react-icons/bi';
+import { MdAccountBalanceWallet } from "react-icons/md"
+import { LuLayoutDashboard } from "react-icons/lu"
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 const LinkItems = [
-  { name: 'Dashboard', icon: FiHome, href: '/dashboard' },
-  { name: 'Accounts', icon: FiBox, href: '/' },
-  { name: 'Shared account', icon: FiCompass, href: '/shared' },
-  { name: 'Profile', icon: InfoOutlineIcon, href: '/profile' },
+  { name: 'Dashboard', icon: LuLayoutDashboard, href: '/dashboard' },
+  { name: 'Accounts', icon: MdAccountBalanceWallet, href: '/' },
+  { name: 'Shared account', icon: AccountTreeIcon, href: '/shared' },
+  { name: 'Profile', icon: AccountBoxIcon, href: '/profile' },
+  { name: 'Import', icon: BiSolidFileImport, href: '/import/transactions' },
 ];
 
 export default function SidebarWithHeader({
@@ -218,7 +220,9 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">{currentuserData && currentuserData.user.name}</Text>
+                  <Text fontSize="sm">
+                    {currentuserData && currentuserData.user.name}
+                  </Text>
                   <Text fontSize="xs" color="gray.600">
                     {currentuserData && currentuserData.user.email}
                   </Text>

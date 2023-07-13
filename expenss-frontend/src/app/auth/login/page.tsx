@@ -125,8 +125,16 @@ const page = () => {
                 sx={{
                   mt: 3,
                   mb: 2,
-                  backgroundColor: 'blueviolet',
-                  color: 'white',
+                  fontWeight: 'bold',
+                  backgroundColor:
+                    colorMode === 'light' ? '#9c27b0' : '#52e851',
+                  color: colorMode === 'light' ? 'white' : 'black',
+                  '&:hover': {
+                    fontWeight: 'bolder',
+                    backgroundColor:
+                      colorMode === 'light' ? '#36003f' : '#6fff6e',
+                    color: colorMode === 'light' ? 'white' : 'black',
+                  },
                 }}
                 onLoad={loginLoading}
                 disabled={loginLoading}
@@ -139,9 +147,13 @@ const page = () => {
                 sx={{
                   mt: 3,
                   mb: 2,
-                  backgroundColor: colorMode === 'light' ? '#4c9fff' : 'white',
-                  color: colorMode === 'light' ? 'white' : '#4c9fff',
-                  '&:hover': { backgroundColor: 'black', color: 'white' },
+                  backgroundColor: colorMode === 'light' ? '#92c4ff' : 'white',
+                  color: 'black',
+                  '&:hover': {
+                    backgroundColor:
+                      colorMode === 'light' ? '#003a6e' : '#000000',
+                    color: 'white',
+                  },
                 }}
                 onClick={googleLogin}
                 disabled={googleLoading}

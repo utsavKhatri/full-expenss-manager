@@ -54,6 +54,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [signupLoading, setSignupLoading] = useState(false);
   const [profileUrl, setProfileUrl] = useState('');
   const [catIncExp, setCatIncExp] = useState<any>();
+  const [importfile, setImportfile] = useState<any>();
+  const [importingLoading, setImportingLoading] = useState(false);
 
   const router = useRouter();
 
@@ -73,6 +75,57 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     fetchIMPData();
   }, []);
+
+  const handleImportFileChange = async (event: any) => {
+    const file = event.target.files[0];
+    setImportfile(file);
+  };
+  const handleImportFile = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setImportingLoading(true);
+    const formData = new FormData(event.currentTarget);
+    const accountId = formData.get('account');
+    const user = Cookies.get('userInfo');
+    const { token } = JSON.parse(user as string);
+    formData.append('file', importfile!);
+    const config = {
+      url: `${process.env.NEXT_PUBLIC_API_URL}/import/transaction/${accountId}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data', // Add the Content-Type header
+      },
+      method: 'POST',
+      data: formData,
+    };
+    await axios
+      .request(config)
+      .then((res) => {
+        console.log(res);
+        setImportingLoading(false);
+        toast({
+          title: res.data.message,
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        toast({
+          title: res.data.rejectedRowCount,
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        setImportingLoading(false);
+        return toast({
+          title: err.response.data.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
 
   const handleFileChange = async (event: any) => {
     const file = event.target.files[0];
@@ -100,7 +153,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       })
       .then((res) => {
-        // console.log(res.data);
+        console.log(res.data);
         setCatIncExp(res.data);
       })
       .catch((err) => {
@@ -983,6 +1036,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         handleFileChange,
         getTransByCategorys,
         catIncExp,
+        handleImportFile,
+        handleImportFileChange,
+        importfile,
+        importingLoading,
       }}
     >
       <ChakraProvider theme={chkraTheme}>{children}</ChakraProvider>

@@ -27,14 +27,15 @@ module.exports.http = {
      *                                                                          *
      ***************************************************************************/
     order: [
-      'cookieParser',
-      'bodyParser',
-      'cors',
-      'compress',
-      'poweredBy',
-      'router',
-      'www',
-      'favicon',
+      "cookieParser",
+      "bodyParser",
+      "cors",
+      "fileMiddleware",
+      "compress",
+      "poweredBy",
+      "router",
+      "www",
+      "favicon",
     ],
     /***************************************************************************
      *                                                                          *
@@ -48,17 +49,22 @@ module.exports.http = {
     //   var middlewareFn = skipper({ strict: true });
     //   return middlewareFn;
     // })(),
+    fileMiddleware: (function () {
+      const multer = require("multer");
+      const upload = multer();
+      return upload.any();
+    })(),
     cors: (req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*');
+      res.header("Access-Control-Allow-Origin", "*");
       res.header(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, OPTIONS, HEAD'
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS, HEAD"
       );
       res.header(
-        'Access-Control-Allow-Headers',
-        'content-type, Authorization, X-Requested-With'
+        "Access-Control-Allow-Headers",
+        "content-type, Authorization, X-Requested-With"
       );
-      res.header('Access-Control-Allow-Credentials', true);
+      res.header("Access-Control-Allow-Credentials", true);
       next();
     },
   },

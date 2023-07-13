@@ -8,7 +8,6 @@
  * https://sailsjs.com/docs/concepts/policies
  */
 
-
 module.exports.policies = {
   /***************************************************************************
    *                                                                          *
@@ -20,21 +19,19 @@ module.exports.policies = {
   // '*': true,
 
   UserController: {
-    '*': 'isLoggedin',
-    'userLogin': true,
-    'viewLogin': true,
-    'userSignup': true,
-    'viewSignup': true,
-    'googleLogin': true,
-    'googleCallback': true
+    "*": "isLoggedin",
+    userLogin: true,
+    viewLogin: true,
+    userSignup: true,
+    viewSignup: true,
+    googleLogin: true,
+    googleCallback: true,
   },
-  AccountsController:{
-    '*': 'isLoggedin',
+  AccountsController: {
+    "*": "isLoggedin",
   },
-  TransactionController:{
-    '*': 'isLoggedin',
-    "generateDataForTrans":true,
-    "generateNames":true
-  }
-
+  TransactionController: {
+    "*": "isLoggedin",
+    downloadFakeDataCSV: true,
+  },
 };
