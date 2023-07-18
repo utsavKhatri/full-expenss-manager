@@ -9,6 +9,7 @@ import {
   Box,
   Container,
   Heading,
+  Skeleton,
   Stack,
   Wrap,
   useColorModeValue,
@@ -41,44 +42,46 @@ const Home: NextPage = () => {
     }
   }, []);
 
-  return !loading ? (
+  return (
     <SidebarWithHeader isShow={true}>
-      <Box
-        bg={useColorModeValue('gray.100', 'gray.900')}
-        suppressHydrationWarning
-      >
-        <Container maxW={'7xl'} py={16} as={Stack} spacing={12}>
-          {searchResult && <SearchResultComp searchResult={searchResult} />}
-          <Stack spacing={0} align={'center'}>
-            <Heading>Your Accounts</Heading>
-            <AddAccModal />
-          </Stack>
+      {!loading ? (
+        <Box
+          bg={useColorModeValue('gray.100', 'gray.900')}
+          suppressHydrationWarning
+        >
+          <Container maxW={'7xl'} py={16} as={Stack} spacing={12}>
+            {searchResult && <SearchResultComp searchResult={searchResult} />}
+            <Stack spacing={0} align={'center'}>
+              <Heading>Your Accounts</Heading>
+              <AddAccModal />
+            </Stack>
 
-          <Wrap
-            direction={{ base: 'column', md: 'row' }}
-            spacing={{ base: 10, md: 4, lg: 10 }}
-            py={{ base: 5, md: 3 }}
-            justify="center"
-          >
-            {data.length ? (
-              data.map((v: any, i: Key | null | undefined) => {
-                return (
-                  <AccountCard
-                    key={i}
-                    account={v}
-                    handleDeleteAcc={handleDeleteAcc}
-                  />
-                );
-              })
-            ) : (
-              <Loader />
-            )}
-          </Wrap>
-        </Container>
-      </Box>
+            <Wrap
+              direction={{ base: 'column', md: 'row' }}
+              spacing={{ base: 10, md: 4, lg: 10 }}
+              py={{ base: 5, md: 3 }}
+              justify="center"
+            >
+              {data ? (
+                data.map((v: any, i: Key | null | undefined) => {
+                  return (
+                    <AccountCard
+                      key={i}
+                      account={v}
+                      handleDeleteAcc={handleDeleteAcc}
+                    />
+                  );
+                })
+              ) : (
+                <Skeleton />
+              )}
+            </Wrap>
+          </Container>
+        </Box>
+      ) : (
+        <Loader />
+      )}
     </SidebarWithHeader>
-  ) : (
-    <Loader />
   );
 };
 

@@ -498,11 +498,7 @@ module.exports = {
   },
   downloadFakeDataCSV: async (req, res) => {
     try {
-      const { dataLength, tID } = req.query;
-
-      if (!tID) {
-        return res.status(404).json({ message: "account id required" });
-      }
+      const { dataLength } = req.query;
 
       if (!dataLength) {
         return res.status(404).json({ message: "qnty field required" });

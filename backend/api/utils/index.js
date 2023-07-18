@@ -69,57 +69,75 @@ function generateRandomNames(numNames) {
 function AccountShareMail(currentUsername, accName, email) {
   return `<!DOCTYPE html>
   <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Account Shared Successfully</title>
-      <style>
-        /* Email styles */
-        body {
-          font-family: Arial, sans-serif;
-          font-size: 16px;
-          color: #333333;
-        }
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-        }
-        .header {
-          background-color: #f0f0f0;
-          padding: 20px;
-          text-align: center;
-        }
-        .header h1 {
-          margin: 0;
-        }
-        .content {
-          padding: 20px;
-          background-color: #ffffff;
-          border: 1px solid #dddddd;
-          border-radius: 5px;
-        }
-        .footer {
-          background-color: #f0f0f0;
-          padding: 20px;
-          text-align: center;
-          font-size: 14px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>Account Shared Successfully</h1>
-        </div>
-        <div class="content">
-          <p><b>Hello ${currentUsername},</b></p>
-          <p>You have successfully shared your account <b>${accName}</b> with ${email}.</p>
-        </div>
-        <div class="footer">
-          <p>This email was sent by Expenss Manager.</p>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Shared Successfully</title>
+    <style>
+      /* Fonts */
+      @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+  
+      /* Email styles */
+      body {
+        font-family: 'Open Sans', Arial, sans-serif;
+        font-size: 16px;
+        color: #333333;
+        line-height: 1.6;
+        margin: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .header {
+        background-color: #2672FF;
+        padding: 20px;
+        text-align: center;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 30px;
+        color: #FFFFFF;
+        font-weight: 700;
+      }
+      .content {
+        padding: 30px;
+        background-color: #FFFFFF;
+        border: 1px solid #DDDDDD;
+        border-radius: 5px;
+      }
+      .content p {
+        margin: 0;
+      }
+      .content p b {
+        font-weight: 700;
+      }
+      .footer {
+        background-color: #F2F2F2;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Account Shared Successfully</h1>
       </div>
-    </body>
+      <div class="content">
+        <p><b>Hello ${currentUsername},</b></p>
+        <p>You have successfully shared your account <b>${accName}</b> with ${email}.</p>
+      </div>
+      <div class="footer">
+        <p>This email was sent by Expense Manager.</p>
+      </div>
+    </div>
+  </body>
   </html>
   `;
 }
@@ -127,111 +145,114 @@ function AccountShareMail(currentUsername, accName, email) {
 function RevicerAccShareMail(sharedUserEmail, currentUseremail, accName, id) {
   return `<!DOCTYPE html>
   <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Expense Manager - Account Shared</title>
-      <style>
-        /* Fonts */
-        @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+  <head>
+    <meta charset="utf-8">
+    <title>Expense Manager - Account Shared</title>
+    <style>
+      /* Fonts */
+      @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
   
-        /* Typography */
-        body {
-          font-family: 'Open Sans', sans-serif;
-          font-size: 16px;
-          line-height: 1.5;
-          color: #333;
-          margin: 0;
-          padding: 0;
-        }
-        h1, h2, h3, h4, h5, h6 {
-          font-weight: 700;
-          margin-top: 0;
-          margin-bottom: 10px;
-        }
-        p {
-          margin-top: 0;
-          margin-bottom: 10px;
-        }
-        a {
-          color: #0056b3;
-          text-decoration: none;
-        }
+      /* Typography */
+      body {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 10px;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 10px;
+      }
+      a {
+        color: #fff;
+        text-decoration: none;
+      }
   
-        /* Container */
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 30px;
-          background-color: #fff;
-          border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0,0,0,.1);
-        }
+      /* Container */
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #f6f6f6;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+      }
   
-        /* Header */
-        .header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-        .header img {
-          width: 100px;
-          height: 100px;
-        }
-        .header h1 {
-          font-size: 24px;
-          margin-top: 10px;
-          margin-bottom: 0;
-        }
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        font-size: 30px;
+        margin-top: 0;
+        margin-bottom: 0;
+        color: #0056b3;
+      }
   
-        /* Body */
-        .body {
-          margin-bottom: 30px;
-        }
-        .body p {
-          font-size: 18px;
-          margin-top: 0;
-          margin-bottom: 20px;
-        }
+      /* Body */
+      .body {
+        margin-bottom: 30px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        padding: 20px 0;
+      }
+      .body p {
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #0056b3;
+        color: #fff;
+        font-size: 18px;
+        padding: 12px 24px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+      }
+      .btn:hover {
+        background-color: #003d80;
+      }
   
-        /* Button */
-        .btn {
-          display: inline-block;
-          background-color: #0056b3;
-          color: #fff;
-          font-size: 16px;
-          padding: 10px 20px;
-          border-radius: 5px;
-          text-decoration: none;
-        }
-  
-        /* Footer */
-        .footer {
-          text-align: center;
-        }
-        .footer p {
-          font-size: 14px;
-          margin-top: 0;
-          margin-bottom: 5px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <img src="https://example.com/logo.png" alt="Expense Manager Logo">
-          <h1>Expense Manager</h1>
-        </div>
-        <div class="body">
-          <p>Hello ${sharedUserEmail},</p>
-          <p>${currentUseremail} has shared the "${accName}" account with you.</p>
-          <p>Click the button below to view the account's transaction page:</p>
-          <p><a href="http://localhost:1337/viewTransaction/${id}" class="btn">View Transaction Page</a></p>
-          <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:support@example.com">support@example.com</a>.</p>
-        </div>
-        <div class="footer">
-          <p>© 2023 Expense Manager. All rights reserved.</p>
-        </div>
+      /* Footer */
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #999;
+      }
+      .footer p {
+        font-size: 14px;
+        margin-top: 0;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Expense Manager</h1>
       </div>
-    </body>
+      <div class="body">
+        <p>Hello ${sharedUserEmail},</p>
+        <p>${currentUseremail} has shared the "${accName}" account with you.</p>
+        <p>Click the button below to view the account's transaction page:</p>
+        <p><a href="http://localhost:1337/viewTransaction/${id}" class="btn">View Transaction Page</a></p>
+        <p>If you have any questions, please don't hesitate to contact us at <a href="mailto:expensemanager27@gmail.com">expensemanager27@gmail.com</a>.</p>
+      </div>
+      <div class="footer">
+        <p>© 2023 Expense Manager. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
   </html>
   `;
 }
@@ -245,27 +266,29 @@ function WelcomeEmailTemp(username, loginpage, email) {
       body {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         background-color: #F2F2F2;
+        margin: 0;
+        padding: 0;
       }
       .container {
         max-width: 600px;
-        margin: 0 auto;
-        padding: 30px;
+        margin: 20px auto;
+        padding: 20px;
         background-color: #FFFFFF;
-        border-radius: 5px;
-        box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
       }
       .header {
         text-align: center;
         margin-bottom: 20px;
       }
       .header h1 {
-        font-size: 30px;
+        font-size: 36px;
         margin: 0;
         color: #2672FF;
       }
       .content {
         font-size: 18px;
-        line-height: 1.5;
+        line-height: 1.6;
         margin-bottom: 30px;
       }
       .button {
@@ -275,17 +298,23 @@ function WelcomeEmailTemp(username, loginpage, email) {
         text-align: center;
         font-size: 18px;
         font-weight: bold;
-        padding: 10px 20px;
-        border-radius: 5px;
+        padding: 12px 30px;
+        border-radius: 30px;
         text-decoration: none;
+        transition: background-color 0.2s ease;
       }
       .button:hover {
         background-color: #214B8F;
+        color:#fff;
       }
       .footer {
         font-size: 14px;
         color: #999999;
         text-align: center;
+        margin-top: 30px;
+      }
+      .footer p {
+        margin: 5px;
       }
     </style>
   </head>
@@ -295,14 +324,15 @@ function WelcomeEmailTemp(username, loginpage, email) {
         <h1>Welcome to Expense Manager!</h1>
       </div>
       <div class="content">
-        <p>Hi ${username},</p>
+        <p>Hi <strong>${username}</strong>,</p>
         <p>Thank you for signing up for Expense Manager. We're excited to have you as a user!</p>
         <p>With Expense Manager, you can easily track your expenses and stay on top of your budget. To get started, simply log in to your account and start adding your expenses.</p>
         <p>Log in to your account by clicking the button below:</p>
         <a href="${loginpage}" class="button">Log In</a>
       </div>
       <div class="footer">
-        <p>This email was sent to ${email}. If you did not sign up for Expense Manager, please ignore this email.</p>
+        <p>This email was sent to <strong>${email}</strong>. If you did not sign up for Expense Manager, please ignore this email.</p>
+        <p>If you have any questions or need assistance, feel free to contact our support team at support@expensemanager.com.</p>
       </div>
     </div>
   </body>
