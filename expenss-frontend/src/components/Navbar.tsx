@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   IconButton,
   Avatar,
@@ -26,18 +26,14 @@ import {
   InputLeftElement,
   Input,
 } from '@chakra-ui/react';
-import {
-  FiMenu,
-  FiChevronDown,
-  FiSearch,
-} from 'react-icons/fi';
+import { FiMenu, FiChevronDown, FiSearch } from 'react-icons/fi';
 import Link from 'next/link';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { dataState } from '@/context';
 import Image from 'next/image';
 import { BiSolidFileImport } from 'react-icons/bi';
-import { MdAccountBalanceWallet } from "react-icons/md"
-import { LuLayoutDashboard } from "react-icons/lu"
+import { MdAccountBalanceWallet } from 'react-icons/md';
+import { LuLayoutDashboard } from 'react-icons/lu';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
@@ -159,6 +155,22 @@ const NavItem = ({ icon, children, href, ...rest }: any) => {
 const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
   const { currentuserData, handleLogout, handleSearch } = dataState();
   const { colorMode, toggleColorMode } = useColorMode();
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      handleSearch(searchTerm);
+    }, 1500);
+
+    // Cleanup the timeout on every input change
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
+
+  const handleInputChange = (e: any) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -186,9 +198,8 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
               <InputLeftElement pointerEvents="none" children={<FiSearch />} />
               <Input
                 placeholder="Search"
-                onChange={(e) => {
-                  handleSearch(e.target.value);
-                }}
+                value={searchTerm}
+                onChange={handleInputChange}
                 _placeholder={{
                   color: 'gray.400',
                 }}
@@ -213,7 +224,11 @@ const MobileNav = ({ isShow, onOpen, ...rest }: any) => {
               _focus={{ boxShadow: 'none' }}
             >
               <HStack>
-                <Avatar size={'sm'} src={currentuserData?.user.profile} aria-label='User profile' />
+                <Avatar
+                  size={'sm'}
+                  src={currentuserData?.user.profile}
+                  aria-label="User profile"
+                />
                 <VStack
                   display={{ base: 'none', md: 'flex' }}
                   alignItems="flex-start"

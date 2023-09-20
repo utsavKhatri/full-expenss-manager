@@ -1,4 +1,13 @@
-import { Flex, Heading, Stack, Text, WrapItem, useColorModeValue } from '@chakra-ui/react';
+import {
+  Divider,
+  Flex,
+  Heading,
+  Stack,
+  Text,
+  WrapItem,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -6,13 +15,18 @@ type SearchResult = {
   account: any;
   text: string | number | boolean | null | undefined;
   transfer: string | number | boolean | null | undefined;
+  amount: string | number;
 };
 
 type SearchResultCompProps = {
   searchResult: SearchResult[];
 };
 
-const SearchResultComp: React.FC<SearchResultCompProps> = ({ searchResult }) => {
+const SearchResultComp: React.FC<SearchResultCompProps> = ({
+  searchResult,
+}) => {
+  const [isLargerThan800] = useMediaQuery('(min-width: 800px)');
+
   return (
     <Flex align={'center'} flexDirection={'column'} width={'100%'} gap={4}>
       <Heading size={'sm'}>Search result</Heading>
@@ -46,15 +60,35 @@ const SearchResultComp: React.FC<SearchResultCompProps> = ({ searchResult }) => 
                 alignItems={'center'}
                 justifyContent={'space-evenly'}
               >
-                <Text as={'h3'} fontSize={'md'} textAlign="center">
-                  Text: {result.text}
+                <Text as={'h3'} fontSize={'lg'} textAlign="center">
+                  Text: {result.text?.toString()}
                 </Text>
-                <Text
-                  textAlign={'center'}
-                  color={useColorModeValue('gray.600', 'gray.400')}
-                  fontSize={'sm'}
-                >
-                  Tranfer: {result.transfer}
+
+                <Divider
+                  orientation={!isLargerThan800 ? 'horizontal' : 'vertical'}
+                  borderColor={useColorModeValue('gray.400', 'gray.600')}
+                  height={5}
+                />
+
+                <Text textAlign={'center'} fontSize={'md'}>
+                  Transfer: {result.transfer}
+                </Text>
+
+                <Divider
+                  orientation={!isLargerThan800 ? 'horizontal' : 'vertical'}
+                  borderColor={useColorModeValue('gray.400', 'gray.600')}
+                  height={5}
+                />
+
+                <Text textAlign={'center'} fontSize={'md'}>
+                  Amount:{' '}
+                  <Text
+                    as="span"
+                    color={useColorModeValue('navy', 'lime')}
+                    fontWeight="bold"
+                  >
+                    {result.amount}
+                  </Text>
                 </Text>
               </Flex>
             </Link>

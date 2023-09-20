@@ -4,7 +4,7 @@
  * @description :: Server-side actions for handling incoming requests.
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
-
+const { ObjectId } = require("mongodb");
 const nodemailer = require("nodemailer");
 const { RevicerAccShareMail, AccountShareMail } = require("../utils");
 
@@ -32,6 +32,14 @@ module.exports = {
       return res.serverError(error.message);
     }
   },
+  /**
+   * Finds shared accounts associated with the user.
+   *
+   * @param {Object} req - The request object, containing user information.
+   * @param {Object} res - The response object used to return data to the client.
+   * @return {Object} The shared accounts associated with the user.
+   * @throws {Error} If the user ID is not found or there are no shared accounts.
+   */
   findSharedAcc: async (req, res) => {
     try {
       const userId = req.user.id;
@@ -111,11 +119,12 @@ module.exports = {
   },
 
   /**
-   * POST /editAccount/:id
-   * @description - This is a function that is used to update accountdata
-   * @param {Number} req - id from params for search data
-   * @return {redirect} redirect to "/"
-   * @rejects {Error} - If the account could not be created.
+   * Updates an account in the database.
+   *
+   * @param {Object} req - The request object, containing the account ID in the parameters and the new account data in the body.
+   * @param {Object} res - The response object used to return data to the client.
+   * @return {Object} The updated account data.
+   * @throws {Error} If the account ID is not found in the request parameters, the account does not exist in the database, the request body is not provided, or an error occurs during the update operation.
    */
   updateAccount: async (req, res) => {
     const accountId = req.params.id;
@@ -318,31 +327,55 @@ module.exports = {
         message: "Search term is required",
       });
     }
-
-    const serchQuery = {
-      and: [
-        {
-          or: [
-            { text: { contains: searchTerm } },
-            { transfer: { contains: searchTerm } },
-            { category: { contains: searchTerm } },
-          ],
-        },
-        {
-          or: [
-            { by: req.user.id },
-            {
-              updatedBy: req.user.id,
-            },
-          ],
-        },
-      ],
-    };
     try {
-      const transactions = await Transaction.find(serchQuery);
+      const db = sails.getDatastore().manager;
+
+      // Then, populate the IDs in the search query
+      const searchQuery = {
+        $and: [
+          {
+            $or: [
+              { text: { $regex: searchTerm, $options: "i" } },
+              { transfer: { $regex: searchTerm, $options: "i" } },
+              { "category.name": { $regex: searchTerm, $options: "i" } },
+            ],
+          },
+          {
+            $or: [
+              { by: new ObjectId(req.user.id) },
+              { updatedBy: new ObjectId(req.user.id) },
+            ],
+          },
+        ],
+      };
+
+      if (!isNaN(searchTerm)) {
+        searchQuery.$and[0].$or.push({ amount: parseFloat(searchTerm) });
+      }
+
+      const transactions = await db
+        .collection("transaction")
+        .aggregate([
+          {
+            $lookup: {
+              from: "category",
+              localField: "category", // Field in transaction collection
+              foreignField: "_id", // Field in category collection
+              as: "category",
+            },
+          },
+          {
+            $unwind: "$category",
+          },
+          {
+            $match: searchQuery, // Your existing search query
+          },
+        ])
+        .toArray();
+
       return res.status(200).json(transactions);
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
       return res.serverError(error.message);
     }
   },

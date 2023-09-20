@@ -11,6 +11,13 @@ const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 
 module.exports = {
+  /**
+   * Handles Google login by generating an authentication URL.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @return {Object} The response object containing the authentication URL.
+   */
   googleLogin: (req, res) => {
     const authClient = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -27,6 +34,13 @@ module.exports = {
     });
   },
 
+  /**
+   * Handles Google OAuth callback.
+   *
+   * @param {Object} req - The request object containing the authorization code.
+   * @param {Object} res - The response object.
+   * @return {Object} The response object containing the user data and token.
+   */
   googleCallback: async (req, res) => {
     const authClient = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,

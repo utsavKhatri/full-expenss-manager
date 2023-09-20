@@ -63,17 +63,73 @@ module.exports = {
   getTransactionByDura: async (req, res) => {
     try {
       const accountId = req.params.id;
-      const transactionsData = await Transaction.find({
-        account: accountId,
-      })
-        .populate("updatedBy")
-        .populate("category")
-        .sort([
-          {
-            createdAt: "ASC",
-          },
-        ]);
-      return res.status(200).json(transactionsData);
+
+      const duration = req.query.duration;
+
+      let startDate;
+      let endDate;
+
+      switch (duration) {
+        case "today":
+          startDate = new Date(new Date().setHours(0, 0, 0));
+          endDate = new Date(new Date().setHours(23, 59, 59));
+          break;
+
+        case "thisMonth":
+          startDate = new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1
+          );
+          endDate = new Date(
+            new Date().getFullYear(),
+            new Date().getMonth() + 1,
+            0,
+            23,
+            59,
+            59
+          );
+          break;
+
+        case "thisWeek":
+          startDate = new Date(
+            new Date().setDate(new Date().getDate() - new Date().getDay())
+          );
+          endDate = new Date(
+            new Date().setDate(new Date().getDate() - new Date().getDay() + 6),
+            23,
+            59,
+            59
+          );
+          break;
+
+        case "thisYear":
+          startDate = new Date(new Date().getFullYear(), 0, 1);
+          endDate = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59);
+          break;
+
+        default:
+          startDate = null;
+          endDate = null;
+      }
+
+      if (startDate && endDate) {
+        const transactionsData = await Transaction.find({
+          account: accountId,
+          createdAt: { ">=": startDate, "<=": endDate },
+        })
+          .populate("updatedBy")
+          .populate("category")
+          .sort([
+            {
+              createdAt: "ASC",
+            },
+          ]);
+
+        return res.status(200).json(transactionsData);
+      } else {
+        return res.status(400).json({ message: "Invalid duration parameter" });
+      }
     } catch (error) {
       console.log(error.message);
       return res.serverError(error.message);
@@ -87,31 +143,43 @@ module.exports = {
    * @param {Object} res - The response object.
    * @return {Object} The newly created transaction.
    */
+  /**
+   * Adds a transaction to the database.
+   *
+   * This function first validates the input data and the user's balance.
+   * Then, it creates a new transaction and updates the account balance and analytics.
+   *
+   * @param {Object} req - The request object. It should contain the transaction id in params and the transaction details in the body.
+   * @param {Object} res - The response object.
+   * @return {Object} The newly created transaction.
+   */
   addTransaction: async (req, res) => {
     try {
+      // Extract transaction details from the request body
       const tID = req.params.tId;
       const { text, amount, transfer, category, isIncome } = req.body;
 
+      // Validate user and transaction id
       if (!req.user.id) {
         return res.status(404).json({ message: "User not Loggedin" });
       }
-
       if (!tID) {
         return res.status(404).json({ message: "transaction id required" });
       }
 
+      // Validate transaction details
       if (!text || !amount || !transfer || !category) {
         return res.status(404).json({ message: "All fields are required" });
       }
 
+      // Check if the user has sufficient balance for the transaction
       const prevoiusAccData = await Accounts.findOne({ id: tID });
-
       const parsedAmount = parseFloat(amount);
-
       if (isIncome == "false" && prevoiusAccData.balance < parsedAmount) {
         return res.status(404).json({ message: "Insufficient Balance" });
       }
 
+      // Create a new transaction
       const newTransactions = await Transaction.create({
         text,
         amount: parsedAmount,
@@ -123,19 +191,20 @@ module.exports = {
         isIncome,
       }).fetch();
 
+      // Update the account balance
       const updatedBalance =
         isIncome == "true"
           ? prevoiusAccData.balance + parsedAmount
           : prevoiusAccData.balance - parsedAmount;
-
       await Accounts.updateOne({ id: tID }).set({ balance: updatedBalance });
 
+      // Update the account analytics
       const accountAnalytics = await AccountAnalytics.findOne({ account: tID });
-
       if (accountAnalytics) {
         const previousIncome = accountAnalytics.previousIncome;
         const previousExpense = accountAnalytics.previousExpense;
 
+        // Calculate the percentage change in income or expense
         if (isIncome == "true") {
           accountAnalytics.incomePercentageChange =
             previousIncome == 0
@@ -148,6 +217,7 @@ module.exports = {
               : ((parsedAmount - previousExpense) / previousExpense) * 100;
         }
 
+        // Update the analytics data
         await AccountAnalytics.updateOne({ account: tID }).set({
           income:
             isIncome == "true"
@@ -169,6 +239,7 @@ module.exports = {
         });
       }
 
+      // Return the newly created transaction
       return res.status(201).json({ data: newTransactions });
     } catch (error) {
       console.log(error.message);
@@ -447,13 +518,25 @@ module.exports = {
     }
   },
 
+  /**
+   * Imports transactions from a CSV or XLSX file.
+   *
+   * This function first validates the input data, including the user id, account id, and file data.
+   * Then, it processes the file data and creates new transactions in the database.
+   * Finally, it updates the account balance and analytics based on the new transactions.
+   *
+   * @param {Object} req - The request object. It should contain the user id in the user object, the account id in params, and the file data in files[0].
+   * @param {Object} res - The response object.
+   * @return {Object} The JSON response containing the imported transactions data and the count of rejected rows.
+   */
   importFromCSVXLSX: async (req, res) => {
     try {
+      // Extract the file data, user id, and account id from the request
       const fileData = req.files[0];
       const userId = req.user.id;
       const tID = req.params.tId;
-      console.log("first stage dispatched");
 
+      // Validate the account id, file data, and user id
       if (!tID) {
         return res.status(404).json({ message: "account id required" });
       }
@@ -464,34 +547,37 @@ module.exports = {
         return res.status(404).json({ message: "user id required" });
       }
 
+      // Check if the account exists
       const isValidAcc = await Accounts.findOne({ id: tID });
       if (!isValidAcc) {
         return res.status(404).json({ message: "account not found" });
       }
 
-      console.log("second stage dispatched");
-
+      // Process the file data and get the successful and rejected rows
       const { successRows, rejectedRowCount } =
         await sails.helpers.fileProcessing(fileData, userId, tID);
 
-      console.log("third stage dispatched");
+      // If there are successful rows, create new transactions and update the account data
       if (successRows.length) {
         await Transaction.createEach(successRows);
 
         await sails.helpers.processAccountData(successRows, tID, isValidAcc);
-        console.log("fourth stage dispatched, success");
+
+        // Return the successful transactions and the count of rejected rows
         return res.status(201).json({
           message: "successfully imported",
           data: successRows,
           rejectedRowCount,
         });
       }
-      console.log("fourth stage dispatched, rejected");
+
+      // If there are no successful rows, return the count of rejected rows
       return res.status(404).json({
         message: "failed to import",
         rejectedRowCount,
       });
     } catch (error) {
+      // Log the error message and return a server error response
       console.log(error.message);
       return res.status(500).json({ message: error.message });
     }
