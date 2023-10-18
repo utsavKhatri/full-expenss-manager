@@ -1,26 +1,76 @@
-# exp-v-3
+# Full Expense Manager - Backend
 
-a [Sails v1](https://sailsjs.com) application
+![Project Logo](link_to_your_logo.png)
+
+This is the backend repository for the Full Expense Manager project. The backend is responsible for handling data processing, managing databases, and serving API requests.
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Getting Started
+
+These instructions will help you set up and run the backend on your local machine.
+
+### Prerequisites
+
+- Node.js and npm installed on your machine.
+- MongoDB installed and running.
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/utsavKhatri/full-expenss-manager.git
+   cd full-expenss-manager/backend-new
+   ```
+2. Install the dependencies:
+
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the root directory with the following environment variables:
+
+   ```env
+   MONGO_URI=<your_mongo_connection_string>
+   PORT=<port_number_for_server>
+   ```
+
+   Replace `<your_mongo_connection_string>` with your MongoDB connection string and `<port_number_for_server>` with the desired port.
+4. Start the server:
+
+   ```bash
+   npm start
+   ```
+
+   The server will start running at the specified port.
 
 
-### Links
+## Usage
 
-+ [Sails framework documentation](https://sailsjs.com/get-started)
-+ [Version notes / upgrading](https://sailsjs.com/documentation/upgrading)
-+ [Deployment tips](https://sailsjs.com/documentation/concepts/deployment)
-+ [Community support options](https://sailsjs.com/support)
-+ [Professional / enterprise options](https://sailsjs.com/enterprise)
+Describe how to use the backend. Include any special instructions or configurations that might be necessary.
 
+## API Documentation
 
-### Version info
+For detailed information on available API endpoints and their usage, refer to the [API Documentation](https://chat.openai.com/c/link_to_api_docs.md).
 
-This app was originally generated on Thu Sep 21 2023 12:47:48 GMT+0530 (India Standard Time) using Sails v1.5.4.
+## Contributing
 
-<!-- Internally, Sails used [`sails-generate@2.0.7`](https://github.com/balderdashy/sails-generate/tree/v2.0.7/lib/core-generators/new). -->
+If you'd like to contribute, please follow the [contributing guidelines](https://chat.openai.com/c/CONTRIBUTING.md).
 
+## License
 
+This project is licensed under the [MIT License](https://chat.openai.com/c/LICENSE).
 
-<!--
-Note:  Generators are usually run using the globally-installed `sails` CLI (command-line interface).  This CLI version is _environment-specific_ rather than app-specific, thus over time, as a project's dependencies are upgraded or the project is worked on by different developers on different computers using different versions of Node.js, the Sails dependency in its package.json file may differ from the globally-installed Sails CLI release it was originally generated with.  (Be sure to always check out the relevant [upgrading guides](https://sailsjs.com/upgrading) before upgrading the version of Sails used by your app.  If you're stuck, [get help here](https://sailsjs.com/support).)
--->
+Please replace `<your_mongo_connection_string>` with your actual MongoDB connection string, and `<port_number_for_server>` with the desired port for your server.
 
+Remember to create a `CONTRIBUTING.md` file and an `API Documentation` file (e.g., `api_docs.md`) and provide the appropriate links in the template above. Additionally, if you have any specific logo for your project, replace `link_to_your_logo.png` with the actual link.
+
+Once you've made these changes, save the content as `README.md` in the root directory of your backend project repository.
