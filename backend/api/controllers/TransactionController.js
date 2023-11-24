@@ -424,6 +424,13 @@ module.exports = {
       const preAnalytics = await AccountAnalytics.findOne({
         account: isValid.account,
       });
+
+      if (isValid.isIncome) {
+        if (prevoiusAccData.balance - isValid.amount < 0) {
+          return res.status(404).json({ message: "Insufficient Balance to delete transaction" });
+        }
+      }
+
       let incomePercentageChange;
       let expensePercentageChange;
       if (isValid.isIncome) {
