@@ -417,6 +417,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         message: 'Logged in successfully',
       });
     } catch (error: any) {
+      setLoginLoading(false);
       console.log(error);
       myToast({
         isSuccess: false,
